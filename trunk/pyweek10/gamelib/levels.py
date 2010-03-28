@@ -7,7 +7,7 @@ from pyglet.window import key
 import gamestate
 
 ##FIXME Temporary testing hacks Remove these!
-playership = gamestate.oscillator()
+playership = gamestate.Oscillator()
 shiplabel = pyglet.text.Label('Ship', x=0, y=240)
 
 ##End of FIXME
