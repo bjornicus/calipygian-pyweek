@@ -27,11 +27,11 @@ def SinusoidToCartesian(A, omega, t , phi):
     return (x,y)
 
 
-class oscillator:
+class Oscillator:
     def __init__(self):
         
         self._Amplitude = .5
-        self._AngularFrequency = math.pi
+        self._Omega = math.pi
         self._Phase = 0.0
         self._t = 0.0
         
@@ -141,7 +141,7 @@ class oscillator:
         I know I don't need all these intermediate variables, but for readbility and 
         ease of development I'll leave them this way for now.      
         """
-        oldFreq, oldPhase, oldt = self._AngularFrequency, self._Phase, self._t
+        oldFreq, oldPhase, oldt = self._Omega, self._Phase, self._t
         
         newFreq = oldFreq + deltaFreq 
         
@@ -165,4 +165,4 @@ class oscillator:
         self._Phase += deltaPhase % TWOPI
             
     def GetPosition(self):
-        return self._Amplitude * math.sin(self._AngularFrequency * self._t + self._Phase)
+        return self._Amplitude * math.sin(self._Omega * self._t + self._Phase)
