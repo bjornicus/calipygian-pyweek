@@ -1,7 +1,20 @@
 import math
+from pyglet.window import key
+
 
 TWOPI = 2*math.pi
-    
+
+
+##Ship Movement Characteristics
+MAX_AMPLITUDE = .9
+MIN_AMPLITUDE = .1
+MAX_AMPLITUDE_VELOCITY = 0.2
+AMPLITUDE_ACCEL_FUNC = lambda t, accel: min(MAX_AMPLITUDE_VELOCITY * t + accel, MAX_AMPLITUDE_VELOCITY)
+
+MAX_FREQUENCY = 3*math.pi
+MIN_FREQUENCY = .5*math.pi
+MAX_FREQUENCY_VELOCITY = .5*math.pi
+FREQUENCY_ACCEL_FUNC = lambda t, accel: min(MAX_FREQUENCY_VELOCITY * t + accel, MAX_FREQUENCY_VELOCITY)
 
 def SinusoidToCartesian(A, omega, t , phi):
     """
@@ -14,15 +27,6 @@ def SinusoidToCartesian(A, omega, t , phi):
     return (x,y)
 
 
-AMPLITUDE_INCREASE = 0.1
-AMPLITUDE_STEADY = 0
-AMPLITUDE_DECREASE = -0.1
-
-FREQUENCY_INCREASE = 0.1
-FREQUENCY_STEADY = 0
-FREQUENCY_DECREASE = -0.1
-
-
 class oscillator:
     def __init__(self):
         
@@ -30,10 +34,11 @@ class oscillator:
         self._AngularFrequency = math.pi
         self._Phase = 0.0
         self._t = 0.0
-        self.AmplitudeAdjust = AMPLITUDE_STEADY
-        self.FrequencyAdjust = FREQUENCY_STEADY
+        
+        self.AmplitudeVelocity = 0
+        self.FrequencyVelocity = 0
 
-    def Update(self, delta_t):
+    def Tick(self, delta_t, KeyState):
         """
         Simulate the passage of time on the ships sinusodial position.
         
@@ -43,10 +48,29 @@ class oscillator:
         One more step along the inevitable march of time
         One more step closer to the heat-death of the universe
         """
-        self._t = (self._t + delta_t) % (TWOPI/self._AngularFrequency)
+        if(not KeyState[key.SPACE]):
+            self._t = (self._t + delta_t) % (TWOPI/self._AngularFrequency)
+        
+        if KeyState[key.UP] and not KeyState[key.DOWN]:
+            self.AmplitudeVelocity = AMPLITUDE_ACCEL_FUNC(delta_t, self.AmplitudeVelocity)
+            self.AdjustAmplitude(self.AmplitudeVelocity)
+        elif KeyState[key.DOWN] and not KeyState[key.UP]:
+            self.AmplitudeVelocity = -AMPLITUDE_ACCEL_FUNC(delta_t, abs(self.AmplitudeVelocity))
+            self.AdjustAmplitude(self.AmplitudeVelocity)
+        else:
+            self.AmplitudeVelocity = 0
+        
 
-        #self.AdjustAmplitude(self.AmplitudeAdjust)
-        self.AdjustFrequency(self.FrequencyAdjust)
+        if KeyState[key.RIGHT] and not KeyState[key.LEFT]:
+            self.FrequencyVelocity = FREQUENCY_ACCEL_FUNC(delta_t, self.FrequencyVelocity)
+            self.AdjustAngularFrequency(self.FrequencyVelocity)
+        elif KeyState[key.LEFT] and not KeyState[key.RIGHT]:
+            self.FrequencyVelocity = -FREQUENCY_ACCEL_FUNC(delta_t, abs(self.FrequencyVelocity))
+            self.AdjustAngularFrequency(self.FrequencyVelocity)
+        else:
+            self.FrequencyVelocity = 0
+        
+        
         
     def AdjustAmplitude(self, deltaAmp):
         """
@@ -54,7 +78,7 @@ class oscillator:
         
         Unfortunately this is a nasty operation. We need to compute a new Phase/Time such
         that the ships new position within the waveform with the higher amplitude matches
-        its current position. This means inverse trig (arcSin in particular). 
+        its current position. This means inverse trig (arcSin in particular).
         
         The formula is pretty strait forward though:
 
@@ -65,6 +89,10 @@ class oscillator:
         becomes
         
         Theta2 = ArcSin((A1 * Sin(Theta1))/A2)
+        
+        Of course, we have a problem here, there are actually TWO solutions to this equation 
+        one for the ascending edge, and one for the falling edge (there is only one solution
+        at the peaks and valleys of course). 
         
         Once we have Theta2, we can set time to 0 and calculate a new phase offset, modding
         the phase by TWOPI to keep it small.
@@ -77,21 +105,24 @@ class oscillator:
             
         """
         currentPos = self.GetPosition()
+        
         newAmp = self._Amplitude + deltaAmp
         if ((currentPos) > newAmp):
             print("DEBUG: Attempted to reduce amplitude below current ship position!")
             return
         
-        assert(newAmp > 0)
-                
+        if (newAmp > MAX_AMPLITUDE) or (newAmp < MIN_AMPLITUDE):
+            return
+        
+        print( "DEBUG: NewAmplitude: %f" % newAmp)               
         newPhase = math.asin(currentPos/newAmp)
         newt = 0.0
-        
+
         self._Amplitude, self._Phase, self._t = newAmp, newPhase, newt
         
         
     
-    def AdjustFrequency(self, deltaFreq):
+    def AdjustAngularFrequency(self, deltaFreq):
         """
         Adjust the angular frequency of the ships waveform while maintaining its current position.
         
@@ -112,9 +143,15 @@ class oscillator:
         """
         oldFreq, oldPhase, oldt = self._AngularFrequency, self._Phase, self._t
         
-        newFreq = oldFreq + deltaFreq       
+        newFreq = oldFreq + deltaFreq 
+        
+        if (newFreq > MAX_FREQUENCY) or (newFreq < MIN_FREQUENCY):
+            return
+
         newPhase = (oldFreq * oldt + oldPhase) % TWOPI
         newt = 0.0
+        
+        print( "DEBUG NewVelocity: %f * pi" % (newFreq/math.pi))
         
         self._AngularFrequency, self._Phase, self._t = newFreq, newPhase, newt
 

@@ -5,7 +5,6 @@ import pyglet
 from pyglet.window import key
 
 import gamestate
-import math
 
 ##FIXME Temporary testing hacks Remove these!
 playership = gamestate.oscillator()
@@ -22,41 +21,27 @@ class LevelBase(object):
         Create a level that runs in the given window
         '''
         self.window = window
+        self.keystate = pyglet.window.key.KeyStateHandler()
         self.renderlist = []
         self.actorlist = []
-        self.renderlist.append(shiplabel)
-        self.actorlist.append(playership)
+        self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
         
+        self.renderlist.append(shiplabel)
+        self.reactorlist.append(playership)
+        
+        self.window.push_handlers(self.keystate)
         pyglet.clock.schedule_interval(self.update, 1/60.0)
 
     def on_draw(self):
         self.window.clear()
         for drawable in self.renderlist:
             drawable.draw()
-
-    def on_key_press(self, symbol, modifiers):
-        if symbol == key.UP:
-            playership.AmplitudeAdjust = gamestate.AMPLITUDE_INCREASE
-        elif symbol == key.DOWN:
-            playership.AmplitudeAdjust = gamestate.AMPLITUDE_DECREASE
-        elif symbol == key.RIGHT:
-            playership.FrequencyAdjust = gamestate.FREQUENCY_INCREASE
-        elif symbol == key.LEFT:
-            playership.FrequencyAdjust = gamestate.FREQUENCY_DECREASE
-
-    def on_key_release(self, symbol, modifiers):
-        if symbol == key.UP:
-            playership.AmplitudeAdjust = gamestate.AMPLITUDE_STEADY
-        elif symbol == key.DOWN:
-            playership.AmplitudeAdjust = gamestate.AMPLITUDE_STEADY
-        elif symbol == key.RIGHT:
-            playership.FrequencyAdjust = gamestate.FREQUENCY_STEADY
-        elif symbol == key.LEFT:
-            playership.FrequencyAdjust = gamestate.FREQUENCY_STEADY
         
     def update(self, dt):
         for actor in self.actorlist:
-            actor.Update(dt)
+            actor.Tick(dt)
+        for reactor in self.reactorlist:
+            reactor.Tick(dt, self.keystate)
 
 class LevelOne(LevelBase):
     '''
