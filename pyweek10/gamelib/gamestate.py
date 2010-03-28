@@ -14,13 +14,24 @@ def SinusoidToCartesian(A, omega, t , phi):
     return (x,y)
 
 
-class ship:
+AMPLITUDE_INCREASE = 0.1
+AMPLITUDE_STEADY = 0
+AMPLITUDE_DECREASE = -0.1
+
+FREQUENCY_INCREASE = 0.1
+FREQUENCY_STEADY = 0
+FREQUENCY_DECREASE = -0.1
+
+
+class oscillator:
     def __init__(self):
         
         self._Amplitude = .5
         self._AngularFrequency = math.pi
         self._Phase = 0.0
         self._t = 0.0
+        self.AmplitudeAdjust = AMPLITUDE_STEADY
+        self.FrequencyAdjust = FREQUENCY_STEADY
 
     def Update(self, delta_t):
         """
@@ -33,6 +44,9 @@ class ship:
         One more step closer to the heat-death of the universe
         """
         self._t = (self._t + delta_t) % (TWOPI/self._AngularFrequency)
+
+        #self.AdjustAmplitude(self.AmplitudeAdjust)
+        self.AdjustFrequency(self.FrequencyAdjust)
         
     def AdjustAmplitude(self, deltaAmp):
         """
@@ -77,7 +91,7 @@ class ship:
         
         
     
-    def AdjustAngularFrequency(self, deltaFreq):
+    def AdjustFrequency(self, deltaFreq):
         """
         Adjust the angular frequency of the ships waveform while maintaining its current position.
         
