@@ -8,7 +8,7 @@ import gamestate
 import math
 
 ##FIXME Temporary testing hacks Remove these!
-playership = gamestate.ship()
+playership = gamestate.oscillator()
 shiplabel = pyglet.text.Label('Ship', x=0, y=240)
 
 ##End of FIXME
@@ -36,14 +36,24 @@ class LevelBase(object):
 
     def on_key_press(self, symbol, modifiers):
         if symbol == key.UP:
-            playership.AdjustAmplitude(0.1)
+            playership.AmplitudeAdjust = gamestate.AMPLITUDE_INCREASE
         elif symbol == key.DOWN:
-            playership.AdjustAmplitude(-0.1)
+            playership.AmplitudeAdjust = gamestate.AMPLITUDE_DECREASE
         elif symbol == key.RIGHT:
-            playership.AdjustAngularFrequency(0.1*math.pi)
+            playership.FrequencyAdjust = gamestate.FREQUENCY_INCREASE
         elif symbol == key.LEFT:
-            playership.AdjustAngularFrequency(-0.1*math.pi)
+            playership.FrequencyAdjust = gamestate.FREQUENCY_DECREASE
 
+    def on_key_release(self, symbol, modifiers):
+        if symbol == key.UP:
+            playership.AmplitudeAdjust = gamestate.AMPLITUDE_STEADY
+        elif symbol == key.DOWN:
+            playership.AmplitudeAdjust = gamestate.AMPLITUDE_STEADY
+        elif symbol == key.RIGHT:
+            playership.FrequencyAdjust = gamestate.FREQUENCY_STEADY
+        elif symbol == key.LEFT:
+            playership.FrequencyAdjust = gamestate.FREQUENCY_STEADY
+        
     def update(self, dt):
         for actor in self.actorlist:
             actor.Update(dt)
