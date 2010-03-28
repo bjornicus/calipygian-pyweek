@@ -49,7 +49,7 @@ class Oscillator:
         One more step closer to the heat-death of the universe
         """
         if(not KeyState[key.SPACE]):
-            self._t = (self._t + delta_t) % (TWOPI/self._AngularFrequency)
+            self._t = (self._t + delta_t) % (TWOPI/self._Omega)
         
         if KeyState[key.UP] and not KeyState[key.DOWN]:
             self.AmplitudeVelocity = AMPLITUDE_ACCEL_FUNC(delta_t, self.AmplitudeVelocity)
@@ -153,7 +153,7 @@ class Oscillator:
         
         print( "DEBUG NewVelocity: %f * pi" % (newFreq/math.pi))
         
-        self._AngularFrequency, self._Phase, self._t = newFreq, newPhase, newt
+        self._Omega, self._Phase, self._t = newFreq, newPhase, newt
 
     
     def AdjustPhase(self, deltaPhase):
