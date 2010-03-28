@@ -2,6 +2,8 @@
 @author: bjorn
 '''
 import pyglet
+from pyglet.window import key
+
 import gamestate
 import math
 
@@ -9,17 +11,6 @@ import math
 playership = gamestate.ship()
 shiplabel = pyglet.text.Label('Ship', x=0, y=240)
 
-def TestAdjustAmp(dt):
-    print("Adjusting Ship Amplitude")
-    playership.AdjustAmplitude(.4)
-
-def TestAdjustFreq(dt):
-    print("Adjusting Ship Frequency")
-    playership.AdjustAngularFrequency(.7 * math.pi)
-
-def TestAdjustPhase(dt):
-    print("Adjusting Ship Phase")
-    playership.AdjustPhase( math.pi )
 ##End of FIXME
 
 class LevelBase(object):
@@ -44,7 +35,14 @@ class LevelBase(object):
             drawable.draw()
 
     def on_key_press(self, symbol, modifiers):
-        pass
+        if symbol == key.UP:
+            playership.AdjustAmplitude(0.1)
+        elif symbol == key.DOWN:
+            playership.AdjustAmplitude(-0.1)
+        elif symbol == key.RIGHT:
+            playership.AdjustAngularFrequency(0.1*math.pi)
+        elif symbol == key.LEFT:
+            playership.AdjustAngularFrequency(-0.1*math.pi)
 
     def update(self, dt):
         for actor in self.actorlist:
@@ -56,11 +54,6 @@ class LevelOne(LevelBase):
     '''
     def __init__(self, window):
         LevelBase.__init__(self, window)
-        
-        ## More Test Hacks
-        pyglet.clock.schedule_once(TestAdjustAmp, 5.0)
-        pyglet.clock.schedule_once(TestAdjustFreq, 10.0)
-        pyglet.clock.schedule_once(TestAdjustPhase, 15.0)
         
     def on_draw(self):
         LevelBase.on_draw(self)
