@@ -5,9 +5,9 @@ import pyglet
 import gamestate
 import math
 
-
 ##FIXME Temporary testing hacks Remove these!
 playership = gamestate.ship()
+shiplabel = pyglet.text.Label('Ship', x=0, y=240)
 
 def TestAdjustAmp(dt):
     print("Adjusting Ship Amplitude")
@@ -32,14 +32,23 @@ class LevelBase(object):
         '''
         self.window = window
         self.renderlist = []
+        self.actorlist = []
+        self.renderlist.append(shiplabel)
+        self.actorlist.append(playership)
+        
+        pyglet.clock.schedule_interval(self.update, 1/60.0)
 
     def on_draw(self):
         self.window.clear()
-        for i in self.renderlist:
-            i.draw()
+        for drawable in self.renderlist:
+            drawable.draw()
 
     def on_key_press(self, symbol, modifiers):
         pass
+
+    def update(self, dt):
+        for actor in self.actorlist:
+            actor.Update(dt)
 
 class LevelOne(LevelBase):
     '''
@@ -47,21 +56,11 @@ class LevelOne(LevelBase):
     '''
     def __init__(self, window):
         LevelBase.__init__(self, window)
-        label = pyglet.text.Label('LEVEL 1!')
-        self.renderlist.append(label)
         
         ## More Test Hacks
-        self.shiplabel = pyglet.text.Label('Ship', x=0, y=self.window.height//2)
-        
-        pyglet.clock.schedule_interval(self.update, 1/60.0)
         pyglet.clock.schedule_once(TestAdjustAmp, 5.0)
         pyglet.clock.schedule_once(TestAdjustFreq, 10.0)
         pyglet.clock.schedule_once(TestAdjustPhase, 15.0)
-        
-    def update(self, dt):
-        ##Temporary hack, we need to come up with a better way of managing gamestate
-        playership.Update(dt)
-        
         
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -69,5 +68,4 @@ class LevelOne(LevelBase):
         ##Yet More Hacking
         shipPos = playership.GetPosition()
         shipPosInWindow = self.window.height//2 + (shipPos * self.window.height//2)
-        self.shiplabel.y=shipPosInWindow
-        self.shiplabel.draw()
+        shiplabel.y=shipPosInWindow
