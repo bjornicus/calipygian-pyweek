@@ -69,6 +69,8 @@ class Oscillator:
             self.AdjustAngularFrequency(self.FrequencyVelocity)
         else:
             self.FrequencyVelocity = 0
+            
+            
         
         
         
@@ -104,22 +106,38 @@ class Oscillator:
         amplitude we can avoid those nasty situations where ArcSin does not exist.
             
         """
+        
         currentPos = self.GetPosition()
+        oldTheta = (self._Omega * self._t + self._Phase) % (2 * math.pi)
         
         newAmp = self._Amplitude + deltaAmp
-        if ((currentPos) > newAmp):
-            print("DEBUG: Attempted to reduce amplitude below current ship position!")
+        if (abs(currentPos) > newAmp):
             return
         
         if (newAmp > MAX_AMPLITUDE) or (newAmp < MIN_AMPLITUDE):
             return
         
-        print( "DEBUG: NewAmplitude: %f" % newAmp)               
         newPhase = math.asin(currentPos/newAmp)
+        
+        # asin returns values between -pi/2 and pi/2, we use values between 0 and 2*pi
+        if (newPhase < 0):
+            newPhase += (2*math.pi)
+            
+        # asin has multiple solutions everywhere that isn't a peak or a trough
+        # by default, asin always returns the solution between -pi/2 and pi/2
+        # (quadrants 0 and 3), to maintain continuity we want to use the solutions
+        # from pi/2 to 3pi/2 (quadrants 1 and 2) if that was where the origional
+        # position was located
+        if ( (math.pi/2) < oldTheta <= (math.pi) ):
+            #Adjust the new phase to be in quadrant 1
+            newPhase = math.pi - newPhase
+        elif ( (math.pi) < oldTheta <= ((math.pi*3)/2) ):
+            #Adjust the new phase to be in quadrant 2
+            newPhase = math.pi + (2*math.pi - newPhase)                   
+            
         newt = 0.0
 
         self._Amplitude, self._Phase, self._t = newAmp, newPhase, newt
-        
         
     
     def AdjustAngularFrequency(self, deltaFreq):
@@ -150,9 +168,7 @@ class Oscillator:
 
         newPhase = (oldFreq * oldt + oldPhase) % TWOPI
         newt = 0.0
-        
-        print( "DEBUG NewVelocity: %f * pi" % (newFreq/math.pi))
-        
+                
         self._Omega, self._Phase, self._t = newFreq, newPhase, newt
 
     
@@ -160,7 +176,7 @@ class Oscillator:
         """
         Adjust the phase of the ships waveform. By definition this operation SHOULD alter the ships position.
         
-        I actually dont know if we will need this
+        I actually don't know if we will need this
         """
         self._Phase += deltaPhase % TWOPI
             
