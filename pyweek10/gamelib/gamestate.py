@@ -6,9 +6,14 @@ TWOPI = (2*math.pi)
 
 
 ##Ship Movement Characteristics
-MAX_AMPLITUDE = .9
-MIN_AMPLITUDE = .1
-MAX_AMPLITUDE_VELOCITY = 0.2
+
+# The maximum amplitude of the ship's path, 1 being the top of the screen
+MAX_AMPLITUDE = 1
+# the minimum amplitude of the ships path, 0 being perfectly horizontal
+MIN_AMPLITUDE = 0
+# how far the ship can move per tick
+MAX_AMPLITUDE_VELOCITY = 0.1
+# calculates the amp movement of the ship
 AMPLITUDE_ACCEL_FUNC = lambda t, accel: min(MAX_AMPLITUDE_VELOCITY * t + accel, MAX_AMPLITUDE_VELOCITY)
 
 MAX_FREQUENCY = 3*math.pi
@@ -96,7 +101,7 @@ class Oscillator:
         Once we have Theta2, we can set time to 0 and calculate a new phase offset, modding
         the phase by TWOPI to keep it small.
         
-        I know I don't need all these intermediate variables, but for readbility and 
+        I know I don't need all these intermediate variables, but for readability and 
         ease of development I'll leave them this way for now.  
                 
         NOTE: Since we check that the current position is farther from 0 than the new
@@ -118,7 +123,11 @@ class Oscillator:
             self.AmplitudeVelocity = 0
             return
         
-        newPhase = math.asin(currentPos/newAmp)
+        # lim (x -> inf) asin(x) = 0 
+        if (newAmp != 0):
+            newPhase = math.asin(currentPos/newAmp)
+        else:
+            newPhase = 0
         
         # asin returns values between -pi/2 and pi/2, we use values between 0 and 2*pi
         if (newPhase < 0):
