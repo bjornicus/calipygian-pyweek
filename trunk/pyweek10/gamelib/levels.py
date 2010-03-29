@@ -77,12 +77,6 @@ class LevelOne(LevelBase):
     def on_draw(self):
         LevelBase.on_draw(self)
 
-        for (t, y) in playership.GetPredictivePath(.1, SECONDS_TO_CROSS_SCREEN, .1):
-            offset = self.window.width * (t/SECONDS_TO_CROSS_SCREEN)
-            predictive_label.y = self.window.height//2 + (y * self.window.height//2)
-            predictive_label.x = offset
-            predictive_label.draw()
-
         for rock in rocks:
             rock_label.x = rock["x"]
             rock_label.y = rock["y"]
