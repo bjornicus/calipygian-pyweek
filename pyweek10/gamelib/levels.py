@@ -1,6 +1,10 @@
 '''
-@author: bjorn
+Contains code for different levels of the game. 
+Levels render in a window, handle input, and update
+the entities they contain.
+
 '''
+
 import pyglet
 from pyglet.window import key
 
