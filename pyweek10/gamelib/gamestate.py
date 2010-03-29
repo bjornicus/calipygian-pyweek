@@ -100,10 +100,10 @@ class Oscillator:
 
         Once we have Theta2, we can set time to 0 and calculate a new phase offset, modding
         the phase by TWOPI to keep it small.
-        
-        I know I don't need all these intermediate variables, but for readability and 
-        ease of development I'll leave them this way for now.  
-                
+
+        I know I don't need all these intermediate variables, but for readability and
+        ease of development I'll leave them this way for now.
+
         NOTE: Since we check that the current position is farther from 0 than the new
         amplitude we can avoid those nasty situations where ArcSin does not exist.
 
@@ -123,7 +123,7 @@ class Oscillator:
             self.AmplitudeVelocity = 0
             return
 
-        # lim (x -> inf) asin(x) = 0 
+        # lim (x -> inf) asin(x) = 0
         if (newAmp != 0):
             newPhase = math.asin(currentPos/newAmp)
         else:
@@ -205,7 +205,8 @@ class Oscillator:
         t_current = t_start
 
         while(t_current < t_stop):
-            predicitve_point = self._Amplitude * math.sin(self._Omega * ((self._t + t_current) % TWOPI) + self._Phase)
-            path.append((t_current, predicitve_point))
+            angle = self._Omega * ((self._t + t_current) % TWOPI) + self._Phase
+            predicitve_point = self._Amplitude * math.sin(angle)
+            path.append((t_current, predicitve_point, angle))
             t_current += t_step
         return path
