@@ -35,3 +35,5 @@ Click the Rungame.py script and then select Run on eclipse and then select the P
 = running the unit tests =
 
 Run a cmd window and then in the root directory of the enlistment, just type python nosy.py, the tests will run whenever there's a change to a py file. Very handy!
+
+If you get the numpy.testing.utils not found error, then install numpy from http://sourceforge.net/projects/numpy/files/
