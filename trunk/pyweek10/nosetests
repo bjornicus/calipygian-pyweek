@@ -1,0 +1,6 @@
+#!C:\Python26\python.exe
+
+from nose import main
+
+if __name__ == '__main__':
+    main()

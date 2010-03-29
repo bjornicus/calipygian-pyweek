@@ -22,5 +22,5 @@ val=0
 while (True):
     if checkSum() != val:
         val=checkSum()
-        os.system ('nosetests -m"(?:|[b_./-])[Tt]est"')
+        os.system ('python nosetests -m"(?:|[b_./-])[Tt]est"')
     time.sleep(1)
