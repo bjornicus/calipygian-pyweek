@@ -109,9 +109,15 @@ class Oscillator:
         
         newAmp = self._Amplitude + deltaAmp
         if (abs(currentPos) > newAmp):
-            return
+            if(currentPos > 0):
+                currentPos = newAmp 
+            else:
+                currentPos = -newAmp
+            #self.AmplitudeVelocity = 0
+            #return
         
         if (newAmp > MAX_AMPLITUDE) or (newAmp < MIN_AMPLITUDE):
+            self.AmplitudeVelocity = 0
             return
         
         newPhase = math.asin(currentPos/newAmp)
@@ -123,7 +129,7 @@ class Oscillator:
         # asin has multiple solutions everywhere that isn't a peak or a trough
         # by default, asin always returns the solution between -pi/2 and pi/2
         # (quadrants 0 and 3), to maintain continuity we want to use the solutions
-        # from pi/2 to 3pi/2 (quadrants 1 and 2) if that was where the origional
+        # from pi/2 to 3pi/2 (quadrants 1 and 2) if that was where the original
         # position was located
         if ( (math.pi/2) < oldTheta <= (math.pi) ):
             #Adjust the new phase to be in quadrant 1
@@ -161,6 +167,7 @@ class Oscillator:
         newFreq = oldFreq + deltaFreq 
         
         if (newFreq > MAX_FREQUENCY) or (newFreq < MIN_FREQUENCY):
+            self.FrequencyVelocity = 0
             return
 
         newPhase = (oldFreq * oldt + oldPhase) % TWOPI
