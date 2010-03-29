@@ -6,6 +6,8 @@ from gamelib.levels import *
 from gamelib.gamestate import *
 import math
 
+from pyglet.window import key
+
 def test_LevelBase_on_draw_clears_window():
     class mock_Window:
         def clear(self):
@@ -45,19 +47,22 @@ def test_Oscillator_AdjustFrequency_does_not_change_position():
         
         old_x = oscillator.GetPosition()
         oscillator.AdjustAngularFrequency(0)
-        assert old_x == oscillator.GetPosition()
+        new_x = oscillator.GetPosition()
+        assert abs(old_x - new_x) < 0.01
         
         for f_step in [0.01, 0.05, 0.1, 0.5]:
             while (oscillator._Omega + f_step < gamestate.MAX_FREQUENCY):
                 old_x = oscillator.GetPosition()
                 oscillator.AdjustAngularFrequency(f_step)
-                assert old_x == oscillator.GetPosition()
+                new_x = oscillator.GetPosition()
+                assert abs(old_x - new_x) < 0.01
                 
             while (oscillator._Omega - f_step > gamestate.MIN_FREQUENCY):
                 old_x = oscillator.GetPosition()
                 oscillator.AdjustAngularFrequency(-f_step)
-                assert old_x == oscillator.GetPosition()
-        oscillator.Tick(0.01, {})
+                new_x = oscillator.GetPosition()
+                assert abs(old_x - new_x) < 0.01
+        oscillator.Tick(0.01, pyglet.window.key.KeyStateHandler())
 
 def test_Oscillator_AdjustAmplitude_does_not_change_position():
     oscillator = Oscillator()
@@ -67,32 +72,26 @@ def test_Oscillator_AdjustAmplitude_does_not_change_position():
         
         old_x = oscillator.GetPosition()
         oscillator.AdjustAmplitude(0)
-        assert old_x == oscillator.GetPosition()
+        new_x = oscillator.GetPosition()
+        assert abs(old_x - new_x) < 0.01
         
         for a_step in [.01*math.pi, .05*math.pi, .1*math.pi, .5*math.pi]:
             while (oscillator._Amplitude + a_step < gamestate.MAX_AMPLITUDE):
                 old_x = oscillator.GetPosition()
                 oscillator.AdjustAmplitude(a_step)
-                assert old_x == oscillator.GetPosition()
+                new_x = oscillator.GetPosition()
+                assert abs(old_x - new_x) < 0.01
                 
             while (oscillator._Amplitude - a_step > gamestate.MIN_AMPLITUDE):
                 old_x = oscillator.GetPosition()
                 oscillator.AdjustAmplitude(-a_step)
-                assert old_x == oscillator.GetPosition()
-        oscillator.Tick(0.01, {})
+                new_x = oscillator.GetPosition()
+                assert abs(old_x - new_x) < 0.01
+        oscillator.Tick(0.01, pyglet.window.key.KeyStateHandler())
         
-
-def test_Oscillator_AdjustAmplitude_changes_velocity():
-    oscillator = Oscillator()
-    old_v = oscillator.Velocity
-    oscillator.AdjustAmplitude(1)
-    expectedVelocity = 0 + oscillator._Omega**2*oscillator._Amplitude
-    assert_equal(oscillator.Velocity, expectedVelocity)
 
 print("Starting Oscillator Tests")
 print("Starting Oscillator test_Oscillator_AdjustFrequency_does_not_change_position")
 test_Oscillator_AdjustFrequency_does_not_change_position()
 print("Starting test_Oscillator_AdjustAmplitude_does_not_change_position")
 test_Oscillator_AdjustAmplitude_does_not_change_position()
-print("Starting test_Oscillator_AdjustAmplitude_changes_velocity")
-test_Oscillator_AdjustAmplitude_changes_velocity()
