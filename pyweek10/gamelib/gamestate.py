@@ -2,7 +2,7 @@ import math
 from pyglet.window import key
 
 
-TWOPI = 2*math.pi
+TWOPI = (2*math.pi)
 
 
 ##Ship Movement Characteristics
@@ -70,9 +70,6 @@ class Oscillator:
         else:
             self.FrequencyVelocity = 0
             
-            
-        
-        
         
     def AdjustAmplitude(self, deltaAmp):
         """
@@ -179,6 +176,20 @@ class Oscillator:
         I actually don't know if we will need this
         """
         self._Phase += deltaPhase % TWOPI
-            
+                    
     def GetPosition(self):
         return self._Amplitude * math.sin(self._Omega * self._t + self._Phase)
+    
+    def GetPredictivePath(self, t_start, t_stop, t_step):
+        
+        assert(t_start < t_stop)
+        assert(t_step > 0)
+        path = []
+        t_current = t_start
+        
+        while(t_current < t_stop):
+            predicitve_point = self._Amplitude * math.sin(self._Omega * ((self._t + t_current) % TWOPI) + self._Phase)
+            path.append((t_current, predicitve_point))
+            t_current += t_step
+        return path
+        

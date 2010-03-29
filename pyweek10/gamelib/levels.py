@@ -9,6 +9,7 @@ import gamestate
 ##FIXME Temporary testing hacks Remove these!
 playership = gamestate.Oscillator()
 shiplabel = pyglet.text.Label('Ship', x=0, y=240)
+predictive_label = pyglet.text.Label('-')
 
 ##End of FIXME
 
@@ -57,3 +58,10 @@ class LevelOne(LevelBase):
         shipPos = playership.GetPosition()
         shipPosInWindow = self.window.height//2 + (shipPos * self.window.height//2)
         shiplabel.y=shipPosInWindow
+        
+        for (t, y) in playership.GetPredictivePath(.1, 2.0, .01):
+            offset = self.window.width * (t/2.0)
+            predictive_label.y = self.window.height//2 + (y * self.window.height//2)
+            predictive_label.x = offset
+            predictive_label.draw()
+            
