@@ -4,7 +4,9 @@
 
 If you haven't set up your environment yet, here's some information on how to do it.
 
-= Details =
+= Installation =
+
+You may want to install all or some of this stuff:
 
 Python 2.6: http://www.python.org/download/releases/2.6/
 
@@ -20,4 +22,12 @@ Tortoise SVN: http://tortoisesvn.net/
 
 Google Code in the source tab gives you the https site for the svn. After this, hit the generate password for your password to the svn. After that, you should be good to go.
 
+= Seeing the Project in Eclipse =
+
 If you're using eclipse, you will need to hit the File -> Import and import the .project file in the svn in order for eclipse to open it up correctly.
+
+= Running the Project in Eclipse =
+
+In Eclipse go to Window -> Preferences -> Pydev and set the path to your python install. It will automagically pull in the plugins to python that you have installed.
+
+Click the Rungame.py script and then select Run on eclipse and then select the Python Run config.
