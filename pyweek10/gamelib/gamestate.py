@@ -113,8 +113,6 @@ class Oscillator:
                 currentPos = newAmp 
             else:
                 currentPos = -newAmp
-            #self.AmplitudeVelocity = 0
-            #return
         
         if (newAmp > MAX_AMPLITUDE) or (newAmp < MIN_AMPLITUDE):
             self.AmplitudeVelocity = 0
