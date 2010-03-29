@@ -1,0 +1,23 @@
+#summary How to Setup Python on Windows
+
+= Introduction =
+
+If you haven't set up your environment yet, here's some information on how to do it.
+
+= Details =
+
+Python 2.6: http://www.python.org/download/releases/2.6/
+
+Pyglet: http://pyglet.org/, pyglet works with Python 2.6 but not 3.1 from my experience.
+
+Eclipse IDE: http://www.eclipse.org/
+
+PyDev: http://pydev.org/download.html Look at the Easy install instructions 
+
+Nose (unit testing framework): http://blog.sadphaeton.com/2009/01/20/python-development-windows-part-1installing-python.html
+
+Tortoise SVN: http://tortoisesvn.net/
+
+Google Code in the source tab gives you the https site for the svn. After this, hit the generate password for your password to the svn. After that, you should be good to go.
+
+If you're using eclipse, you will need to hit the File -> Import and import the .project file in the svn in order for eclipse to open it up correctly.
