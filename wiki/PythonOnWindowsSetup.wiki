@@ -31,3 +31,7 @@ If you're using eclipse, you will need to hit the File -> Import and import the 
 In Eclipse go to Window -> Preferences -> Pydev and set the path to your python install. It will automagically pull in the plugins to python that you have installed.
 
 Click the Rungame.py script and then select Run on eclipse and then select the Python Run config.
+
+= running the unit tests =
+
+Run a cmd window and then in the root directory of the enlistment, just type python nosy.py, the tests will run whenever there's a change to a py file. Very handy!
