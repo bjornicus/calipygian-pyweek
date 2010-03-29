@@ -12,6 +12,8 @@ def test_LevelBase_on_draw_clears_window():
     class mock_Window:
         def clear(self):
             self.clear_called = True
+        def push_handlers(self, handler):
+            pass
 
     mockWindow = mock_Window()
     base = LevelBase(mockWindow)
@@ -22,6 +24,8 @@ def test_LevelBase_on_draw_clears_window():
 def test_LevelBase_on_draw_calls_draw_on_all_items_in_renderlist():
     class mock_Window:
         def clear(self):
+            pass
+        def push_handlers(self, handler):
             pass
 
     class mock_drawable:
