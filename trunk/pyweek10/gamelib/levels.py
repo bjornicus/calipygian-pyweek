@@ -11,13 +11,12 @@ from pyglet.window import key
 import gamestate
 import random
 import player
+import entities
 
-SECONDS_TO_CROSS_SCREEN = 2
+SECONDS_TO_CROSS_SCREEN = 4
 
 ##FIXME Temporary testing hacks Remove these!
 playership = player.Player()
-shiplabel = pyglet.text.Label('Ship', x=0, y=240)
-predictive_label = pyglet.text.Label('-')
 rock_label = pyglet.text.Label('ROCK!')
 rocks = []
 
@@ -66,6 +65,22 @@ class LevelBase(object):
         rockprob = random.randrange(100)
         if (rockprob > 95) and (len(rocks) < 5):
             rocks.append({"x":self.window.width, "y":random.randrange(self.window.height)})
+            
+        e_ship_prob = random.randrange(100)
+        if(e_ship_prob > 98):
+            x = self.window.width
+            y = random.randrange(self.window.height)
+            e_ship = entities.HostleShip( x, y, self)
+            self.actorlist.append(e_ship)
+            self.renderlist.append(e_ship)
+            
+    def remove_entity(self, entity):
+        if entity in self.actorlist:
+            self.actorlist.remove(entity)
+        if entity in self.reactorlist:
+            self.reactorlist.remove(entity)
+        if entity in self.renderlist:
+            self.renderlist.remove(entity)
 
 class LevelOne(LevelBase):
     '''
