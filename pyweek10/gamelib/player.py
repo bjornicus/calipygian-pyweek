@@ -44,7 +44,7 @@ class Player(gamestate.Oscillator):
         shipPos = self.GetPosition()
         shipPosInWindow = self._WindowHeight//2 + (shipPos * self._WindowHeight//2)
         self._ShipSprite.y = shipPosInWindow
-        self._ShipSprite.rotation = -math.cos(self.GetAngle()) * 45
+        self._ShipSprite.rotation = -self.GetAngle()
 
         gamestate.Oscillator.Tick(self, delta_t, KeyState)
 
@@ -54,7 +54,7 @@ class Player(gamestate.Oscillator):
             offset = self._WindowWidth * (t/levels.SECONDS_TO_CROSS_SCREEN)
             self._PathSprite.y = self._WindowHeight//2 + (y * self._WindowHeight//2)
             self._PathSprite.x = offset
-            self._PathSprite.rotation = -math.cos(a) * 45
+            self._PathSprite.rotation = -a
             self._PathSprite.draw()
 
         self._ShipSprite.draw()
