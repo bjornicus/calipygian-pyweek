@@ -28,6 +28,11 @@ class Player(gamestate.Oscillator):
         self._ShipSprite.image.anchor_y = self._ShipSprite.image.height / 2
         self._ShipSprite.x = self._ShipSprite.image.anchor_x
 
+        self._PathTimes = []
+        t_cursor = 0
+        while (t_cursor < levels.SECONDS_TO_CROSS_SCREEN):
+            self._PathTimes.append(t_cursor)
+            t_cursor += 0.1
         self._PathSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('Path.png')))
         self._PathSprite.image.anchor_x = self._PathSprite.image.width / 2
         self._PathSprite.image.anchor_y = self._PathSprite.image.height / 2
@@ -43,12 +48,21 @@ class Player(gamestate.Oscillator):
         shipPosInWindow = self._WindowHeight//2 + (shipPos * self._WindowHeight//2)
         self._ShipSprite.y = shipPosInWindow
         self._ShipSprite.rotation = -self.GetAngle()
+        
+        new_times = []
+        for oldTime in self._PathTimes:
+            newTime = oldTime - delta_t
+            if newTime <= 0:
+                newTime += levels.SECONDS_TO_CROSS_SCREEN
+            new_times.append(newTime)
+        self._PathTimes = new_times
 
         gamestate.Oscillator.Tick(self, delta_t, KeyState)
 
     def draw(self):
 
-        for (t, y, a) in self.GetPredictivePath(.1, levels.SECONDS_TO_CROSS_SCREEN, .1):
+        for time in self._PathTimes:
+            t, y, a = self.GetPredictiveCordinate(time)
             offset = self._WindowWidth * (t/levels.SECONDS_TO_CROSS_SCREEN)
             self._PathSprite.y = self._WindowHeight//2 + (y * self._WindowHeight//2)
             self._PathSprite.x = offset

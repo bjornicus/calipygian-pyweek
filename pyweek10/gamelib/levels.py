@@ -70,9 +70,8 @@ class LevelBase(object):
         if(e_ship_prob > 98):
             x = self.window.width
             y = random.randrange(self.window.height)
-            e_ship = entities.HostleShip( x, y, self)
-            self.actorlist.append(e_ship)
-            self.renderlist.append(e_ship)
+            e_ship = entities.HostileShip(x, y, self)
+
             
     def remove_entity(self, entity):
         if entity in self.actorlist:
