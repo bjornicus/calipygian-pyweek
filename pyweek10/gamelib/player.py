@@ -6,11 +6,9 @@ the entities they contain.
 '''
 
 import pyglet
-from pyglet.window import key
 
 import gamestate
 import levels
-import random
 import data
 import math
 
