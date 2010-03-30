@@ -20,6 +20,7 @@ import gamestate
 import random
 import player
 import entities
+import data
 
 SECONDS_TO_CROSS_SCREEN = 4
 
@@ -29,6 +30,32 @@ rock_label = pyglet.text.Label('ROCK!')
 rocks = []
 
 ##End of FIXME
+
+class FullscreenScrollingSprite:
+    '''
+    A class to manage a full-screen scrolling sprite.
+    '''
+    def __init__(self, filename):
+        self.Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath(filename)))
+        self.SetWindowWidth(640)
+
+    def SetWindowHeight(self, window_height):
+        self.Sprite.scale = float(self.Sprite.height) / float(window_height)
+
+    def SetWindowWidth(self, window_width):
+        self._WindowWidth = window_width
+
+    def Tick(self, dt):
+        self.Sprite.x -= 5
+        if (self.Sprite.x < -self.Sprite.width):
+            self.Sprite.x += self.Sprite.width
+
+    def draw(self):
+        original_x = self.Sprite.x
+        while (self.Sprite.x + self.Sprite.width < self._WindowWidth + self.Sprite.width):
+            self.Sprite.draw()
+            self.Sprite.x += self.Sprite.width
+        self.Sprite.x = original_x
 
 class LevelBase(mode.Mode):
     '''
@@ -44,10 +71,14 @@ class LevelBase(mode.Mode):
         self.renderlist = []
         self.actorlist = []
         self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
-        self.fps_display = pyglet.clock.ClockDisplay()
 
+        self.fps_display = pyglet.clock.ClockDisplay()
+        self.Background = FullscreenScrollingSprite('graphics\\Level1Background.png')
+
+        self.renderlist.append(self.Background)
         self.renderlist.append(playership)
         self.renderlist.append(self.fps_display)
+        self.actorlist.append(self.Background)
         self.reactorlist.append(playership)
 
         pyglet.clock.schedule_interval(self.update, 1/60.0)
@@ -62,6 +93,8 @@ class LevelBase(mode.Mode):
         """
         super(LevelBase, self).connect(control)
         playership.SetWindowHeight(self.window.height)
+        self.Background.SetWindowHeight(self.window.height)
+        self.Background.SetWindowWidth(self.window.width)
 
     def on_draw(self):
         self.window.clear()
@@ -84,14 +117,14 @@ class LevelBase(mode.Mode):
         rockprob = random.randrange(100)
         if (rockprob > 95) and (len(rocks) < 5):
             rocks.append({"x":self.window.width, "y":random.randrange(self.window.height)})
-            
+
         e_ship_prob = random.randrange(100)
         if(e_ship_prob > 98):
             x = self.window.width
             y = random.randrange(self.window.height)
             e_ship = entities.HostileShip(x, y, self)
 
-            
+
     def remove_entity(self, entity):
         if entity in self.actorlist:
             self.actorlist.remove(entity)
@@ -118,7 +151,7 @@ class LevelOne(LevelBase):
             rock_label.x = rock["x"]
             rock_label.y = rock["y"]
             rock_label.draw()
-    
+
     def on_key_press(self, sym, mods):
         if sym == key.SPACE:
             self.control.switch_handler("level2")
@@ -144,7 +177,7 @@ class LevelTwo(LevelBase):
             rock_label.x = rock["x"]
             rock_label.y = rock["y"]
             rock_label.draw()
-    
+
     def on_key_press(self, sym, mods):
         if sym == key.SPACE:
             self.control.switch_handler("level1")
