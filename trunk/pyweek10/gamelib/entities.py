@@ -7,14 +7,13 @@ import random
 import data
 import math
 
-class HostleShip():
-    '''
-    The main player object. This derives from Oscillator and adds in sprite rendering capabilities.
-    This is the rendering side of the Oscillator gamestate object.
-    '''
+class HostileShip():
+
     def __init__(self, starting_x, starting_y, level_base):
 
         self.parent_level = level_base
+        self.parent_level.actorlist.append(self)
+        self.parent_level.renderlist.append(self)
         
         self.SetWindowHeight(self.parent_level.window.height)
         self.SetWindowWidth(self.parent_level.window.width)
