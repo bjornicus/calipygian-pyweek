@@ -1,23 +1,61 @@
-'''Simple data loader module.
+"""Data loaders.
 
-Loads data files from the "data" directory shipped with a game.
+Add functions here to load specific types of resources.
 
-Enhancing this to handle caching etc. is left as an exercise for the reader.
-'''
+"""
+
+from __future__ import division
 
 import os
 
-data_py = os.path.abspath(os.path.dirname(__file__))
-data_dir = os.path.normpath(os.path.join(data_py, '..', 'data'))
+from pyglet import font
+from pyglet import media
+
+import config
+from common import *
+from constants import *
+
+
+font.add_directory(os.path.join(DATA_DIR, "fonts"))
 
 def filepath(filename):
-    '''Determine the path to a file in the data directory.
-    '''
-    return os.path.join(data_dir, filename)
+    """ determine the pathe to a file in the data directory
+    """
+    return os.path.join(DATA_DIR, filename)
 
-def load(filename, mode='rb'):
-    '''Open a file in the data directory.
+def load_file(path, mode="rb"):
+    """Open a file.
 
-    "mode" is passed as the second arg to open().
-    '''
-    return open(os.path.join(data_dir, filename), mode)
+    :Parameters:
+        `path` : str
+            The relative path from the data directory to the file.
+        `mode` : str
+            The mode to use when opening the file (default: "rb").
+
+    """
+    file_path = os.path.join(DATA_DIR, path)
+    return open(file_path, mode)
+
+
+def load_song(path):
+    """Load a music stream from the music directory.
+
+    :Parameters:
+        `path` : str
+            The relative path from the music directory to the file.
+
+    """
+    song_path = os.path.join(DATA_DIR, "music", path)
+    return media.load(song_path)
+
+
+def load_sound(path):
+    """Load a static sound source from the sounds directory.
+
+    :Parameters:
+        `path` : str
+            The relative path from the sounds directory to the file.
+
+    """
+    sound_path = os.path.join(DATA_DIR, "sounds", path)
+    return media.load(sound_path, streaming=False)

@@ -4,7 +4,15 @@ Levels render in a window, handle input, and update
 the entities they contain.
 
 '''
+from pyglet.event import EVENT_HANDLED
+from pyglet.event import EVENT_UNHANDLED
+from pyglet.window import key
 
+import mode
+
+import config
+from common import *
+from constants import *
 import pyglet
 from pyglet.window import key
 
@@ -22,29 +30,38 @@ rocks = []
 
 ##End of FIXME
 
-class LevelBase(object):
+class LevelBase(mode.Mode):
     '''
     A base class for game levels
     '''
-    def __init__(self, window):
+    name = "levelbase"
+    def __init__(self ):
         '''
         Create a level that runs in the given window
         '''
-        self.window = window
+        super(LevelBase, self).__init__()
         self.keystate = pyglet.window.key.KeyStateHandler()
         self.renderlist = []
         self.actorlist = []
         self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
         self.fps_display = pyglet.clock.ClockDisplay()
 
-        playership.SetWindowHeight(self.window.height)
-
         self.renderlist.append(playership)
         self.renderlist.append(self.fps_display)
         self.reactorlist.append(playership)
 
-        self.window.push_handlers(self.keystate)
         pyglet.clock.schedule_interval(self.update, 1/60.0)
+
+    def connect(self, control):
+        """Respond to the connecting controller.
+
+        :Parameters:
+            `control` : Controller
+                The connecting Controller object.
+
+        """
+        super(LevelBase, self).connect(control)
+        playership.SetWindowHeight(self.window.height)
 
     def on_draw(self):
         self.window.clear()
@@ -52,10 +69,12 @@ class LevelBase(object):
             drawable.draw()
 
     def update(self, dt):
+        if self.window is None:
+            return
         for actor in self.actorlist:
             actor.Tick(dt)
         for reactor in self.reactorlist:
-            reactor.Tick(dt, self.keystate)
+            reactor.Tick(dt, self.keys)
 
         ## Hacks
         for rock in rocks:
@@ -85,13 +104,50 @@ class LevelOne(LevelBase):
     '''
     Level One
     '''
-    def __init__(self, window):
-        LevelBase.__init__(self, window)
+    name = "level1"
+
+    def __init__(self ):
+        super(LevelOne, self).__init__()
+        self.level_label = pyglet.text.Label("Level One", font_size=20)
 
     def on_draw(self):
         LevelBase.on_draw(self)
+        self.level_label.draw()
 
         for rock in rocks:
             rock_label.x = rock["x"]
             rock_label.y = rock["y"]
             rock_label.draw()
+    
+    def on_key_press(self, sym, mods):
+        if sym == key.SPACE:
+            self.control.switch_handler("level2")
+        else:
+            return EVENT_UNHANDLED
+        return EVENT_HANDLED
+
+class LevelTwo(LevelBase):
+    '''
+    Level Two
+    '''
+    name = "level2"
+
+    def __init__(self ):
+        super(LevelTwo, self).__init__()
+        self.level_label = pyglet.text.Label("Level Two", font_size=20)
+
+    def on_draw(self):
+        LevelBase.on_draw(self)
+        self.level_label.draw()
+
+        for rock in rocks:
+            rock_label.x = rock["x"]
+            rock_label.y = rock["y"]
+            rock_label.draw()
+    
+    def on_key_press(self, sym, mods):
+        if sym == key.SPACE:
+            self.control.switch_handler("level1")
+        else:
+            return EVENT_UNHANDLED
+
