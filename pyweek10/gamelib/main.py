@@ -140,6 +140,8 @@ class Controller(object):
         """Configure Pyglet attributes.
 
         """
+        #self.window = window.Window(visible=False, caption=CAPTION,
+        #        fullscreen=config.fullscreen)
         self.window = window.Window(visible=False, caption=CAPTION,
                 fullscreen=config.fullscreen)
         clock.schedule_interval_soft(self.tick, 1.0 / TICK_RATE)
