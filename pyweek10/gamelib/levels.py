@@ -69,14 +69,11 @@ class LevelBase(mode.Mode):
         '''
         super(LevelBase, self).__init__()
         self.window = None
-        self.keystate = pyglet.window.key.KeyStateHandler()
         self.renderlist = []
         self.actorlist = []
         self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
         
         self.fps_display = pyglet.clock.ClockDisplay()
-
-        pyglet.clock.schedule_interval(self.update, 1/60.0)
 
     def connect(self, control):
         """Respond to the connecting controller.
@@ -98,8 +95,6 @@ class LevelBase(mode.Mode):
         self.fps_display.draw()
 
     def update(self, dt):
-        if self.window is None:
-            return
         for actor in self.actorlist:
             actor.Tick(dt)
         for reactor in self.reactorlist:
