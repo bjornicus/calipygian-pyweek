@@ -1,7 +1,7 @@
 
 import pyglet
 
-from globals import *
+from constants import *
 import gamestate
 import levels
 import random

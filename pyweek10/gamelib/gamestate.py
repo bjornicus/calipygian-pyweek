@@ -1,6 +1,6 @@
 import math
 from pyglet.window import key
-from globals import *
+from constants import *
 
 TWOPI = (2*math.pi)
 
