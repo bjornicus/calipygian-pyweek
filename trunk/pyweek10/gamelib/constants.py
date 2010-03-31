@@ -24,11 +24,11 @@ DATA_DIR = "data"
 
 #: The name of the game used in locating the saved settings directory. Its best
 #: not to have any spaces in this name.
-CONFIG_NAME = "MyGame"
+CONFIG_NAME = "Oscilliscape"
 
 #: The caption that appears at the top of the window. Obviously this is only
 #: visible in windowed mode.
-CAPTION = u"My Game"
+CAPTION = u"Oscilliscape"
 
 #: The "top-level" tick rate; the maximum number of times per second that the
 #: controller will call its tick method.
@@ -37,3 +37,12 @@ TICK_RATE = 60.0
 #: The "top-level" update rate; the maximum number of times per second that the
 #: controller will call its update method.
 UPDATE_RATE = 60.0
+
+SECONDS_TO_CROSS_SCREEN = 4
+
+# Entity type flags
+(
+    ENTITY_STATIC, # Entity only gets called for Drawing
+    ENTITY_ACTOR,  # Entity is drawn and receives tick calls
+    ENTITY_REACTOR # Entity is drawn, receives tick calls and keyboard state
+) = range(3)

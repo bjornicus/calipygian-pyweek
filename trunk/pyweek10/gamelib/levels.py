@@ -16,7 +16,6 @@ from constants import *
 import pyglet
 from pyglet.window import key
 
-from globals import *
 import gamestate
 import random
 import player
