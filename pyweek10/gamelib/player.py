@@ -25,7 +25,7 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
         self._ShipSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('Ship.png')))
         self._ShipSprite.image.anchor_x = self._ShipSprite.image.width / 2
         self._ShipSprite.image.anchor_y = self._ShipSprite.image.height / 2
-        self._ShipSprite.x = self._ShipSprite.image.anchor_x
+        self._ShipSprite.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND 
 
         self._PathTimes = []
         t_cursor = 0
@@ -58,7 +58,7 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
     def draw(self):
         for time in self._PathTimes:
             t, y, a = self.GetPredictiveCordinate(time)
-            offset = self._WindowWidth * (t/levels.SECONDS_TO_CROSS_SCREEN)
+            offset = self._WindowWidth * (t/levels.SECONDS_TO_CROSS_SCREEN) + self._ShipSprite.x
             self._PathSprite.y = self._WindowHeight//2 + (y * self._WindowHeight//2)
             self._PathSprite.x = offset
             self._PathSprite.rotation = -a
