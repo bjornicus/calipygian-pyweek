@@ -238,23 +238,23 @@ class Oscillator:
 
     def GetPosition(self):
         return self.GetFuturePosition(0)
-    
+
     def GetFuturePosition(self, t_future):
         return self._Amplitude * math.sin(self.GetFutureTheta(t_future))
 
     def GetTheta(self):
         return self.GetFutureTheta(0)
-    
+
     def GetFutureTheta(self, t_future):
-        return ((self._Omega * (self._t + t_future)) % TWOPI + self._Phase)
+        return ((self._Omega * (self._t + t_future)) + self._Phase)
     
     def GetAngle(self):
         return self.GetFutureAngle(0)
-    
+
     def GetFutureAngle(self, t_future):
         return self._Amplitude * math.cos(self.GetFutureTheta(t_future)) * 90.0
-    
-    def GetPredictiveCordinate(self, t_future):
+
+    def GetPredictiveCoordinate(self, t_future):
         return (t_future, self.GetFuturePosition(t_future), self.GetFutureAngle(t_future))
 
     def GetPredictivePath(self, t_start, t_stop, t_step):
@@ -265,6 +265,6 @@ class Oscillator:
         t_cursor = t_start
 
         while(t_cursor < t_stop):
-            path.append(self.GetPredictiveCordinate(t_cursor))
+            path.append(self.GetPredictiveCoordinate(t_cursor))
             t_cursor += t_step
         return path

@@ -22,8 +22,37 @@ import player
 import entities
 import data
 
+SECONDS_TO_CROSS_SCREEN = 8
 
 rocks = []
+
+class Titlescreen(mode.Mode):
+    '''
+    The title screen manager. Derives from Mode.
+    '''
+    name = "titlescreen"
+    def __init__(self):
+        mode.Mode.__init__(self)
+
+        self._Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/TitleScreenWS.jpg')))
+
+    def connect(self, control):
+        mode.Mode.connect(self, control)
+        self._Sprite.image.width = self.window.width
+        self._Sprite.image.height = self.window.height
+
+    def update(self, dt):
+        mode.Mode.update(self, dt)
+
+    def on_draw(self):
+        self._Sprite.draw()
+
+    def on_key_press(self, sym, mods):
+        if sym == key.ENTER:
+            self.control.switch_handler("level1")
+        else:
+            return EVENT_UNHANDLED
+        return EVENT_HANDLED
 
 class FullscreenScrollingSprite(gamestate.Actor):
     '''
@@ -32,7 +61,6 @@ class FullscreenScrollingSprite(gamestate.Actor):
     def __init__(self, filename, parent_level):
         self.Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath(filename)))
         gamestate.Actor.__init__(self, parent_level)
-        
         self._ParallaxEffect = .7
         self.Sprite.opacity = 128
 
@@ -46,7 +74,7 @@ class FullscreenScrollingSprite(gamestate.Actor):
         self.Sprite.x -= (self._WindowWidth * (dt / SECONDS_TO_CROSS_SCREEN)) * self._ParallaxEffect
         if (self.Sprite.x < -self.Sprite.width):
             self.Sprite.x += self.Sprite.width
-            
+
         gamestate.Actor.Tick(self, dt)
 
     def draw(self):
@@ -55,9 +83,9 @@ class FullscreenScrollingSprite(gamestate.Actor):
             self.Sprite.draw()
             self.Sprite.x += self.Sprite.width
         self.Sprite.x = original_x
-        
+
         gamestate.Actor.draw(self)
-        
+
 class LevelBase(mode.Mode):
     '''
     A base class for game levels
@@ -72,7 +100,7 @@ class LevelBase(mode.Mode):
         self.renderlist = []
         self.actorlist = []
         self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
-        
+
         self.fps_display = pyglet.clock.ClockDisplay()
 
     def connect(self, control):
@@ -119,7 +147,7 @@ class LevelBase(mode.Mode):
         if self.window is None:
             return 640
         return self.window.width
-    
+
     def get_height(self):
         if self.window is None:
             return 480
@@ -132,7 +160,7 @@ class LevelBase(mode.Mode):
             self.reactorlist.remove(entity)
         if entity in self.renderlist:
             self.renderlist.remove(entity)
-            
+
     def register_entity(self, entity, entity_flag):
         if(entity_flag is ENTITY_STATIC):
             self.renderlist.append(entity)
@@ -141,7 +169,7 @@ class LevelBase(mode.Mode):
             self.actorlist.append(entity)
         elif(entity_flag is ENTITY_REACTOR):
             self.renderlist.append(entity)
-            self.reactorlist.append(entity)      
+            self.reactorlist.append(entity)
 
 class LevelOne(LevelBase):
     '''
@@ -151,6 +179,7 @@ class LevelOne(LevelBase):
 
     def __init__(self ):
         super(LevelOne, self).__init__()
+
         self.level_label = pyglet.text.Label("Level One", font_size=20)
         self.playership = player.Player(self)
         self.Background = FullscreenScrollingSprite('graphics/Level1Background.png', self)
@@ -174,9 +203,10 @@ class LevelTwo(LevelBase):
 
     def __init__(self ):
         super(LevelTwo, self).__init__()
+
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self.playership = player.Player(self)
-        self.Background = FullscreenScrollingSprite('graphics/Level1Background.png', self)
+        self.Background = FullscreenScrollingSprite('graphics/Level2Background.png', self)
 
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -187,4 +217,4 @@ class LevelTwo(LevelBase):
             self.control.switch_handler("level1")
         else:
             return EVENT_UNHANDLED
-
+        return EVENT_HANDLED

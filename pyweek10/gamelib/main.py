@@ -143,7 +143,9 @@ class Controller(object):
         #self.window = window.Window(visible=False, caption=CAPTION,
         #        fullscreen=config.fullscreen)
         self.window = window.Window(visible=False, caption=CAPTION,
-                fullscreen=config.fullscreen)
+                fullscreen=config.fullscreen,
+                width=config.window_width,
+                height=config.window_height)
         clock.schedule_interval_soft(self.tick, 1.0 / TICK_RATE)
         clock.schedule_interval_soft(self.update, 1.0 / UPDATE_RATE)
 
@@ -153,7 +155,7 @@ class Controller(object):
         """
         self.setup_pyglet()
         self.setup_gl()
-        self.switch_handler("level1")
+        self.switch_handler("titlescreen")
         self.window.set_visible()
         app.run()
 
