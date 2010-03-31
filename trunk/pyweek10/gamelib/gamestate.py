@@ -246,7 +246,7 @@ class Oscillator:
         return self.GetFutureTheta(0)
     
     def GetFutureTheta(self, t_future):
-        return (self._Omega * ((self._t + t_future) % TWOPI) + self._Phase)
+        return ((self._Omega * (self._t + t_future)) % TWOPI + self._Phase)
     
     def GetAngle(self):
         return self.GetFutureAngle(0)
