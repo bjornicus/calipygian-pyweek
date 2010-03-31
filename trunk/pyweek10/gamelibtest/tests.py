@@ -16,7 +16,8 @@ def test_LevelBase_on_draw_clears_window():
             pass
 
     mockWindow = mock_Window()
-    base = LevelBase(mockWindow)
+    base = LevelBase()
+    base.window = mockWindow
     base.on_draw()
 
     assert mockWindow.clear_called
@@ -34,7 +35,8 @@ def test_LevelBase_on_draw_calls_draw_on_all_items_in_renderlist():
 
     drawable1 = mock_drawable()
     drawable2 = mock_drawable()
-    base = LevelBase(mock_Window())
+    base = LevelBase()
+    base.window = mock_Window()
     base.renderlist.append(drawable1)
     base.renderlist.append(drawable2)
     base.on_draw()
