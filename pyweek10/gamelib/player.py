@@ -7,22 +7,21 @@ the entities they contain.
 
 import pyglet
 
+from globals import *
 import gamestate
 import levels
 import data
 import math
 
-class Player(gamestate.Oscillator):
+class Player(gamestate.Oscillator, gamestate.Reactor):
     '''
     The main player object. This derives from Oscillator and adds in sprite rendering capabilities.
     This is the rendering side of the Oscillator gamestate object.
     '''
-    def __init__(self, window_height=480, window_width=640):
+    def __init__(self, parent_level):
         gamestate.Oscillator.__init__(self)
-
-        self.SetWindowHeight(window_height)
-        self.SetWindowWidth(window_width)
-
+        gamestate.Reactor.__init__(self, parent_level)
+        
         self._ShipSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('Ship.png')))
         self._ShipSprite.image.anchor_x = self._ShipSprite.image.width / 2
         self._ShipSprite.image.anchor_y = self._ShipSprite.image.height / 2
@@ -37,11 +36,6 @@ class Player(gamestate.Oscillator):
         self._PathSprite.image.anchor_x = self._PathSprite.image.width / 2
         self._PathSprite.image.anchor_y = self._PathSprite.image.height / 2
 
-    def SetWindowHeight(self, window_height):
-        self._WindowHeight = window_height
-
-    def SetWindowWidth(self, window_width):
-        self._WindowWidth = window_width
 
     def Tick(self, delta_t, KeyState):
         shipPos = self.GetPosition()
@@ -58,9 +52,10 @@ class Player(gamestate.Oscillator):
         self._PathTimes = new_times
 
         gamestate.Oscillator.Tick(self, delta_t, KeyState)
+        gamestate.Reactor.Tick(self, delta_t, KeyState)
+        
 
     def draw(self):
-
         for time in self._PathTimes:
             t, y, a = self.GetPredictiveCordinate(time)
             offset = self._WindowWidth * (t/levels.SECONDS_TO_CROSS_SCREEN)
@@ -70,3 +65,4 @@ class Player(gamestate.Oscillator):
             self._PathSprite.draw()
 
         self._ShipSprite.draw()
+        gamestate.Reactor.draw(self)

@@ -1,23 +1,40 @@
 
 import pyglet
 
+from globals import *
 import gamestate
 import levels
 import random
 import data
 import math
 
-class HostileShip():
-
-    def __init__(self, starting_x, starting_y, level_base):
-
-        self.parent_level = level_base
-        self.parent_level.actorlist.append(self)
-        self.parent_level.renderlist.append(self)
+class Rock(gamestate.Actor):
+    rock_label = pyglet.text.Label('ROCK!')
+    
+    def __init__(self, starting_x, starting_y, parent_level):
+        gamestate.Actor.__init__(parent_level)
         
-        self.SetWindowHeight(self.parent_level.window.height)
-        self.SetWindowWidth(self.parent_level.window.width)
+        self._x = starting_x
+        self._y = starting_y
         
+    def Tick(self, delta_t):
+        self._x = self._x - (self._WindowWidth * (delta_t / levels.SECONDS_TO_CROSS_SCREEN))
+        
+        rock_label.x = self._x
+        rock_label.y = self._y
+            
+        if self._x <= 0:
+            del self
+        
+    def draw(self):
+        rock_label.draw()
+
+
+class HostileShip(gamestate.Actor):
+
+    def __init__(self, starting_x, starting_y, parent_level):
+        gamestate.Actor.__init__(self, parent_level)
+
         self._x = starting_x
         self._y = starting_y
 
@@ -32,15 +49,6 @@ class HostileShip():
         self._PathSprite.image.anchor_x = self._PathSprite.image.width / 2
         self._PathSprite.image.anchor_y = self._PathSprite.image.height / 2
         self._PathSprite.color = (128,0,0)
-        
-    def __del__(self):
-        self.parent_level.remove_entity(self)
-
-    def SetWindowHeight(self, window_height):
-        self._WindowHeight = window_height
-
-    def SetWindowWidth(self, window_width):
-        self._WindowWidth = window_width
 
     def Tick(self, delta_t):
         self._x = self._x - (self._WindowWidth * (delta_t / levels.SECONDS_TO_CROSS_SCREEN))
@@ -48,19 +56,11 @@ class HostileShip():
         self._ShipSprite.x = self._x
         self._ShipSprite.y = self._y 
         
+        gamestate.Actor.Tick(self, delta_t)
+        
         if self._x <= 0:
             del self
         
-
     def draw(self):
-
-        """
-        for (t, y, a) in self.GetPredictivePath(.1, levels.SECONDS_TO_CROSS_SCREEN, .1):
-            offset = self._WindowWidth * (t/levels.SECONDS_TO_CROSS_SCREEN)
-            self._PathSprite.y = self._WindowHeight//2 + (y * self._WindowHeight//2)
-            self._PathSprite.x = offset
-            self._PathSprite.rotation = -a
-            self._PathSprite.draw()
-        """
-
+        gamestate.Actor.draw(self)
         self._ShipSprite.draw()

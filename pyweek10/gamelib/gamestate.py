@@ -1,6 +1,6 @@
 import math
 from pyglet.window import key
-
+from globals import *
 
 TWOPI = (2*math.pi)
 
@@ -31,6 +31,51 @@ def SinusoidToCartesian(A, omega, t , phi):
     x = A * math.cos(omega * t + phi)
     return (x,y)
 
+class Entity:
+    def __init__(self, parent_level, entity_flag = ENTITY_STATIC):
+        self.parent_level = parent_level
+        
+        self._WindowHeight = None
+        self._WindowWidth = None        
+        
+        self.SetWindowHeight(self.parent_level.get_height())
+        self.SetWindowWidth(self.parent_level.get_width())
+        
+        self.parent_level.register_entity(self, entity_flag)
+        
+    def __del__(self):
+        self.parent_level.remove_entity(self)
+        
+    def SetWindowHeight(self, window_height):
+        assert(window_height != 0)
+        self._WindowHeight = window_height
+
+    def SetWindowWidth(self, window_width):
+        assert(window_width != 0)
+        self._WindowWidth = window_width
+        
+    def draw(self):
+        pass
+
+class Actor(Entity):
+    def __init__(self, parent_level, entity_flag = ENTITY_ACTOR):
+        Entity.__init__(self, parent_level, entity_flag)
+        
+    def draw(self):
+        Entity.draw(self)
+        
+    def Tick(self, delta_t):
+        pass
+    
+class Reactor(Entity):
+    def __init__(self, parent_level, entity_flag = ENTITY_REACTOR):
+        Entity.__init__(self, parent_level, entity_flag)
+        
+    def draw(self):
+        Entity.draw(self)
+    
+    def Tick(self, delta_t, KeyState):
+        pass
 
 class Oscillator:
     def __init__(self):
