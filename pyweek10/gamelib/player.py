@@ -23,7 +23,7 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
         gamestate.Reactor.__init__(self, parent_level)
         
         self._ShipSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('Ship.png')))
-        self._ShipSprite.image.anchor_x = self._ShipSprite.image.width / 2
+        self._ShipSprite.image.anchor_x = self._ShipSprite.image.width
         self._ShipSprite.image.anchor_y = self._ShipSprite.image.height / 2
         self._ShipSprite.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND 
 
