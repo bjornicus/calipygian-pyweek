@@ -40,6 +40,8 @@ UPDATE_RATE = 60.0
 
 SECONDS_TO_CROSS_SCREEN = 4
 
+PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND = 200
+
 # Entity type flags
 (
     ENTITY_STATIC, # Entity only gets called for Drawing
