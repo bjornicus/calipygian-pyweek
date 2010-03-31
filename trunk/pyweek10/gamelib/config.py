@@ -106,7 +106,9 @@ profile = False
 
 # Default values for persistent options.
 local = LocalConfig(
-    fullscreen = True,
+    fullscreen = False,
+    window_width = 800,
+    window_height = 480
 )
 
 # See the module docstring for details of these methods.
