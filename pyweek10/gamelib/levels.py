@@ -76,7 +76,7 @@ class LevelBase(mode.Mode):
         self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
 
         self.fps_display = pyglet.clock.ClockDisplay()
-        self.Background = FullscreenScrollingSprite('graphics\\Level1Background.png')
+        self.Background = FullscreenScrollingSprite('graphics/Level1Background.png')
 
         self.renderlist.append(self.Background)
         self.renderlist.append(playership)
