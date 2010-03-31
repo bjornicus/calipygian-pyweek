@@ -38,15 +38,18 @@ class FullscreenScrollingSprite:
     def __init__(self, filename):
         self.Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath(filename)))
         self.SetWindowWidth(640)
+        self._ParallaxEffect = .7
+        self.Sprite.opacity = 128
 
     def SetWindowHeight(self, window_height):
-        self.Sprite.scale = float(self.Sprite.height) / float(window_height)
+        self.Sprite.scale = float(window_height) / float(self.Sprite.height)
 
     def SetWindowWidth(self, window_width):
+        print(window_width)
         self._WindowWidth = window_width
 
     def Tick(self, dt):
-        self.Sprite.x -= 5
+        self.Sprite.x -= (self._WindowWidth * (dt / SECONDS_TO_CROSS_SCREEN)) * self._ParallaxEffect
         if (self.Sprite.x < -self.Sprite.width):
             self.Sprite.x += self.Sprite.width
 
@@ -93,6 +96,7 @@ class LevelBase(mode.Mode):
         """
         super(LevelBase, self).connect(control)
         playership.SetWindowHeight(self.window.height)
+        playership.SetWindowWidth(self.window.width)
         self.Background.SetWindowHeight(self.window.height)
         self.Background.SetWindowWidth(self.window.width)
 
