@@ -182,11 +182,6 @@ class LevelTwo(LevelBase):
         LevelBase.on_draw(self)
         self.level_label.draw()
 
-        for rock in rocks:
-            rock_label.x = rock["x"]
-            rock_label.y = rock["y"]
-            rock_label.draw()
-
     def on_key_press(self, sym, mods):
         if sym == key.SPACE:
             self.control.switch_handler("level1")
