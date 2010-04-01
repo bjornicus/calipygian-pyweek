@@ -85,6 +85,10 @@ class FullscreenScrollingSprite(gamestate.Actor):
         self.Sprite.x = original_x
 
         gamestate.Actor.draw(self)
+        
+    def get_hitbox(self):
+        # TODO: make this hit box smaller
+        return (self.Sprite.x, self.Sprite.y, self.Sprite.width, self.Sprite.height)
 
 class LevelBase(mode.Mode):
     '''
@@ -118,6 +122,12 @@ class LevelBase(mode.Mode):
 
     def on_draw(self):
         self.window.clear()
+        
+        # see if any of the actors collided with the player.
+        for a in self.actorlist:
+            if(self.playership.CollidedWith(a)):
+                break;
+        
         for drawable in self.renderlist:
             drawable.draw()
         self.fps_display.draw()
@@ -127,7 +137,7 @@ class LevelBase(mode.Mode):
             actor.Tick(dt)
         for reactor in self.reactorlist:
             reactor.Tick(dt, self.keys)
-
+                    
         ## Hacks
         for rock in rocks:
             rock["x"] = rock["x"] - ((dt/SECONDS_TO_CROSS_SCREEN)* self.window.width)
@@ -138,9 +148,10 @@ class LevelBase(mode.Mode):
             rocks.append({"x":self.window.width, "y":random.randrange(self.window.height)})
 
         e_ship_prob = random.randrange(100)
-        if(e_ship_prob > 98):
+        if(e_ship_prob > 90):
             x = self.window.width
-            y = random.randrange(self.window.height)
+            #y = random.randrange(self.window.height)
+            y = 359
             e_ship = entities.HostileShip(x, y, self)
 
     def get_width(self):
