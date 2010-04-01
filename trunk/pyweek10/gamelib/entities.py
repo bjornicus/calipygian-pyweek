@@ -28,7 +28,10 @@ class Rock(gamestate.Actor):
 
     def draw(self):
         rock_label.draw()
-
+    
+    def get_hitbox(self):
+        # TODO: make this hit box smaller
+        return (self._x, self._y, self.rock_label.width, self.rock_label.height)
 
 class HostileShip(gamestate.Actor):
 
@@ -59,3 +62,7 @@ class HostileShip(gamestate.Actor):
     def draw(self):
         gamestate.Actor.draw(self)
         self._ShipSprite.draw()
+        
+    def get_hitbox(self):
+        # TODO: make this hit box smaller
+        return (self._x, self._y, self._ShipSprite.width, self._ShipSprite.height)

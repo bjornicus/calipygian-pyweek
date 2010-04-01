@@ -56,6 +56,11 @@ class Entity:
         
     def draw(self):
         pass
+    
+    # return a list that looks like (x, y, width, height) that represents
+    # the hit box of the entity
+    def get_hitbox(self):
+        pass
 
 class Actor(Entity):
     def __init__(self, parent_level, entity_flag = ENTITY_ACTOR):
@@ -63,7 +68,7 @@ class Actor(Entity):
         
     def draw(self):
         Entity.draw(self)
-        
+
     def Tick(self, delta_t):
         pass
     
@@ -75,6 +80,9 @@ class Reactor(Entity):
         Entity.draw(self)
     
     def Tick(self, delta_t, KeyState):
+        pass
+    
+    def CollidedWith(self, actor):
         pass
 
 class Oscillator:
