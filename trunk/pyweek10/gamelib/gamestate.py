@@ -35,25 +35,29 @@ class Entity:
     def __init__(self, parent_level, entity_flag = ENTITY_STATIC):
         self.parent_level = parent_level
         
-        self._WindowHeight = None
-        self._WindowWidth = None        
-        
-        self.SetWindowHeight(self.parent_level.get_height())
-        self.SetWindowWidth(self.parent_level.get_width())
+        self._scaleFactor = 1
+        self._x_offset = 0
+        self._y_offset = 0
         
         self.parent_level.register_entity(self, entity_flag)
         
-    def __del__(self):
-        self.parent_level.remove_entity(self)
-        
-    def SetWindowHeight(self, window_height):
-        assert(window_height != 0)
-        self._WindowHeight = window_height
 
-    def SetWindowWidth(self, window_width):
-        assert(window_width != 0)
-        self._WindowWidth = window_width
+    def Rescale(self, NewScaleFactor):
+        self._scaleFactor = NewScaleFactor
         
+    def SetOffsets(self, x, y):
+        self._x_offset = x
+        self._y_offset = y 
+        
+    def GetScaledX(self, x):
+        return x * self._scaleFactor + self._x_offset
+    
+    def GetScaledY(self, y):
+        return y * self._scaleFactor + self._y_offset
+        
+    def delete(self):
+        self.parent_level.remove_entity(self)
+                
     def draw(self):
         pass
     
@@ -66,6 +70,9 @@ class Actor(Entity):
     def __init__(self, parent_level, entity_flag = ENTITY_ACTOR):
         Entity.__init__(self, parent_level, entity_flag)
         
+    def Rescale(self, NewScaleFactor):
+        Entity.Rescale(self, NewScaleFactor)
+        
     def draw(self):
         Entity.draw(self)
 
@@ -75,6 +82,9 @@ class Actor(Entity):
 class Reactor(Entity):
     def __init__(self, parent_level, entity_flag = ENTITY_REACTOR):
         Entity.__init__(self, parent_level, entity_flag)
+        
+    def Rescale(self, NewScaleFactor):
+        Entity.Rescale(self, NewScaleFactor)
         
     def draw(self):
         Entity.draw(self)
@@ -162,7 +172,7 @@ class Oscillator:
 
         """
 
-        currentPos = self.GetPosition()
+        currentPos = self.GetCurrentValue()
         oldTheta = (self._Omega * self._t + self._Phase) % (2 * math.pi)
 
         newAmp = self._Amplitude + deltaAmp
@@ -244,10 +254,10 @@ class Oscillator:
         """
         self._Phase += deltaPhase % TWOPI
 
-    def GetPosition(self):
-        return self.GetFuturePosition(0)
+    def GetCurrentValue(self):
+        return self.GetFutureValue(0)
 
-    def GetFuturePosition(self, t_future):
+    def GetFutureValue(self, t_future):
         return self._Amplitude * math.sin(self.GetFutureTheta(t_future))
 
     def GetTheta(self):
@@ -263,7 +273,7 @@ class Oscillator:
         return self._Amplitude * math.cos(self.GetFutureTheta(t_future)) * 90.0
 
     def GetPredictiveCoordinate(self, t_future):
-        return (t_future, self.GetFuturePosition(t_future), self.GetFutureAngle(t_future))
+        return (t_future, self.GetFutureValue(t_future), self.GetFutureAngle(t_future))
 
     def GetPredictivePath(self, t_start, t_stop, t_step):
 
