@@ -28,37 +28,43 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
     This is the rendering side of the Oscillator gamestate object.
     '''
     def __init__(self, parent_level):
-        gamestate.Oscillator.__init__(self)
-        gamestate.Reactor.__init__(self, parent_level)
-
         self._ShipSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Ship.png')))
         self._ShipSprite.image.anchor_x = self._ShipSprite.image.width
         self._ShipSprite.image.anchor_y = self._ShipSprite.image.height / 2
-        self._ShipSprite.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
+        
+        self._PathSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Path.png')))
+        self._PathSprite.image.anchor_x = self._PathSprite.image.width / 2
+        self._PathSprite.image.anchor_y = self._PathSprite.image.height / 2
+        
+        gamestate.Oscillator.__init__(self)
+        gamestate.Reactor.__init__(self, parent_level)
+        
+        self._x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
+        self._y = SIZE_OF_GAMESPACE_Y//2
         
         self._original_color = self._ShipSprite.color
 
         self._PathTimes = []
         t_cursor = 0
-        while (t_cursor < levels.SECONDS_TO_CROSS_SCREEN):
+        while (t_cursor < SECONDS_TO_CROSS_GAMESPACE):
             self._PathTimes.append(t_cursor)
-            t_cursor += float(levels.SECONDS_TO_CROSS_SCREEN) / PATH_POINTS
-        self._PathSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Path.png')))
-        self._PathSprite.image.anchor_x = self._PathSprite.image.width / 2
-        self._PathSprite.image.anchor_y = self._PathSprite.image.height / 2
+            t_cursor += float(SECONDS_TO_CROSS_GAMESPACE) / PATH_POINTS
+
+        
+    def Rescale(self, NewScaleFactor):
+        gamestate.Reactor.Rescale(self, NewScaleFactor)
+        self._ShipSprite.scale = float(NewScaleFactor)
+        self._PathSprite.scale = float(NewScaleFactor)
 
 
     def Tick(self, delta_t, KeyState):
-        shipPos = self.GetPosition()
-        shipPosInWindow = self._WindowHeight//2 + (shipPos * self._WindowHeight//2)
-        self._ShipSprite.y = shipPosInWindow
-        self._ShipSprite.rotation = -self.GetAngle()
-
+        shipPos = self.GetCurrentValue()
+        self._y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
         new_times = []
         for oldTime in self._PathTimes:
             newTime = oldTime - delta_t
             if newTime <= 0:
-                newTime += levels.SECONDS_TO_CROSS_SCREEN
+                newTime += SECONDS_TO_CROSS_GAMESPACE
             new_times.append(newTime)
         self._PathTimes = new_times
 
@@ -101,11 +107,15 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
         
 
     def draw(self):
+        self._ShipSprite.x = self.GetScaledX(self._x)
+        self._ShipSprite.y = self.GetScaledY(self._y)
+        self._ShipSprite.rotation = -self.GetAngle()
+        
         for time in self._PathTimes:
             t, y, a = self.GetPredictiveCoordinate(time)
-            offset = self._WindowWidth * (t/levels.SECONDS_TO_CROSS_SCREEN) + self._ShipSprite.x
-            self._PathSprite.y = self._WindowHeight//2 + (y * self._WindowHeight//2)
-            self._PathSprite.x = offset
+            offset = SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self._x
+            self._PathSprite.y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
+            self._PathSprite.x = self.GetScaledX(offset)
             self._PathSprite.rotation = -a
             self._PathSprite.draw()
 

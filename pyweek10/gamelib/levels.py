@@ -22,8 +22,6 @@ import player
 import entities
 import data
 
-SECONDS_TO_CROSS_SCREEN = 8
-
 rocks = []
 
 class Titlescreen(mode.Mode):
@@ -38,6 +36,16 @@ class Titlescreen(mode.Mode):
 
     def connect(self, control):
         mode.Mode.connect(self, control)
+
+        self._Sprite.image.width = self.window.width
+        self._Sprite.image.height = self.window.height
+    #    self.window.push_handlers(on_resize = self.on_resize)
+    #    
+    # def disconnect (self, control):
+    #    mode.Mode.disconnect(self, control)
+    #    self.window.remove_handlers(self.on_resize)
+        
+    def on_resize(self, width, height):
         self._Sprite.image.width = self.window.width
         self._Sprite.image.height = self.window.height
 
@@ -45,11 +53,12 @@ class Titlescreen(mode.Mode):
         mode.Mode.update(self, dt)
 
     def on_draw(self):
+        #self.window.clear()
         self._Sprite.draw()
 
     def on_key_press(self, sym, mods):
         if sym == key.ENTER:
-            self.control.switch_handler("level1")
+            self.control.switch_handler("level2")
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
@@ -61,28 +70,29 @@ class FullscreenScrollingSprite(gamestate.Actor):
     def __init__(self, filename, parent_level):
         self.Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath(filename)))
         gamestate.Actor.__init__(self, parent_level)
-        self._ParallaxEffect = .7
+        self._x = 0
+        self._y = 0
+        self._ParallaxEffect = .8
         self.Sprite.opacity = 128
 
-    def SetWindowHeight(self, window_height):
-        assert(window_height != 0)
-        assert(self.Sprite.height != 0)
-        self.Sprite.scale = float(window_height) / float(self.Sprite.height)
-        gamestate.Actor.SetWindowHeight(self, window_height)
+    def Rescale(self, NewScaleFactor):
+        gamestate.Actor.Rescale(self, NewScaleFactor)
+        self.Sprite.scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Sprite.image.height))
 
     def Tick(self, dt):
-        self.Sprite.x -= (self._WindowWidth * (dt / SECONDS_TO_CROSS_SCREEN)) * self._ParallaxEffect
-        if (self.Sprite.x < -self.Sprite.width):
-            self.Sprite.x += self.Sprite.width
+        self._x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._ParallaxEffect
+        if (self._x < -self.Sprite.image.width):
+            self._x += self.Sprite.image.width
 
         gamestate.Actor.Tick(self, dt)
 
     def draw(self):
-        original_x = self.Sprite.x
-        while (self.Sprite.x + self.Sprite.width < self._WindowWidth + self.Sprite.width):
+        x = self._x
+        while (x + self.Sprite.image.width < SIZE_OF_GAMESPACE_X + self.Sprite.image.width):
+            self.Sprite.x = int(self.GetScaledX(x) - .5)
+            self.Sprite.y = int(self.GetScaledY(self._y) - .5)
             self.Sprite.draw()
-            self.Sprite.x += self.Sprite.width
-        self.Sprite.x = original_x
+            x += self.Sprite.image.width
 
         gamestate.Actor.draw(self)
         
@@ -104,6 +114,13 @@ class LevelBase(mode.Mode):
         self.renderlist = []
         self.actorlist = []
         self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
+        
+        self._scale = 1
+        self._x_offset = 0
+        self._y_offset = 0
+        
+        self.letterbox_1 = None
+        self.letterbox_2 = None
 
         self.fps_display = pyglet.clock.ClockDisplay()
 
@@ -116,9 +133,53 @@ class LevelBase(mode.Mode):
 
         """
         super(LevelBase, self).connect(control)
+        self.Rescale()
+        
+        self.window.push_handlers(on_resize = self.on_resize)
+        
+    #def disconnect (self, control):
+    #    super(LevelBase, self).disconnect(control)
+    #    self.window.remove_handlers(self.on_resize)
+        
+    def on_resize(self, width, height):
+        self.window.set_size(width, height)
+        self.Rescale()
+        
+    def Rescale(self):
+        if self.window is None:
+            return
+        window_x = self.window.width
+        window_y = self.window.height
+        
+        x_scale = float(window_x)/float(SIZE_OF_GAMESPACE_X)
+        y_scale = float(window_y)/float(SIZE_OF_GAMESPACE_Y)
+        
+        if y_scale < x_scale:
+            self._scale = y_scale
+            self._y_offset = 0
+            self._x_offset = int((float(window_x) - float(SIZE_OF_GAMESPACE_X) * self._scale)/2 + .5)
+        else:
+            self._scale = x_scale
+            self._x_offset = 0
+            self._y_offset = int((float(window_y) - float(SIZE_OF_GAMESPACE_Y) * self._scale)/2 + .5)
+        
         for drawable in self.renderlist:
-            drawable.SetWindowHeight(self.window.height)
-            drawable.SetWindowWidth(self.window.width)
+            drawable.Rescale(self._scale)
+            drawable.SetOffsets(self._x_offset, self._y_offset)
+            
+        if self._x_offset != 0:
+            letterbox = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
+            letterbox_image = pyglet.image.create(int(self._x_offset ), self.window.height, letterbox)
+            self.letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
+            self.letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=self.window.width - self._x_offset, y=0)
+        elif self._y_offset != 0: 
+            letterbox = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
+            letterbox_image = pyglet.image.create(self.window.width, int(self._y_offset), letterbox)
+            self.letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
+            self.letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=0, y=self.window.height - self._y_offset)
+        else:
+            self.letterbox_1 = None
+            self.letterbox_2 = None
 
     def on_draw(self):
         self.window.clear()
@@ -130,6 +191,11 @@ class LevelBase(mode.Mode):
         
         for drawable in self.renderlist:
             drawable.draw()
+        
+        if self.letterbox_1 is not None:
+            self.letterbox_1.draw()
+        if self.letterbox_2 is not None:
+            self.letterbox_2.draw()
         self.fps_display.draw()
 
     def update(self, dt):
@@ -140,29 +206,20 @@ class LevelBase(mode.Mode):
                     
         ## Hacks
         for rock in rocks:
-            rock["x"] = rock["x"] - ((dt/SECONDS_TO_CROSS_SCREEN)* self.window.width)
+            rock["x"] = rock["x"] - ((dt/SECONDS_TO_CROSS_GAMESPACE)* SIZE_OF_GAMESPACE_X)
             if rock["x"] < 0:
                 rocks.remove(rock)
         rockprob = random.randrange(100)
         if (rockprob > 95) and (len(rocks) < 5):
-            rocks.append({"x":self.window.width, "y":random.randrange(self.window.height)})
+            rocks.append({"x":SIZE_OF_GAMESPACE_X, "y":random.randrange(SIZE_OF_GAMESPACE_Y)})
 
         e_ship_prob = random.randrange(100)
         if(e_ship_prob > 90):
-            x = self.window.width
-            #y = random.randrange(self.window.height)
+            x = SIZE_OF_GAMESPACE_X
+            #y = random.randrange(SIZE_OF_GAMESPACE_Y)
             y = 359
             e_ship = entities.HostileShip(x, y, self)
 
-    def get_width(self):
-        if self.window is None:
-            return 640
-        return self.window.width
-
-    def get_height(self):
-        if self.window is None:
-            return 480
-        return self.window.height
 
     def remove_entity(self, entity):
         if entity in self.actorlist:
@@ -173,14 +230,58 @@ class LevelBase(mode.Mode):
             self.renderlist.remove(entity)
 
     def register_entity(self, entity, entity_flag):
+        
+        entity.Rescale(self._scale)
+        entity.SetOffsets(self._x_offset, self._y_offset)
+        self.renderlist.append(entity)
+        
         if(entity_flag is ENTITY_STATIC):
-            self.renderlist.append(entity)
+            pass
         elif(entity_flag is ENTITY_ACTOR):
-            self.renderlist.append(entity)
             self.actorlist.append(entity)
         elif(entity_flag is ENTITY_REACTOR):
-            self.renderlist.append(entity)
             self.reactorlist.append(entity)
+            
+            
+#===============================================================================
+# 
+# class TimeLineEntity:
+#    def __init__(self, constructor, parameter_list):
+#        self._constructor = constructor
+#        self._parameter_list = parameter_list
+#        self._object = None
+#    
+#    def realize(self):
+#        self._object = self._constructor(*(self._parameter_list))
+#        return self._objec
+#    
+#    def get_object(self):
+#        if (self._object == None):
+#            return self.realize()
+#        retirm self._object
+#            
+# class TimeLine:
+#    def __init__(self, parent_level):
+#        self._parent_level = parent_level
+#        self._current_time = 0
+#        
+#        #Fixtures are entities that should always be realized
+#        self._fixtures = [ 
+#            TimeLineEntity(player.Player, [parent_level]),
+#            TimeLineEntity(FullscreenScrollingSprite, ['graphics/Level1Background.png', parent_level])                         
+#            ]
+#        
+#        self._timeline = {
+#            0.5:TimeLineEntity(entities.rock, [self.window.width, random.randrange(self.window.height]),
+#                                         
+#            }
+#    
+#    def
+#    
+#        player.Player(self)
+#        FullscreenScrollingSprite('graphics/Level1Background.png', self)
+#===============================================================================
+
 
 class LevelOne(LevelBase):
     '''
@@ -192,8 +293,18 @@ class LevelOne(LevelBase):
         super(LevelOne, self).__init__()
 
         self.level_label = pyglet.text.Label("Level One", font_size=20)
-        self.playership = player.Player(self)
-        self.Background = FullscreenScrollingSprite('graphics/Level1Background.png', self)
+        
+        #self.time = 0
+        #self._timeline = self.GetTimeline()
+        #self._fixtures = {}
+        
+        
+    def update(self, dt):
+        if self.window is None:
+            return
+        
+        LevelBase.update(self, dt)
+
 
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -201,7 +312,8 @@ class LevelOne(LevelBase):
 
     def on_key_press(self, sym, mods):
         if sym == key.SPACE:
-            self.control.switch_handler("level2")
+            pass
+            #self.control.switch_handler("level2")
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
@@ -217,15 +329,21 @@ class LevelTwo(LevelBase):
 
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self.playership = player.Player(self)
-        self.Background = FullscreenScrollingSprite('graphics/Level2Background.png', self)
+        self.Background = FullscreenScrollingSprite('graphics/Level1Background.png', self)
 
     def on_draw(self):
         LevelBase.on_draw(self)
         self.level_label.draw()
 
+        #for rock in rocks:
+        #    rock_label.x = rock["x"]
+        #    rock_label.y = rock["y"]
+        #    rock_label.draw()
+
     def on_key_press(self, sym, mods):
         if sym == key.SPACE:
-            self.control.switch_handler("level1")
+            pass
+            #self.control.switch_handler("level1")
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
