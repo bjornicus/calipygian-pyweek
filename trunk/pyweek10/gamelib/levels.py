@@ -4,6 +4,8 @@ Levels render in a window, handle input, and update
 the entities they contain.
 
 '''
+import pyglet
+from pyglet import media
 from pyglet.event import EVENT_HANDLED
 from pyglet.event import EVENT_UNHANDLED
 from pyglet.window import key
@@ -13,8 +15,6 @@ from entities import *
 import config
 from common import *
 from constants import *
-import pyglet
-from pyglet.window import key
 
 import random
 import player
@@ -125,13 +125,21 @@ class LevelBase(mode.Mode):
         self.letterbox_2 = None
 
         self.fps_display = pyglet.clock.ClockDisplay()
+        self.music_player = media.Player()
+        self.music = None
         
     def connect(self, control):
         mode.Mode.connect(self, control)
         
         # Immedietly rescale the gamefield to the window
         self.Rescale()
+        if self.music is not None:
+            self.music_player.queue(self.music)
+            self.music_player.play()
 
+    def disconnect(self):
+        super(LevelBase, self).disconnect()
+        self.music_player.pause()
         
     def on_resize(self, width, height):
         self.Rescale()
@@ -305,7 +313,7 @@ class LevelOne(LevelBase):
         self.level_label = pyglet.text.Label("Level One", font_size=20)
         self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
-        
+        self.music = data.load_song('Level2Music.ogg')
         
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -328,7 +336,7 @@ class LevelTwo(LevelBase):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self.playership = player.Player(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0)
+        self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.5)
         #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
         #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
         
