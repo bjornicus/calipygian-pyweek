@@ -104,7 +104,7 @@ class Player(Oscillator, Reactor):
         #glEnd()
         for time in arange(0, self._Omega/(TWOPI)*SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
             t, y, a = self.GetPredictiveCoordinate(time)
-            x = SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) #+ self._x
+            x = self.GetScaledX(SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self._x )
             y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
             glVertex2f(x,y)
         glEnd()
