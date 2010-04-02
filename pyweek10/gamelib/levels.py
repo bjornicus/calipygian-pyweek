@@ -281,7 +281,7 @@ class LevelOne(LevelBase):
         super(LevelOne, self).__init__()
         self.level_label = pyglet.text.Label("Level One", font_size=20)
         self.playership = player.Player(self)
-        self.Background = FullscreenScrollingSprite('graphics/Level1Background.png', self)
+        self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
     def on_draw(self):
         LevelBase.on_draw(self)
         self.level_label.draw()
