@@ -15,6 +15,7 @@ from entities import *
 import config
 from common import *
 from constants import *
+from collide import *
 
 import random
 import player
@@ -106,9 +107,8 @@ class FullscreenScrollingSprite(Actor):
 
         Actor.draw(self)
 
-    def get_hitbox(self):
-        # TODO: make this hit box smaller
-        return (self.Sprite.x, self.Sprite.y, self.Sprite.width, self.Sprite.height)
+    def get_collidable(self):
+        return None
 
 class LevelBase(mode.Mode):
     '''
@@ -192,9 +192,11 @@ class LevelBase(mode.Mode):
     def on_draw(self):
         self.window.clear()
 
+        self.playership.reset_color()
         # see if any of the actors collided with the player.
         for a in self.actorlist:
-            if(self.playership.CollidedWith(a)):
+            if(collide(self.playership.get_collidable(), a.get_collidable())):
+                self.playership.on_collision();
                 break;
 
         for renderlist in self.renderlist_layers:
