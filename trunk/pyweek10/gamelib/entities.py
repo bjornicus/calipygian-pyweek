@@ -43,32 +43,32 @@ def SinusoidToCartesian(A, omega, t , phi):
     return (x,y)
 
 class Entity:
-    def __init__(self, parent_level, entity_flag = ENTITY_STATIC):
+    def __init__(self, parent_level, entity_flag = ENTITY_STATIC, layer = 2):
         self.parent_level = parent_level
-        
+
         self._scaleFactor = 1
         self._x_offset = 0
         self._y_offset = 0
-        
-        self.parent_level.register_entity(self, entity_flag)
-        
+
+        self.parent_level.register_entity(self, entity_flag, layer)
+
 
     def Rescale(self, NewScaleFactor):
         self._scaleFactor = NewScaleFactor
-        
+
     def SetOffsets(self, x, y):
         self._x_offset = x
-        self._y_offset = y 
-        
+        self._y_offset = y
+
     def GetScaledX(self, x):
         return x * self._scaleFactor + self._x_offset
-    
+
     def GetScaledY(self, y):
         return y * self._scaleFactor + self._y_offset
-        
+
     def delete(self):
         self.parent_level.remove_entity(self)
-                
+
     def draw(self):
         pass
 
@@ -78,9 +78,9 @@ class Entity:
         pass
 
 class Actor(Entity):
-    def __init__(self, parent_level, entity_flag = ENTITY_ACTOR):
-        Entity.__init__(self, parent_level, entity_flag)
-        
+    def __init__(self, parent_level, entity_flag = ENTITY_ACTOR, layer = 2):
+        Entity.__init__(self, parent_level, entity_flag, layer)
+
     def Rescale(self, NewScaleFactor):
         Entity.Rescale(self, NewScaleFactor)
         
