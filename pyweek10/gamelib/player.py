@@ -6,9 +6,8 @@ the entities they contain.
 '''
 
 import pyglet
-
+from entities import *
 from constants import *
-import gamestate
 import levels
 import data
 import math
@@ -22,10 +21,10 @@ HITBOX_WIDTH = lambda hitbox: hitbox[2]
 HITBOX_HEIGHT = lambda hitbox: hitbox[3]
 
 
-class Player(gamestate.Oscillator, gamestate.Reactor):
+class Player(Oscillator, Reactor):
     '''
     The main player object. This derives from Oscillator and adds in sprite rendering capabilities.
-    This is the rendering side of the Oscillator gamestate object.
+    This is the rendering side of the Oscillator object.
     '''
     def __init__(self, parent_level):
         self._ShipSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Ship.png')))
@@ -36,8 +35,8 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
         self._PathSprite.image.anchor_x = self._PathSprite.image.width / 2
         self._PathSprite.image.anchor_y = self._PathSprite.image.height / 2
         
-        gamestate.Oscillator.__init__(self)
-        gamestate.Reactor.__init__(self, parent_level)
+        Oscillator.__init__(self)
+        Reactor.__init__(self, parent_level)
         
         self._x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
         self._y = SIZE_OF_GAMESPACE_Y//2
@@ -52,7 +51,7 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
 
         
     def Rescale(self, NewScaleFactor):
-        gamestate.Reactor.Rescale(self, NewScaleFactor)
+        Reactor.Rescale(self, NewScaleFactor)
         self._ShipSprite.scale = float(NewScaleFactor)
         self._PathSprite.scale = float(NewScaleFactor)
 
@@ -68,8 +67,8 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
             new_times.append(newTime)
         self._PathTimes = new_times
 
-        gamestate.Oscillator.Tick(self, delta_t, KeyState)
-        gamestate.Reactor.Tick(self, delta_t, KeyState)
+        Oscillator.Tick(self, delta_t, KeyState)
+        Reactor.Tick(self, delta_t, KeyState)
     
     def get_hitbox(self):
         # TODO: make this hit box smaller
@@ -120,4 +119,4 @@ class Player(gamestate.Oscillator, gamestate.Reactor):
             self._PathSprite.draw()
 
         self._ShipSprite.draw()
-        gamestate.Reactor.draw(self)
+        Reactor.draw(self)

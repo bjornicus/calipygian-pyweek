@@ -9,14 +9,13 @@ from pyglet.event import EVENT_UNHANDLED
 from pyglet.window import key
 
 import mode
-
+from entities import *
 import config
 from common import *
 from constants import *
 import pyglet
 from pyglet.window import key
 
-import gamestate
 import random
 import player
 import entities
@@ -63,20 +62,20 @@ class Titlescreen(mode.Mode):
             return EVENT_UNHANDLED
         return EVENT_HANDLED
 
-class FullscreenScrollingSprite(gamestate.Actor):
+class FullscreenScrollingSprite(Actor):
     '''
     A class to manage a full-screen scrolling sprite.
     '''
     def __init__(self, filename, parent_level):
         self.Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath(filename)))
-        gamestate.Actor.__init__(self, parent_level)
+        Actor.__init__(self, parent_level)
         self._x = 0
         self._y = 0
         self._ParallaxEffect = .8
         self.Sprite.opacity = 128
 
     def Rescale(self, NewScaleFactor):
-        gamestate.Actor.Rescale(self, NewScaleFactor)
+        Actor.Rescale(self, NewScaleFactor)
         self.Sprite.scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Sprite.image.height))
 
     def Tick(self, dt):
@@ -84,7 +83,7 @@ class FullscreenScrollingSprite(gamestate.Actor):
         if (self._x < -self.Sprite.image.width):
             self._x += self.Sprite.image.width
 
-        gamestate.Actor.Tick(self, dt)
+        Actor.Tick(self, dt)
 
     def draw(self):
         x = self._x
@@ -94,7 +93,7 @@ class FullscreenScrollingSprite(gamestate.Actor):
             self.Sprite.draw()
             x += self.Sprite.image.width
 
-        gamestate.Actor.draw(self)
+        Actor.draw(self)
         
     def get_hitbox(self):
         # TODO: make this hit box smaller
