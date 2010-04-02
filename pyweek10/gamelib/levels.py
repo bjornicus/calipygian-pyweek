@@ -141,7 +141,6 @@ class LevelBase(mode.Mode):
     #    self.window.remove_handlers(self.on_resize)
         
     def on_resize(self, width, height):
-        self.window.set_size(width, height)
         self.Rescale()
         
     def Rescale(self):
