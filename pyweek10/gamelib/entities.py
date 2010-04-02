@@ -84,9 +84,6 @@ class Actor(Entity):
     def Rescale(self, NewScaleFactor):
         Entity.Rescale(self, NewScaleFactor)
         
-    def draw(self):
-        Entity.draw(self)
-
     def Tick(self, delta_t):
         pass
     
@@ -97,9 +94,6 @@ class Reactor(Entity):
     def Rescale(self, NewScaleFactor):
         Entity.Rescale(self, NewScaleFactor)
         
-    def draw(self):
-        Entity.draw(self)
-    
     def Tick(self, delta_t, KeyState):
         pass
     

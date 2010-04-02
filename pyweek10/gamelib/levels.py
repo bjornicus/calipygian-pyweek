@@ -223,6 +223,12 @@ class LevelBase(mode.Mode):
         assert layer >= 0 and layer < 5, 'Invalid layer number (%i)' % layer
         self.renderlist_layers[layer].append(entity)
 
+        def compare_depth(x,y):
+            xz = 0 if not hasattr(x,'z') else x.z
+            yz = 0 if not hasattr(y,'z') else y.z
+            return 1 if xz>yz else -1 if xz<yz else 0
+        self.renderlist_layers[layer].sort(cmp=compare_depth)
+
         if(entity_flag is ENTITY_STATIC):
             pass
         elif(entity_flag is ENTITY_ACTOR):
