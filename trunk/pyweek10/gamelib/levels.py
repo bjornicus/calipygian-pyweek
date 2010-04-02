@@ -32,6 +32,8 @@ class Titlescreen(mode.Mode):
         mode.Mode.__init__(self)
 
         self._Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/TitleScreenWS.jpg')))
+        self.music_player = media.Player()
+        self.music = data.load_song('TitlescreenMusic.ogg')
 
     def on_resize(self, width, height):
         if self.window is None:
@@ -50,7 +52,13 @@ class Titlescreen(mode.Mode):
             self._Sprite.scale = x_scale
             self._Sprite.x =  0
             self._Sprite.y = int((float(window_y) - float(self._Sprite.image.height) * x_scale)/2 + .5)
-            
+
+    def connect(self, control):
+        super(Titlescreen, self).connect(control)
+        
+        if self.music is not None:
+            self.music_player.queue(self.music)
+            self.music_player.play()
 
     def update(self, dt):
         mode.Mode.update(self, dt)
