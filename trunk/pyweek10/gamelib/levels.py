@@ -33,26 +33,29 @@ class Titlescreen(mode.Mode):
 
         self._Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/TitleScreenWS.jpg')))
 
-    def connect(self, control):
-        mode.Mode.connect(self, control)
-
-        self._Sprite.image.width = self.window.width
-        self._Sprite.image.height = self.window.height
-    #    self.window.push_handlers(on_resize = self.on_resize)
-    #
-    # def disconnect (self, control):
-    #    mode.Mode.disconnect(self, control)
-    #    self.window.remove_handlers(self.on_resize)
-
     def on_resize(self, width, height):
-        self._Sprite.image.width = self.window.width
-        self._Sprite.image.height = self.window.height
+        if self.window is None:
+            return
+        window_x = self.window.width
+        window_y = self.window.height
+
+        x_scale = float(window_x)/float(self._Sprite.image.width)
+        y_scale = float(window_y)/float(self._Sprite.image.height)
+
+        if y_scale < x_scale:
+            self._Sprite.scale = y_scale
+            self._Sprite.y = 0
+            self._Sprite.x =  int((float(window_x) - float(self._Sprite.image.width) * y_scale)/2 + .5)
+        else:
+            self._Sprite.scale = x_scale
+            self._Sprite.x =  0
+            self._Sprite.y = int((float(window_y) - float(self._Sprite.image.height) * x_scale)/2 + .5)
+            
 
     def update(self, dt):
         mode.Mode.update(self, dt)
 
     def on_draw(self):
-        #self.window.clear()
         self._Sprite.draw()
 
     def on_key_press(self, sym, mods):
@@ -71,7 +74,6 @@ class FullscreenScrollingSprite(Actor):
         Actor.__init__(self, parent_level, layer=layer)
         self._x = 0
         self._y = 0
-        self._ParallaxEffect = .8
         self.Sprite.opacity = 255
         self._scrolling_factor = scrolling_factor
 
@@ -80,14 +82,14 @@ class FullscreenScrollingSprite(Actor):
         self.Sprite.scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Sprite.image.height))
 
     def Tick(self, dt):
-        self._x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._ParallaxEffect * self._scrolling_factor
+        self._x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
         if (self._x < -self.Sprite.image.width):
             self._x += self.Sprite.image.width
 
         Actor.Tick(self, dt)
 
     def draw(self):
-        x = self._x
+        x = int(self._x - 0.5)
         while (x + self.Sprite.image.width < SIZE_OF_GAMESPACE_X + self.Sprite.image.width):
             self.Sprite.x = int(self.GetScaledX(x) - .5)
             self.Sprite.y = int(self.GetScaledY(self._y) - .5)
@@ -109,7 +111,7 @@ class LevelBase(mode.Mode):
         '''
         Create a level that runs in the given window
         '''
-        super(LevelBase, self).__init__()
+        mode.Mode.__init__(self)
         self.window = None
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
@@ -123,6 +125,12 @@ class LevelBase(mode.Mode):
         self.letterbox_2 = None
 
         self.fps_display = pyglet.clock.ClockDisplay()
+        
+    def connect(self, control):
+        mode.Mode.connect(self, control)
+        
+        # Immedietly rescale the gamefield to the window
+        self.Rescale()
 
         
     def on_resize(self, width, height):
@@ -190,14 +198,6 @@ class LevelBase(mode.Mode):
             reactor.Tick(dt, self.keys)
 
         ## Hacks
-        for rock in rocks:
-            rock["x"] = rock["x"] - ((dt/SECONDS_TO_CROSS_GAMESPACE)* SIZE_OF_GAMESPACE_X)
-            if rock["x"] < 0:
-                rocks.remove(rock)
-        rockprob = random.randrange(100)
-        if (rockprob > 95) and (len(rocks) < 5):
-            rocks.append({"x":SIZE_OF_GAMESPACE_X, "y":random.randrange(SIZE_OF_GAMESPACE_Y)})
-
         e_ship_prob = random.randrange(100)
         if(e_ship_prob > 90):
             x = SIZE_OF_GAMESPACE_X
@@ -284,7 +284,7 @@ class LevelOne(LevelBase):
     name = "level1"
 
     def __init__(self ):
-        super(LevelOne, self).__init__()
+        LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level One", font_size=20)
         self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
@@ -306,10 +306,10 @@ class LevelTwo(LevelBase):
     name = "level2"
 
     def __init__(self ):
-        super(LevelTwo, self).__init__()
+        LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self.playership = player.Player(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
+        self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.5)
         #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
         #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
 
