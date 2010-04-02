@@ -123,23 +123,6 @@ class LevelBase(mode.Mode):
 
         self.fps_display = pyglet.clock.ClockDisplay()
 
-    def connect(self, control):
-        """Respond to the connecting controller.
-
-        :Parameters:
-            `control` : Controller
-                The connecting Controller object.
-
-        """
-        super(LevelBase, self).connect(control)
-        self.Rescale()
-        
-        self.window.push_handlers(on_resize = self.on_resize)
-        
-    #def disconnect (self, control):
-    #    super(LevelBase, self).disconnect(control)
-    #    self.window.remove_handlers(self.on_resize)
-        
     def on_resize(self, width, height):
         self.Rescale()
         
@@ -289,29 +272,17 @@ class LevelOne(LevelBase):
 
     def __init__(self ):
         super(LevelOne, self).__init__()
-
         self.level_label = pyglet.text.Label("Level One", font_size=20)
-        
-        #self.time = 0
-        #self._timeline = self.GetTimeline()
-        #self._fixtures = {}
-        
-        
-    def update(self, dt):
-        if self.window is None:
-            return
-        
-        LevelBase.update(self, dt)
-
+        self.playership = player.Player(self)
+        self.Background = FullscreenScrollingSprite('graphics/Level1Background.png', self)
 
     def on_draw(self):
         LevelBase.on_draw(self)
         self.level_label.draw()
 
     def on_key_press(self, sym, mods):
-        if sym == key.SPACE:
-            pass
-            #self.control.switch_handler("level2")
+        if DEBUG and sym == key.BACKSPACE:
+            self.control.switch_handler("level2")
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
@@ -324,7 +295,6 @@ class LevelTwo(LevelBase):
 
     def __init__(self ):
         super(LevelTwo, self).__init__()
-
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self.playership = player.Player(self)
         self.Background = FullscreenScrollingSprite('graphics/Level1Background.png', self)
@@ -333,15 +303,9 @@ class LevelTwo(LevelBase):
         LevelBase.on_draw(self)
         self.level_label.draw()
 
-        #for rock in rocks:
-        #    rock_label.x = rock["x"]
-        #    rock_label.y = rock["y"]
-        #    rock_label.draw()
-
     def on_key_press(self, sym, mods):
-        if sym == key.SPACE:
-            pass
-            #self.control.switch_handler("level1")
+        if DEBUG and sym == key.BACKSPACE:
+            self.control.switch_handler("level1")
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
