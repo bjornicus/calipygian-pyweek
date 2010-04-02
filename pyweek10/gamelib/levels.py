@@ -198,12 +198,14 @@ class LevelBase(mode.Mode):
             reactor.Tick(dt, self.keys)
 
         ## Hacks
-        e_ship_prob = random.randrange(100)
-        if(e_ship_prob > 90):
-            x = SIZE_OF_GAMESPACE_X
-            #y = random.randrange(SIZE_OF_GAMESPACE_Y)
-            y = 359
-            e_ship = entities.HostileShip(x, y, self)
+        #=======================================================================
+        # e_ship_prob = random.randrange(100)
+        # if(e_ship_prob > 90):
+        #    x = SIZE_OF_GAMESPACE_X
+        #    #y = random.randrange(SIZE_OF_GAMESPACE_Y)
+        #    y = 359
+        #    e_ship = entities.HostileShip(x, y, self)
+        #=======================================================================
 
 
     def remove_entity(self, entity):
@@ -237,45 +239,60 @@ class LevelBase(mode.Mode):
             self.reactorlist.append(entity)
 
 
-#===============================================================================
-#
-# class TimeLineEntity:
-#    def __init__(self, constructor, parameter_list):
-#        self._constructor = constructor
-#        self._parameter_list = parameter_list
-#        self._object = None
-#
-#    def realize(self):
-#        self._object = self._constructor(*(self._parameter_list))
-#        return self._objec
-#
-#    def get_object(self):
-#        if (self._object == None):
-#            return self.realize()
-#        retirm self._object
-#
-# class TimeLine:
-#    def __init__(self, parent_level):
-#        self._parent_level = parent_level
-#        self._current_time = 0
-#
-#        #Fixtures are entities that should always be realized
-#        self._fixtures = [
-#            TimeLineEntity(player.Player, [parent_level]),
-#            TimeLineEntity(FullscreenScrollingSprite, ['graphics/Level1Background.png', parent_level])
-#            ]
-#
-#        self._timeline = {
-#            0.5:TimeLineEntity(entities.rock, [self.window.width, random.randrange(self.window.height]),
-#
-#            }
-#
-#    def
-#
-#        player.Player(self)
-#        FullscreenScrollingSprite('graphics/Level1Background.png', self)
-#===============================================================================
+class TimeLineEntity:
+    """
+    Class for storing the locations of entities that will appear within a level
+    
+    Entities are not initialized until the realize method is called, at which
+    point their constructor is called along with the provided list of parameters
+    (parameters will be given to the constructor in the order they are provided)
+    or keywords (keywords must be provided in a dictionary of keyword:value mappings.
+    """
+    def __init__(self, constructor, parameter_list = [], keywords_list = {}):
+        self._constructor = constructor
+        self._parameter_list = parameter_list
+        self._keywords_list = keywords_list
+        self._object = None
 
+    def realize(self):
+        self._object = self._constructor(*(self._parameter_list), **(self._keywords_list))
+        return self._object
+
+    def get_object(self):
+        return self._object
+
+class TimeLine:
+    """
+    Class for storing the sequence of entities that will appear within a level
+    
+    A dictionary of time:TimeLineEntity mappings is provided to the constructor.
+    
+    Every tick we check to see if any of the times listed in the keys of the provided
+    timeline has passed, if so we call realize on the corresponding TimeLineEntity, and
+    call tick on the resultant object in order to make up for any imprecision in the update
+    loop.
+    """
+    def __init__(self, timeline):
+        assert(timeline is not None)
+        self._current_time = 0
+        self._timeline = timeline
+        self._event_times = self._timeline.keys()
+        
+        self._event_times.sort()
+        self._event_times.reverse()
+
+    def Tick(self, dt):
+        tick_end = self._current_time + dt
+        while len(self._event_times) > 0 :
+            event_time = self._event_times.pop()
+            if event_time <= tick_end:
+                self._timeline[event_time].realize()
+                self._timeline[event_time].get_object().Tick(tick_end - event_time)
+            else:
+                self._event_times.append(event_time)
+                break
+        self._current_time = tick_end
+        
 
 class LevelOne(LevelBase):
     '''
@@ -288,6 +305,8 @@ class LevelOne(LevelBase):
         self.level_label = pyglet.text.Label("Level One", font_size=20)
         self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
+        
+        
     def on_draw(self):
         LevelBase.on_draw(self)
         self.level_label.draw()
@@ -309,9 +328,23 @@ class LevelTwo(LevelBase):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self.playership = player.Player(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.5)
+        self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0)
         #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
         #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        
+        self._timeline = TimeLine({
+            2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
+            6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
+            12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
+            12.25:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 190, self]),
+            12.5:   TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 180, self]),
+            12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
+            15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
+            })
+                
+    def update(self, dt):
+        self._timeline.Tick(dt)
+        LevelBase.update(self, dt)
 
     def on_draw(self):
         LevelBase.on_draw(self)
