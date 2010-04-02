@@ -6,8 +6,7 @@ import levels
 import random
 import data
 import math
-
-import math
+from collide import *
 from pyglet.window import key
 from constants import *
 if DEBUG:
@@ -42,7 +41,7 @@ def SinusoidToCartesian(A, omega, t , phi):
     x = A * math.cos(omega * t + phi)
     return (x,y)
 
-class Entity:
+class Entity(object):
     def __init__(self, parent_level, entity_flag = ENTITY_STATIC, layer = 2):
         self.parent_level = parent_level
 
@@ -72,9 +71,8 @@ class Entity:
     def draw(self):
         pass
 
-    # return a list that looks like (x, y, width, height) that represents
-    # the hit box of the entity
-    def get_hitbox(self):
+    # Return the sprite for this entity, if any
+    def get_collidable(self):
         pass
 
 class Actor(Entity):
@@ -95,9 +93,6 @@ class Reactor(Entity):
         Entity.Rescale(self, NewScaleFactor)
         
     def Tick(self, delta_t, KeyState):
-        pass
-    
-    def CollidedWith(self, actor):
         pass
 
 class Oscillator(object):
@@ -306,7 +301,7 @@ class HostileShip(Actor):
         self._ShipSprite.x = self._ShipSprite.image.anchor_x
         self._ShipSprite.color = (128,0,0)
         self._ShipSprite.rotation = 180
-        
+        self._collidable = SpriteCollision(self._ShipSprite)        
         
     def Rescale(self, NewScaleFactor):
         Actor.Rescale(self, NewScaleFactor)
@@ -327,7 +322,6 @@ class HostileShip(Actor):
         self._ShipSprite.draw()
         if DEBUG:
             debug.draw_bounding_box(self._ShipSprite)
-        
-    def get_hitbox(self):
-        # TODO: make this hit box smaller
-        return (self._x, self._y, self._ShipSprite.width, self._ShipSprite.height)
+            
+    def get_collidable(self):
+        return self._collidable

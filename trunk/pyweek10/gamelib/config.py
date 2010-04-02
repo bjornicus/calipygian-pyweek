@@ -107,7 +107,7 @@ profile = False
 # Default values for persistent options.
 local = LocalConfig(
     fullscreen = False,
-    window_width = 800,
+    window_width = 852,
     window_height = 480
 )
 

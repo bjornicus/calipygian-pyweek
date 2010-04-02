@@ -144,7 +144,7 @@ class Controller(object):
                 fullscreen=config.fullscreen,
                 width=config.window_width,
                 height=config.window_height,
-                resizable=True)
+                resizable=False)
         clock.schedule_interval_soft(self.tick, 1.0 / TICK_RATE)
         clock.schedule_interval_soft(self.update, 1.0 / UPDATE_RATE)
 
