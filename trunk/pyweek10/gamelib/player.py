@@ -38,10 +38,10 @@ class Player(Oscillator, Reactor):
         
         self._x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
         self._y = SIZE_OF_GAMESPACE_Y//2
+        self.z = 1 #draw this above other stuff
         
         self._original_color = self._ShipSprite.color
 
-        self._PathTimes = []
         
     def Rescale(self, NewScaleFactor):
         Reactor.Rescale(self, NewScaleFactor)
@@ -95,7 +95,6 @@ class Player(Oscillator, Reactor):
         self._ShipSprite.rotation = -self.GetAngle()
         self.draw_path()
         self._ShipSprite.draw()
-        Reactor.draw(self)
         if DEBUG:
             draw_bounding_box(self._ShipSprite)
         
@@ -105,7 +104,7 @@ class Player(Oscillator, Reactor):
         #glEnd()
         for time in arange(0, self._Omega/(TWOPI)*SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
             t, y, a = self.GetPredictiveCoordinate(time)
-            x = SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self._x
+            x = SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) #+ self._x
             y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
             glVertex2f(x,y)
         glEnd()
