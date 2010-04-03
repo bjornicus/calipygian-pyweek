@@ -140,7 +140,7 @@ class Player(Actor, Oscillator):
         Actor.draw(self)
         self.sprite.x = self.GetScaledX(self.x)
         self.sprite.y = self.GetScaledY(self.y)
-        self.sprite.rotation = -self.GetAngle()
+        #self.sprite.rotation = -self.GetAngle()
         self.draw_path()
         self.sprite.draw()
         if DEBUG:
