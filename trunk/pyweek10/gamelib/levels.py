@@ -39,7 +39,8 @@ class Titlescreen(mode.Mode):
         self.select_arrow.scale = 0.25
         self.selected_option = 'start'
         self.music_player = media.Player()
-        self.music = data.load_song('TitlescreenMusic.ogg')
+        self.music = None
+        #self.music = data.load_song('TitlescreenMusic.ogg')
 
     def on_resize(self, width, height):
         if self.window is None:
@@ -158,17 +159,17 @@ class LevelBase(mode.Mode):
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
 
+        self._objects_of_interest = {}
         self._scale = 1
         self._x_offset = 0
         self._y_offset = 0
 
-        self.letterbox_1 = None
-        self.letterbox_2 = None
+        self._letterbox_1 = None
+        self._letterbox_2 = None
 
         self.fps_display = pyglet.clock.ClockDisplay()
         self.music_player = media.Player()
         self.music = None
-        self.player = player.Player(self)
         
     def connect(self, control):
         mode.Mode.connect(self, control)
@@ -212,16 +213,16 @@ class LevelBase(mode.Mode):
         if self._x_offset != 0:
             letterbox = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
             letterbox_image = pyglet.image.create(int(self._x_offset ), self.window.height, letterbox)
-            self.letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
-            self.letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=self.window.width - self._x_offset, y=0)
+            self._letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
+            self._letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=self.window.width - self._x_offset, y=0)
         elif self._y_offset != 0:
             letterbox = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
             letterbox_image = pyglet.image.create(self.window.width, int(self._y_offset), letterbox)
-            self.letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
-            self.letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=0, y=self.window.height - self._y_offset)
+            self._letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
+            self._letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=0, y=self.window.height - self._y_offset)
         else:
-            self.letterbox_1 = None
-            self.letterbox_2 = None
+            self._letterbox_1 = None
+            self._letterbox_2 = None
 
     def on_draw(self):
         self.window.clear()
@@ -230,23 +231,29 @@ class LevelBase(mode.Mode):
             for drawable in renderlist:
                 drawable.draw()
 
-        if self.letterbox_1 is not None:
-            self.letterbox_1.draw()
-        if self.letterbox_2 is not None:
-            self.letterbox_2.draw()
+        if self._letterbox_1 is not None:
+            self._letterbox_1.draw()
+        if self._letterbox_2 is not None:
+            self._letterbox_2.draw()
         self.fps_display.draw()
 
     def update(self, dt):
-        self.player.handle_input(self.keys)
         for actor in self.actorlist:
             actor.Tick(dt)
-        self.player.reset_color()
-        # see if any of the actors collided with the player.
-        for a in self.actorlist:
-            if(collide(self.player.get_collidable(), a.get_collidable())):
-                self.player.on_collision();
-                break;
-
+            
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.handle_input(self.keys)
+            playership.reset_color()
+            # see if any of the actors collided with the player.
+            
+            hostiles = self.get_objects_of_interest(TYPE_HOSTILE_SHIP)
+            for baddie in hostiles:
+                if(collide(playership.get_collidable(), baddie.get_collidable())):
+                    print "HIT"
+                    playership.on_collision();
+                    baddie.delete()
+    
     def on_key_press(self, sym, mods):
         if sym == key.ESCAPE:
             self.control.switch_handler("titlescreen")
@@ -254,14 +261,18 @@ class LevelBase(mode.Mode):
             return EVENT_UNHANDLED
         return EVENT_HANDLED
 
-    def remove_entity(self, entity):
+    def remove_entity(self, entity, object_of_interest_type = None):
         if entity in self.actorlist:
             self.actorlist.remove(entity)
         for renderlist in self.renderlist_layers:
             if entity in renderlist:
                 renderlist.remove(entity)
+                
+        if(object_of_interest_type is not None):
+            if object_of_interest_type in self._objects_of_interest.keys():
+                self._objects_of_interest[object_of_interest_type].remove(entity)
 
-    def register_entity(self, entity, entity_flag, layer = 2):
+    def register_entity(self, entity, layer = 2, object_of_interest_type = None):
 
         entity.Rescale(self._scale)
         entity.SetOffsets(self._x_offset, self._y_offset)
@@ -274,8 +285,19 @@ class LevelBase(mode.Mode):
             yz = 0 if not hasattr(y,'z') else y.z
             return 1 if xz>yz else -1 if xz<yz else 0
         self.renderlist_layers[layer].sort(cmp=compare_depth)
+        
+        if(object_of_interest_type is not None):
+            if object_of_interest_type in self._objects_of_interest.keys():
+                self._objects_of_interest[object_of_interest_type].append(entity)
+            else:
+                self._objects_of_interest[object_of_interest_type] = [entity]
 
         self.actorlist.append(entity)
+            
+    def get_objects_of_interest(self, object_of_interest_type):
+        if object_of_interest_type in self._objects_of_interest.keys():
+            return self._objects_of_interest[object_of_interest_type]
+        return []
 
 
 class TimeLineEntity:
@@ -342,10 +364,25 @@ class LevelOne(LevelBase):
     def __init__(self ):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level One", font_size=20)
+        player.Player(self)
+        player.Hud(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25)
         self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
-        self.music = data.load_song('Level1Music.ogg')
+        #self.music = data.load_song('Level1Music.ogg')
+        self._timeline = TimeLine({
+            2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
+            6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
+            12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
+            12.25:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 190, self]),
+            12.5:   TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 180, self]),
+            12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
+            15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
+            })
+                
+    def update(self, dt):
+        self._timeline.Tick(dt)
+        LevelBase.update(self, dt)
 
     def on_draw(self):
         LevelBase.on_draw(self)

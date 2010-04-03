@@ -10,6 +10,8 @@ it does not provide an __all__ specification.
 
 """
 
+import math
+
 #: Enable debug features. Should never be changed manually but is set to True
 #: automatically when running `test_game.py`.
 DEBUG = False
@@ -43,17 +45,20 @@ SECONDS_TO_CROSS_GAMESPACE = 8
 SIZE_OF_GAMESPACE_X = 852
 SIZE_OF_GAMESPACE_Y = 480
 
-PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND = 200
+PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND = 50
 
 # amplitude and frequency adjust flags
 ( INCREASE, CONSTANT, DECREASE ) = range(3)
 
+#Object of Interest types
+TYPE_PLAYER_SHIP = "Player"
+TYPE_HOSTILE_SHIP = "Hostile"
 ##Ship Movement Characteristics
-import math
+
 # The maximum amplitude of the ship's path, 1 being the top of the screen
 MAX_AMPLITUDE = 1
 # the minimum amplitude of the ships path, 0 being perfectly horizontal
-MIN_AMPLITUDE = 0
+MIN_AMPLITUDE = .1
 # how far the ship can move per tick
 MAX_AMPLITUDE_VELOCITY = 0.1
 

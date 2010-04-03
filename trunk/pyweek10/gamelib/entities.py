@@ -29,6 +29,7 @@ def SinusoidToCartesian(A, omega, t , phi):
     return (x,y)
 
 class Entity(object):
+    entity_type = None
     def __init__(self, parent_level, layer = 2):
         self.parent_level = parent_level
 
@@ -36,7 +37,7 @@ class Entity(object):
         self._x_offset = 0
         self._y_offset = 0
 
-        self.parent_level.register_entity(self, layer)
+        self.parent_level.register_entity(self, layer, self.entity_type)
 
 
     def Rescale(self, NewScaleFactor):
@@ -53,7 +54,7 @@ class Entity(object):
         return y * self._scaleFactor + self._y_offset
 
     def delete(self):
-        self.parent_level.remove_entity(self)
+        self.parent_level.remove_entity(self, self.entity_type)
 
     def draw(self):
         pass
@@ -62,6 +63,7 @@ class Entity(object):
         pass
     
 class Actor(Entity):
+    entity_type = None
     def __init__(self, sprite_image, parent_level, layer = 2):
         self.sprite = pyglet.sprite.Sprite(sprite_image)
         self.collider = SpriteCollision(self.sprite) 
@@ -159,6 +161,13 @@ class Oscillator(object):
 
         currentPos = self.GetCurrentValue()
         oldTheta = (self._Omega * self._t + self._Phase) % (2 * math.pi)
+        
+        # Cap the change in amplitude to our current velocity
+        current_velocity = self._Amplitude * math.cos(oldTheta)
+        if (((deltaAmp > 0) and (current_velocity > 0) and (deltaAmp > current_velocity))
+            or((deltaAmp < 0) and (current_velocity < 0) and (deltaAmp < current_velocity))):
+                deltaAmp = self._Amplitude * math.cos(oldTheta)
+            
 
         newAmp = self._Amplitude + deltaAmp
         if (abs(currentPos) > newAmp):
@@ -170,33 +179,36 @@ class Oscillator(object):
         if (newAmp > MAX_AMPLITUDE) or (newAmp < MIN_AMPLITUDE):
             self.AmplitudeVelocity = 0
             return
+#===============================================================================
+# 
+#        # lim (x -> inf) asin(x) = 0
+#        if (newAmp != 0):
+#            newPhase = math.asin(currentPos/newAmp)
+#        else:
+#            newPhase = 0
+# 
+#        # asin returns values between -pi/2 and pi/2, we use values between 0 and 2*pi
+#        if (newPhase < 0):
+#            newPhase += (2*math.pi)
+# 
+#        # asin has multiple solutions everywhere that isn't a peak or a trough
+#        # by default, asin always returns the solution between -pi/2 and pi/2
+#        # (quadrants 0 and 3), to maintain continuity we want to use the solutions
+#        # from pi/2 to 3pi/2 (quadrants 1 and 2) if that was where the original
+#        # position was located
+#        if ( (math.pi/2) < oldTheta <= (math.pi) ):
+#            #Adjust the new phase to be in quadrant 1
+#            newPhase = math.pi - newPhase
+#        elif ( (math.pi) < oldTheta <= ((math.pi*3)/2) ):
+#            #Adjust the new phase to be in quadrant 2
+#            newPhase = math.pi + (2*math.pi - newPhase)
+#        newt = 0.0
+#
+#        self._Amplitude, self._Phase, self._t = newAmp, newPhase, newt
+#
+#===============================================================================
 
-        # lim (x -> inf) asin(x) = 0
-        if (newAmp != 0):
-            newPhase = math.asin(currentPos/newAmp)
-        else:
-            newPhase = 0
-
-        # asin returns values between -pi/2 and pi/2, we use values between 0 and 2*pi
-        if (newPhase < 0):
-            newPhase += (2*math.pi)
-
-        # asin has multiple solutions everywhere that isn't a peak or a trough
-        # by default, asin always returns the solution between -pi/2 and pi/2
-        # (quadrants 0 and 3), to maintain continuity we want to use the solutions
-        # from pi/2 to 3pi/2 (quadrants 1 and 2) if that was where the original
-        # position was located
-        if ( (math.pi/2) < oldTheta <= (math.pi) ):
-            #Adjust the new phase to be in quadrant 1
-            newPhase = math.pi - newPhase
-        elif ( (math.pi) < oldTheta <= ((math.pi*3)/2) ):
-            #Adjust the new phase to be in quadrant 2
-            newPhase = math.pi + (2*math.pi - newPhase)
-
-        newt = 0.0
-
-        self._Amplitude, self._Phase, self._t = newAmp, newPhase, newt
-
+        self._Amplitude = newAmp
 
     def AdjustAngularFrequency(self, deltaFreq):
         """
@@ -273,7 +285,8 @@ class Oscillator(object):
         return path
 
 class HostileShip(Actor):
-
+    
+    entity_type = TYPE_HOSTILE_SHIP
     def __init__(self, starting_x, starting_y, parent_level):
         sprite_image = data.load_image('Ship.png')
         sprite_image.anchor_y = sprite_image.height/2  
@@ -285,7 +298,7 @@ class HostileShip(Actor):
         self.sprite.color = (128,0,0)
         self.sprite.rotation = 180
         self._collidable = SpriteCollision(self.sprite)        
-        
+                
     def Rescale(self, NewScaleFactor):
         Actor.Rescale(self, NewScaleFactor)
         self.sprite.scale = float(NewScaleFactor)
