@@ -71,6 +71,9 @@ class Entity(object):
     def draw(self):
         pass
 
+    def Tick(self, delta_t):
+        pass
+    
 class Actor(Entity):
     def __init__(self, sprite_image, parent_level, layer = 2):
         self.sprite = pyglet.sprite.Sprite(sprite_image)
@@ -85,9 +88,6 @@ class Actor(Entity):
     def get_collidable(self):
         pass
         
-    def Tick(self, delta_t):
-        pass
-    
 class Oscillator(object):
     def __init__(self):
 
