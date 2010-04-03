@@ -292,13 +292,13 @@ class HostileShip(Actor):
     entity_type = TYPE_HOSTILE_SHIP
     def __init__(self, starting_x, starting_y, speed, parent_level, sprite_number = 1):
         if sprite_number == 1:
-            sprite_image = data.load_image('enemy1.png')
+            sprite_image = data.load_image('Enemy1.png')
         elif sprite_number == 2:
-            sprite_image = data.load_image('enemy2.png')
+            sprite_image = data.load_image('Enemy2.png')
         elif sprite_number == 3:
-            sprite_image = data.load_image('enemy3.png')
+            sprite_image = data.load_image('Enemy3.png')
         elif sprite_number == 3:
-            sprite_image = data.load_image('enemy4.png')
+            sprite_image = data.load_image('Enemy4.png')
         else:
             sprite_image = data.load_image('enemy.png')
             
