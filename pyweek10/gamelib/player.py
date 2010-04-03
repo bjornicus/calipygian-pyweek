@@ -157,8 +157,7 @@ class Player(Actor, Oscillator):
     hitting_terrain = property(get_hitting_terrain, set_hitting_terrain)
 
     def on_terrain_contact(self):
-        print 'terrain contacted'
-
+        pass
     def on_terrain_depart(self):
         pass
 

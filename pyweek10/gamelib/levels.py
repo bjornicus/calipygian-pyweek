@@ -279,6 +279,7 @@ class LevelBase(mode.Mode):
         self.fps_display = pyglet.clock.ClockDisplay()
         self.music_player = media.Player()
         self.music = None
+        self.endtime = 180 # 3 minutes
 
         player.Player(self)
         player.Hud(self)
@@ -291,11 +292,16 @@ class LevelBase(mode.Mode):
         if self.music is not None:
             self.music_player.queue(self.music)
             self.music_player.play()
+        pyglet.clock.schedule_once(self.on_level_complete, self.endtime)
 
     def disconnect(self):
         super(LevelBase, self).disconnect()
         self.music_player.pause()
+        pyglet.clock.unschedule(self.on_level_complete)
 
+    def on_level_complete(self, dt):
+        pass
+    
     def on_resize(self, width, height):
         self.Rescale()
 
@@ -668,6 +674,8 @@ class TestLevel(LevelBase):
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
         for playership in playerships: 
             playership.line_color = LEVEL4_PATH_COLOR
+
+        self.endtime = 2
                 
     def update(self, dt):
         self._timeline.Tick(dt)
@@ -677,9 +685,13 @@ class TestLevel(LevelBase):
         LevelBase.on_draw(self)
         self.level_label.draw()
 
+    def on_level_complete(self, dt):
+        LevelBase.on_level_complete(self, dt)
+        self.control.switch_handler("level1")
+
     def on_key_press(self, sym, mods):
         if DEBUG and sym == key.BACKSPACE:
-            self.control.switch_handler("level1")
+            self.next_level()
         else:
             return LevelBase.on_key_press(self, sym, mods)
         return EVENT_HANDLED
