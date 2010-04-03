@@ -104,20 +104,28 @@ class FullscreenScrollingSprite(Entity):
     def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
         self.Image = pyglet.image.load(data.filepath(filename))
         self._ImagePieces = []
+        self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
+        
         x = 0
         while x < self.Image.width:
             width = min(SIZE_OF_GAMESPACE_X, self.Image.width - x)
-            self._ImagePieces.append(self.Image.get_region(x, 0, width, self.Image.height))
+            ImagePiece = self.Image.get_region(x, 0, width, self.Image.height)
+            sprite = pyglet.sprite.Sprite(ImagePiece)
+            sprite.scale = self._scale
+            self._ImagePieces.append(sprite)
             x += width
 
         Entity.__init__(self, parent_level, layer=layer)
         self.x = 0
-        self._y = 0
+        self.y = 0
+
         self._scrolling_factor = scrolling_factor
 
     def Rescale(self, NewScaleFactor):
         super(FullscreenScrollingSprite, self).Rescale(NewScaleFactor)
         self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
+        for sprite in self._ImagePieces:
+            sprite.scale = self._scale
 
     def Tick(self, dt):
         self.x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
@@ -130,12 +138,16 @@ class FullscreenScrollingSprite(Entity):
         x = int(self.x - 0.5)
         while (x + self.Image.width < SIZE_OF_GAMESPACE_X + self.Image.width):
             x_offset = x
-            for image in self._ImagePieces:
-                if (x_offset + image.width < 0 or x_offset > SIZE_OF_GAMESPACE_X):
+            x_draw_offset = self.GetScaledX(x_offset)
+            for sprite in self._ImagePieces:
+                if (x_offset + sprite.image.width < 0 or x_offset > SIZE_OF_GAMESPACE_X):
                     pass
                 else:
-                    image.blit(self.GetScaledX(x_offset), 0)
-                x_offset += image.width
+                    sprite.x = x_draw_offset
+                    sprite.y = self.GetScaledY(self.y)
+                    sprite.draw()
+                x_draw_offset += int(sprite.width - .5)
+                x_offset += sprite.image.width
 
             x += self.Image.width
 
