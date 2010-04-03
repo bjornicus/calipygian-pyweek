@@ -108,7 +108,8 @@ class Player(Actor, Oscillator):
         self.dpad = joystick.DPad()
 
     def getHudContents(self):
-        return ["Shields:{0}".format(int(self.shield))]
+        return ["Shields:{0}".format(int(self.shield)),
+                "TIME:{0}".format(int(self.parent_level.timeline._current_time))]
         
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)

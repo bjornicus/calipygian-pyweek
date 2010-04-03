@@ -290,23 +290,31 @@ class Oscillator(object):
 class HostileShip(Actor):
     
     entity_type = TYPE_HOSTILE_SHIP
-    def __init__(self, starting_x, starting_y, parent_level):
-        sprite_image = data.load_image('enemy.png')
+    def __init__(self, starting_x, starting_y, speed, parent_level, sprite_number = 1):
+        if sprite_number == 1:
+            sprite_image = data.load_image('enemy1.png')
+        elif sprite_number == 2:
+            sprite_image = data.load_image('enemy2.png')
+        elif sprite_number == 3:
+            sprite_image = data.load_image('enemy3.png')
+        elif sprite_number == 3:
+            sprite_image = data.load_image('enemy4.png')
+        else:
+            sprite_image = data.load_image('enemy.png')
+            
         sprite_image.anchor_y = sprite_image.height/2  
         Actor.__init__(self, sprite_image, parent_level)
 
         self._x = starting_x
         self._y = starting_y
-        self.speed = random.gauss(4,2)
-
-        self.sprite.color = (128,0,0)
+        self.speed = speed
                 
     def Rescale(self, NewScaleFactor):
         Actor.Rescale(self, NewScaleFactor)
         self.sprite.scale = float(NewScaleFactor)
 
     def Tick(self, delta_t):
-        self._x = self._x - (SIZE_OF_GAMESPACE_X * (delta_t / SECONDS_TO_CROSS_GAMESPACE) + self.speed)
+        self._x = self._x - (SIZE_OF_GAMESPACE_X * (delta_t / SECONDS_TO_CROSS_GAMESPACE) + (self.speed * delta_t/abs(delta_t)))
 
         Actor.Tick(self, delta_t)
         
