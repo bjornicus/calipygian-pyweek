@@ -282,11 +282,11 @@ class LevelBase(mode.Mode):
         self.window = None
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
+        self._objects_of_interest = {}
         self._Background = None
         self._Middleground = None
         self._Foreground = None
 
-        self._objects_of_interest = {}
         self._scale = 1
         self._x_offset = 0
         self._y_offset = 0
@@ -325,6 +325,9 @@ class LevelBase(mode.Mode):
     def restart(self):
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
+        self._objects_of_interest = {}
+        player.Player(self)
+        player.Hud(self)
         if self._Background:
             self.register_entity(self._Background, 0)
         if self._Middleground:
@@ -333,8 +336,6 @@ class LevelBase(mode.Mode):
         if self._Foreground:
             self._Foreground.reset()
             self.register_entity(self._Foreground, 1, TYPE_TERRAIN)
-        player.Player(self)
-        player.Hud(self)
         
         self.setup_timeline()
 
