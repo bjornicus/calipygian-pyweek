@@ -161,7 +161,7 @@ class Player(Actor, Oscillator):
         glBegin(GL_LINE_STRIP)
         for time in arange(0, SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
             t, y, a = self.GetPredictiveCoordinate(time)
-            x = self.GetScaledX(SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self.x + self.sprite.width)
+            x = self.GetScaledX(SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self.x + self.sprite.width/2)
             y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
             glVertex2f(x,y)
         glEnd()
