@@ -108,8 +108,7 @@ class Player(Actor, Oscillator):
         self.dpad = joystick.DPad()
 
     def getHudContents(self):
-        return ["Shields:{0}".format(int(self.shield)),
-                "TIME:{0}".format(int(self.parent_level.timeline._current_time))]
+        return ["Shields:{0}".format(int(self.shield))]
         
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)
@@ -142,10 +141,12 @@ class Player(Actor, Oscillator):
         else:
             self.FrequencyAdjust = CONSTANT
 
-        if keys[key.SPACE]:
-            self.frozen = True
-        else: 
-            self.frozen = False
+        #=======================================================================
+        # if keys[key.SPACE]:
+        #    self.frozen = True
+        # else: 
+        #    self.frozen = False
+        #=======================================================================
 
 
     def get_hitting_terrain(self):
