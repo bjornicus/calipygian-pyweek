@@ -33,6 +33,11 @@ class Titlescreen(mode.Mode):
         mode.Mode.__init__(self)
 
         self._Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/TitleScreenWS.jpg')))
+        self.select_arrow = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/SelectionArrowBlue.png')))
+        self.select_arrow.image.anchor_x = self.select_arrow.image.width
+        self.select_arrow.image.anchor_y = self.select_arrow.image.height/2
+        self.select_arrow.scale = 0.25
+        self.selected_option = 'start'
         self.music_player = media.Player()
         self.music = data.load_song('TitlescreenMusic.ogg')
 
@@ -61,15 +66,32 @@ class Titlescreen(mode.Mode):
             self.music_player.queue(self.music)
             self.music_player.play()
 
+    def disconnect(self):
+        super(Titlescreen, self).disconnect()
+        self.music_player.pause()
+        
     def update(self, dt):
         mode.Mode.update(self, dt)
 
     def on_draw(self):
         self._Sprite.draw()
+        if self.selected_option == 'start':
+            self.select_arrow.position = (400, 250)
+            self.select_arrow.draw()
+        elif self.selected_option == 'quit':
+            self.select_arrow.position = (400, 200)
+            self.select_arrow.draw()
 
     def on_key_press(self, sym, mods):
-        if sym == key.ENTER:
-            self.control.switch_handler("level2")
+        if sym == key.UP or sym == key.DOWN:
+            self.selected_option = 'start' if self.selected_option == 'quit' else 'quit'
+        elif sym == key.ENTER:
+            if self.selected_option == 'start':
+                self.control.switch_handler("level1")
+            elif self.selected_option == 'quit':
+                self.window.dispatch_event('on_close')
+            else:
+                return EVENT_UNHANDLED
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
@@ -215,16 +237,12 @@ class LevelBase(mode.Mode):
         for reactor in self.reactorlist:
             reactor.Tick(dt, self.keys)
 
-        ## Hacks
-        #=======================================================================
-        # e_ship_prob = random.randrange(100)
-        # if(e_ship_prob > 90):
-        #    x = SIZE_OF_GAMESPACE_X
-        #    #y = random.randrange(SIZE_OF_GAMESPACE_Y)
-        #    y = 359
-        #    e_ship = entities.HostileShip(x, y, self)
-        #=======================================================================
-
+    def on_key_press(self, sym, mods):
+        if sym == key.ESCAPE:
+            self.control.switch_handler("titlescreen")
+        else:
+            return EVENT_UNHANDLED
+        return EVENT_HANDLED
 
     def remove_entity(self, entity):
         if entity in self.actorlist:
@@ -333,7 +351,7 @@ class LevelOne(LevelBase):
         if DEBUG and sym == key.BACKSPACE:
             self.control.switch_handler("level2")
         else:
-            return EVENT_UNHANDLED
+            return LevelBase.on_key_press(self, sym, mods)
         return EVENT_HANDLED
 
 class LevelTwo(LevelBase):
@@ -373,7 +391,7 @@ class LevelTwo(LevelBase):
         if DEBUG and sym == key.BACKSPACE:
             self.control.switch_handler("level3")
         else:
-            return EVENT_UNHANDLED
+            return LevelBase.on_key_press(self, sym, mods)
         return EVENT_HANDLED
 
 
@@ -414,7 +432,7 @@ class LevelThree(LevelBase):
         if DEBUG and sym == key.BACKSPACE:
             self.control.switch_handler("level4")
         else:
-            return EVENT_UNHANDLED
+            return LevelBase.on_key_press(self, sym, mods)
         return EVENT_HANDLED
 
 
@@ -455,7 +473,7 @@ class LevelFour(LevelBase):
         if DEBUG and sym == key.BACKSPACE:
             self.control.switch_handler("level1")
         else:
-            return EVENT_UNHANDLED
+            return LevelBase.on_key_press(self, sym, mods)
         return EVENT_HANDLED
 
 
