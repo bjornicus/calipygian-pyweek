@@ -25,7 +25,10 @@ import player
 import entities
 import data
 
-rocks = []
+NEXT_LEVEL = 'level1'
+def set_next_level(name):
+    global NEXT_LEVEL
+    NEXT_LEVEL = name
 
 class Titlescreen(mode.Mode):
     '''
@@ -125,7 +128,7 @@ class Loading(mode.Mode):
         self._Frames += 1
         self._Background.draw()
         if self._Connected and self._Frames > 10:
-            self.control.switch_handler("level1")
+            self.control.switch_handler(NEXT_LEVEL)
 
 class CollidableTerrain(Entity):
     '''
@@ -299,8 +302,8 @@ class LevelBase(mode.Mode):
         self.music_player.pause()
         pyglet.clock.unschedule(self.on_level_complete)
 
-    def on_level_complete(self, dt):
-        pass
+    def on_level_complete(self, dt=0):
+        self.control.switch_handler('loading')
     
     def on_resize(self, width, height):
         self.Rescale()
@@ -380,7 +383,9 @@ class LevelBase(mode.Mode):
 
     
     def on_key_press(self, sym, mods):
-        if sym == key.ESCAPE:
+        if DEBUG and sym == key.BACKSPACE:
+            self.on_level_complete()
+        elif sym == key.ESCAPE:
             self.control.switch_handler("titlescreen")
         else:
             return EVENT_UNHANDLED
@@ -487,6 +492,8 @@ class LevelOne(LevelBase):
     name = "level1"
 
     def __init__(self ):
+        print ''
+        print 'Initializing Level One...'
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25*SHIP_SPEED)
@@ -507,6 +514,10 @@ class LevelOne(LevelBase):
         for playership in playerships:
             playership.line_color = LEVEL1_PATH_COLOR
 
+    def connect(self, control):
+        LevelBase.connect(self, control)
+        set_next_level('level2')
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -514,12 +525,6 @@ class LevelOne(LevelBase):
     def on_draw(self):
         LevelBase.on_draw(self)
 
-    def on_key_press(self, sym, mods):
-        if DEBUG and sym == key.BACKSPACE:
-            self.control.switch_handler("level2")
-        else:
-            return LevelBase.on_key_press(self, sym, mods)
-        return EVENT_HANDLED
 
 class LevelTwo(LevelBase):
     '''
@@ -528,6 +533,8 @@ class LevelTwo(LevelBase):
     name = "level2"
 
     def __init__(self ):
+        print ''
+        print 'Initializing Level Two...'
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level2Middleground.png', self, 0, 0.25*SHIP_SPEED)
@@ -548,6 +555,10 @@ class LevelTwo(LevelBase):
         for playership in playerships: 
             playership.line_color = LEVEL2_PATH_COLOR
 
+    def connect(self, control):
+        LevelBase.connect(self, control)
+        set_next_level('level3')
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -555,12 +566,6 @@ class LevelTwo(LevelBase):
     def on_draw(self):
         LevelBase.on_draw(self)
 
-    def on_key_press(self, sym, mods):
-        if DEBUG and sym == key.BACKSPACE:
-            self.control.switch_handler("level3")
-        else:
-            return LevelBase.on_key_press(self, sym, mods)
-        return EVENT_HANDLED
 
 
 class LevelThree(LevelBase):
@@ -570,6 +575,8 @@ class LevelThree(LevelBase):
     name = "level3"
 
     def __init__(self ):
+        print ''
+        print 'Initializing Level Three...'
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level3Middleground.png', self, 0, 0.25*SHIP_SPEED)
@@ -590,6 +597,10 @@ class LevelThree(LevelBase):
         for playership in playerships: 
             playership.line_color = LEVEL3_PATH_COLOR
 
+    def connect(self, control):
+        LevelBase.connect(self, control)
+        set_next_level('level4')
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -597,12 +608,6 @@ class LevelThree(LevelBase):
     def on_draw(self):
         LevelBase.on_draw(self)
 
-    def on_key_press(self, sym, mods):
-        if DEBUG and sym == key.BACKSPACE:
-            self.control.switch_handler("level4")
-        else:
-            return LevelBase.on_key_press(self, sym, mods)
-        return EVENT_HANDLED
 
 
 class LevelFour(LevelBase):
@@ -612,6 +617,8 @@ class LevelFour(LevelBase):
     name = "level4"
 
     def __init__(self ):
+        print ''
+        print 'Initializing Level Four...'
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25*SHIP_SPEED)
@@ -632,6 +639,10 @@ class LevelFour(LevelBase):
         for playership in playerships: 
             playership.line_color = LEVEL4_PATH_COLOR
                 
+    def connect(self, control):
+        LevelBase.connect(self, control)
+        set_next_level('titlescreen')
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -639,12 +650,6 @@ class LevelFour(LevelBase):
     def on_draw(self):
         LevelBase.on_draw(self)
 
-    def on_key_press(self, sym, mods):
-        if DEBUG and sym == key.BACKSPACE:
-            self.control.switch_handler("level1")
-        else:
-            return LevelBase.on_key_press(self, sym, mods)
-        return EVENT_HANDLED
 
 
 class TestLevel(LevelBase):
@@ -654,6 +659,8 @@ class TestLevel(LevelBase):
     name = "testlevel"
 
     def __init__(self ):
+        print ''
+        print 'Initializing Test Level...'
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("TEST LEVEL", font_size=20)
         #self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
@@ -673,10 +680,14 @@ class TestLevel(LevelBase):
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
         for playership in playerships: 
-            playership.line_color = LEVEL4_PATH_COLOR
+            playership.line_color = LEVEL1_PATH_COLOR
 
         self.endtime = 2
                 
+    def connect(self, control):
+        LevelBase.connect(self, control)
+        set_next_level('level1')
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -684,16 +695,5 @@ class TestLevel(LevelBase):
     def on_draw(self):
         LevelBase.on_draw(self)
         self.level_label.draw()
-
-    def on_level_complete(self, dt):
-        LevelBase.on_level_complete(self, dt)
-        self.control.switch_handler("level1")
-
-    def on_key_press(self, sym, mods):
-        if DEBUG and sym == key.BACKSPACE:
-            self.next_level()
-        else:
-            return LevelBase.on_key_press(self, sym, mods)
-        return EVENT_HANDLED
 
 
