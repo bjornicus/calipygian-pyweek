@@ -100,6 +100,7 @@ class Player(Actor, Oscillator):
         self.z = 1 #draw this above other stuff
         
         self._original_color = self.sprite.color
+        self.line_color = (1,1,1,1)
 
     def getHudContents(self):
         return ["Shields"]
@@ -146,7 +147,7 @@ class Player(Actor, Oscillator):
             draw_bounding_box(self.sprite)
         
     def draw_path(self):
-        glColor4f(0.75, 0.75, 1, 1) 
+        glColor4f(*self.line_color) 
         glLineWidth(2)
         glBegin(GL_LINE_STRIP)
         for time in arange(0, SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
