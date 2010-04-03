@@ -121,10 +121,10 @@ class Player(Actor, Oscillator):
         else:
             self.AmplitudeAdjust = CONSTANT
 
-        if keys[key.RIGHT] and not keys[key.LEFT]:
-            self.FrequencyAdjust = INCREASE
-        elif keys[key.LEFT] and not keys[key.RIGHT]:
+        if keys[key.LEFT] and not keys[key.RIGHT]:
             self.FrequencyAdjust = DECREASE
+        elif keys[key.RIGHT] and not keys[key.LEFT]:
+            self.FrequencyAdjust = INCREASE
         else:
             self.FrequencyAdjust = CONSTANT
 
