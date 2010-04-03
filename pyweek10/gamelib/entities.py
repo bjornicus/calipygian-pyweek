@@ -42,14 +42,14 @@ def SinusoidToCartesian(A, omega, t , phi):
     return (x,y)
 
 class Entity(object):
-    def __init__(self, parent_level, entity_flag = ENTITY_STATIC, layer = 2):
+    def __init__(self, parent_level, layer = 2):
         self.parent_level = parent_level
 
         self._scaleFactor = 1
         self._x_offset = 0
         self._y_offset = 0
 
-        self.parent_level.register_entity(self, entity_flag, layer)
+        self.parent_level.register_entity(self, layer)
 
 
     def Rescale(self, NewScaleFactor):
@@ -71,30 +71,23 @@ class Entity(object):
     def draw(self):
         pass
 
-    # Return the sprite for this entity, if any
-    def get_collidable(self):
-        pass
-
 class Actor(Entity):
-    def __init__(self, parent_level, entity_flag = ENTITY_ACTOR, layer = 2):
-        Entity.__init__(self, parent_level, entity_flag, layer)
+    def __init__(self, sprite_image, parent_level, layer = 2):
+        self.sprite = pyglet.sprite.Sprite(sprite_image)
+        self.collider = SpriteCollision(self.sprite) 
+        Entity.__init__(self, parent_level, layer)
 
     def Rescale(self, NewScaleFactor):
         Entity.Rescale(self, NewScaleFactor)
+        self.sprite.scale = float(NewScaleFactor)
+
+    # Return the sprite for this entity, if any
+    def get_collidable(self):
+        pass
         
     def Tick(self, delta_t):
         pass
     
-class Reactor(Entity):
-    def __init__(self, parent_level, entity_flag = ENTITY_REACTOR):
-        Entity.__init__(self, parent_level, entity_flag)
-        
-    def Rescale(self, NewScaleFactor):
-        Entity.Rescale(self, NewScaleFactor)
-        
-    def Tick(self, delta_t, KeyState):
-        pass
-
 class Oscillator(object):
     def __init__(self):
 
@@ -106,7 +99,12 @@ class Oscillator(object):
         self.AmplitudeVelocity = 0
         self.FrequencyVelocity = 0
 
-    def Tick(self, delta_t, KeyState):
+        self.frozen = False
+
+        self.AmplitudeAdjust = CONSTANT
+        self.FrequencyAdjust = CONSTANT
+
+    def Tick(self, delta_t):
         """
         Simulate the passage of time on the ships sinusodial position.
 
@@ -116,23 +114,23 @@ class Oscillator(object):
         One more step along the inevitable march of time
         One more step closer to the heat-death of the universe
         """
-        if(not KeyState[key.SPACE]):
+        if not self.frozen:
             self._t = (self._t + delta_t) % (TWOPI/self._Omega)
 
-        if KeyState[key.UP] and not KeyState[key.DOWN]:
+        if self.AmplitudeAdjust == INCREASE:
             self.AmplitudeVelocity = AMPLITUDE_ACCEL_FUNC(delta_t, self.AmplitudeVelocity)
             self.AdjustAmplitude(self.AmplitudeVelocity)
-        elif KeyState[key.DOWN] and not KeyState[key.UP]:
+        elif self.AmplitudeAdjust == DECREASE:
             self.AmplitudeVelocity = -AMPLITUDE_ACCEL_FUNC(delta_t, abs(self.AmplitudeVelocity))
             self.AdjustAmplitude(self.AmplitudeVelocity)
         else:
             self.AmplitudeVelocity = 0
 
 
-        if KeyState[key.RIGHT] and not KeyState[key.LEFT]:
+        if self.FrequencyAdjust == INCREASE:
             self.FrequencyVelocity = FREQUENCY_ACCEL_FUNC(delta_t, self.FrequencyVelocity)
             self.AdjustAngularFrequency(self.FrequencyVelocity)
-        elif KeyState[key.LEFT] and not KeyState[key.RIGHT]:
+        elif self.FrequencyAdjust == DECREASE:
             self.FrequencyVelocity = -FREQUENCY_ACCEL_FUNC(delta_t, abs(self.FrequencyVelocity))
             self.AdjustAngularFrequency(self.FrequencyVelocity)
         else:
@@ -286,26 +284,24 @@ class Oscillator(object):
             path.append(self.GetPredictiveCoordinate(t_cursor))
             t_cursor += t_step
         return path
+
 class HostileShip(Actor):
 
     def __init__(self, starting_x, starting_y, parent_level):
-        self._ShipSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Ship.png')))
-        self._ShipSprite.image.anchor_x = self._ShipSprite.image.width / 2
-        self._ShipSprite.image.anchor_y = self._ShipSprite.image.height / 2
-        
-        Actor.__init__(self, parent_level)
+        sprite_image = data.load_image('Ship.png')
+        sprite_image.anchor_y = sprite_image.height/2  
+        Actor.__init__(self, sprite_image, parent_level)
 
         self._x = starting_x
         self._y = starting_y
 
-        self._ShipSprite.x = self._ShipSprite.image.anchor_x
-        self._ShipSprite.color = (128,0,0)
-        self._ShipSprite.rotation = 180
-        self._collidable = SpriteCollision(self._ShipSprite)        
+        self.sprite.color = (128,0,0)
+        self.sprite.rotation = 180
+        self._collidable = SpriteCollision(self.sprite)        
         
     def Rescale(self, NewScaleFactor):
         Actor.Rescale(self, NewScaleFactor)
-        self._ShipSprite.scale = float(NewScaleFactor)
+        self.sprite.scale = float(NewScaleFactor)
 
     def Tick(self, delta_t):
         self._x = self._x - (SIZE_OF_GAMESPACE_X * (delta_t / SECONDS_TO_CROSS_GAMESPACE))
@@ -317,11 +313,11 @@ class HostileShip(Actor):
         
     def draw(self):
         Actor.draw(self)
-        self._ShipSprite.x = self.GetScaledX(self._x)
-        self._ShipSprite.y = self.GetScaledY(self._y)
-        self._ShipSprite.draw()
+        self.sprite.x = self.GetScaledX(self._x)
+        self.sprite.y = self.GetScaledY(self._y)
+        self.sprite.draw()
         if DEBUG:
-            debug.draw_bounding_box(self._ShipSprite)
+            debug.draw_bounding_box(self.sprite)
             
     def get_collidable(self):
         return self._collidable

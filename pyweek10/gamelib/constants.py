@@ -45,9 +45,6 @@ SIZE_OF_GAMESPACE_Y = 480
 
 PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND = 200
 
-# Entity type flags
-(
-    ENTITY_STATIC, # Entity only gets called for Drawing
-    ENTITY_ACTOR,  # Entity is drawn and receives tick calls
-    ENTITY_REACTOR # Entity is drawn, receives tick calls and keyboard state
-) = range(3)
+# amplitude and frequency adjust flags
+( INCREASE, CONSTANT, DECREASE ) = range(3)
+

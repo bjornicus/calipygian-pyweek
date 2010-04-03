@@ -96,7 +96,7 @@ class Titlescreen(mode.Mode):
             return EVENT_UNHANDLED
         return EVENT_HANDLED
 
-class FullscreenScrollingSprite(Actor):
+class FullscreenScrollingSprite(Entity):
     '''
     A class to manage a full-screen scrolling sprite.
     '''
@@ -109,13 +109,13 @@ class FullscreenScrollingSprite(Actor):
             self._ImagePieces.append(self.Image.get_region(x, 0, width, self.Image.height))
             x += width
 
-        Actor.__init__(self, parent_level, layer=layer)
+        Entity.__init__(self, parent_level, layer=layer)
         self._x = 0
         self._y = 0
         self._scrolling_factor = scrolling_factor
 
     def Rescale(self, NewScaleFactor):
-        Actor.Rescale(self, NewScaleFactor)
+        super(FullscreenScrollingSprite, self).Rescale(NewScaleFactor)
         self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
 
     def Tick(self, dt):
@@ -123,7 +123,7 @@ class FullscreenScrollingSprite(Actor):
         if (self._x < -self.Image.width):
             self._x += self.Image.width
 
-        Actor.Tick(self, dt)
+        super(FullscreenScrollingSprite, self).Tick(dt)
 
     def draw(self):
         x = int(self._x - 0.5)
@@ -138,7 +138,8 @@ class FullscreenScrollingSprite(Actor):
 
             x += self.Image.width
 
-        Actor.draw(self)
+        super(FullscreenScrollingSprite, self).draw()
+
 
     def get_collidable(self):
         return None
@@ -156,7 +157,6 @@ class LevelBase(mode.Mode):
         self.window = None
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
-        self.reactorlist = [] # list of objects expecting to pool keyboard state when they update
 
         self._scale = 1
         self._x_offset = 0
@@ -168,6 +168,7 @@ class LevelBase(mode.Mode):
         self.fps_display = pyglet.clock.ClockDisplay()
         self.music_player = media.Player()
         self.music = None
+        self.player = player.Player(self)
         
     def connect(self, control):
         mode.Mode.connect(self, control)
@@ -225,13 +226,6 @@ class LevelBase(mode.Mode):
     def on_draw(self):
         self.window.clear()
 
-        self.playership.reset_color()
-        # see if any of the actors collided with the player.
-        for a in self.actorlist:
-            if(collide(self.playership.get_collidable(), a.get_collidable())):
-                self.playership.on_collision();
-                break;
-
         for renderlist in self.renderlist_layers:
             for drawable in renderlist:
                 drawable.draw()
@@ -243,10 +237,15 @@ class LevelBase(mode.Mode):
         self.fps_display.draw()
 
     def update(self, dt):
+        self.player.handle_input(self.keys)
         for actor in self.actorlist:
             actor.Tick(dt)
-        for reactor in self.reactorlist:
-            reactor.Tick(dt, self.keys)
+        self.player.reset_color()
+        # see if any of the actors collided with the player.
+        for a in self.actorlist:
+            if(collide(self.player.get_collidable(), a.get_collidable())):
+                self.player.on_collision();
+                break;
 
     def on_key_press(self, sym, mods):
         if sym == key.ESCAPE:
@@ -258,8 +257,6 @@ class LevelBase(mode.Mode):
     def remove_entity(self, entity):
         if entity in self.actorlist:
             self.actorlist.remove(entity)
-        if entity in self.reactorlist:
-            self.reactorlist.remove(entity)
         for renderlist in self.renderlist_layers:
             if entity in renderlist:
                 renderlist.remove(entity)
@@ -278,12 +275,8 @@ class LevelBase(mode.Mode):
             return 1 if xz>yz else -1 if xz<yz else 0
         self.renderlist_layers[layer].sort(cmp=compare_depth)
 
-        if(entity_flag is ENTITY_STATIC):
-            pass
-        elif(entity_flag is ENTITY_ACTOR):
+        if(isinstance(entity, Actor)):
             self.actorlist.append(entity)
-        elif(entity_flag is ENTITY_REACTOR):
-            self.reactorlist.append(entity)
 
 
 class TimeLineEntity:
@@ -350,7 +343,6 @@ class LevelOne(LevelBase):
     def __init__(self ):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level One", font_size=20)
-        self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25)
         self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
@@ -376,7 +368,6 @@ class LevelTwo(LevelBase):
     def __init__(self ):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
-        self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level2Middleground.png', self, 0, 0.25)
         self._Foreground = FullscreenScrollingSprite('graphics/Level2Foreground.png', self, 1, 1.0)
@@ -417,7 +408,6 @@ class LevelThree(LevelBase):
     def __init__(self ):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Three", font_size=20)
-        self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level3Middleground.png', self, 0, 0.25)
         self._Foreground = FullscreenScrollingSprite('graphics/Level3Foreground.png', self, 1, 1.0)
@@ -458,7 +448,6 @@ class LevelFour(LevelBase):
     def __init__(self ):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Four", font_size=20)
-        self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25)
         self._Foreground = FullscreenScrollingSprite('graphics/Level4Foreground.png', self, 1, 1.0)
