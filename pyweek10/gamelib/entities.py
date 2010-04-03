@@ -73,6 +73,9 @@ class Actor(Entity):
         Entity.Rescale(self, NewScaleFactor)
         self.sprite.scale = float(NewScaleFactor)
 
+    def draw(self):
+        self.sprite.draw()
+        
     # Return the sprite for this entity, if any
     def get_collidable(self):
         pass
@@ -294,6 +297,7 @@ class HostileShip(Actor):
 
         self._x = starting_x
         self._y = starting_y
+        self.speed = random.gauss(4,2)
 
         self.sprite.color = (128,0,0)
                 
@@ -302,7 +306,7 @@ class HostileShip(Actor):
         self.sprite.scale = float(NewScaleFactor)
 
     def Tick(self, delta_t):
-        self._x = self._x - (SIZE_OF_GAMESPACE_X * (delta_t / SECONDS_TO_CROSS_GAMESPACE))
+        self._x = self._x - (SIZE_OF_GAMESPACE_X * (delta_t / SECONDS_TO_CROSS_GAMESPACE) + self.speed)
 
         Actor.Tick(self, delta_t)
         
@@ -310,12 +314,37 @@ class HostileShip(Actor):
             self.delete()
         
     def draw(self):
-        Actor.draw(self)
         self.sprite.x = self.GetScaledX(self._x)
         self.sprite.y = self.GetScaledY(self._y)
-        self.sprite.draw()
+        Actor.draw(self)
         if DEBUG:
             debug.draw_bounding_box(self.sprite)
             
     def get_collidable(self):
         return SpriteCollision(self.sprite) 
+
+class Debris(Actor):
+    entity_type = TYPE_DEBRIS
+    def __init__(self, starting_x, starting_y, parent_level):
+        # this should mb come in as a parameter 
+        # or we should choose at random, but we need to know from what set
+        sprite_image = data.load_image('Level1Debris1.png')
+        sprite_image.anchor_x = sprite_image.width/2
+        sprite_image.anchor_y = sprite_image.height/2
+        Actor.__init__(self, sprite_image, parent_level)
+        self.x = starting_x
+        self.y = starting_y
+        self.vx = 0
+        self.vy = 0
+
+    def Tick(self, dt):
+        self.x = self.x - (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE))
+
+    def draw(self):
+        self.sprite.x = self.GetScaledX(self.x)
+        self.sprite.y = self.GetScaledY(self.y)
+        Actor.draw(self)
+
+    def get_collidable(self):
+        return SpriteCollision(self.sprite)
+
