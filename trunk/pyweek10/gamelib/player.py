@@ -102,11 +102,12 @@ class Player(Actor, Oscillator):
         
         self._original_color = self.sprite.color
         self.line_color = (1,1,1,1)
-        self.shield = 100
+        self.shield = STARTING_SHIELDS
+        self.collision_cooldown = 0
         self.dpad = joystick.DPad()
 
     def getHudContents(self):
-        return ["Shields:{0}".format(self.shield)]
+        return ["Shields:{0}".format(int(self.shield))]
         
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)
@@ -115,6 +116,9 @@ class Player(Actor, Oscillator):
         Oscillator.Tick(self, delta_t)
         shipPos = self.GetCurrentValue()
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
+        self.shield = min(self.shield + SHIELD_CHARGE_RATE * delta_t * self._Omega,  MAX_SHIELDS)
+        if (self.collision_cooldown > 0):
+            self.collision_cooldown = max(self.collision_cooldown - delta_t, 0)
         
     def handle_input(self, keys):
         self.dpad.update()
@@ -138,11 +142,18 @@ class Player(Actor, Oscillator):
             self.frozen = False
         
     def reset_color(self):
-        self.sprite.color = self._original_color
+        if (self.collision_cooldown > 0):
+            self.sprite.color = (255, 0, 0)
+        else:
+            self.sprite.color = self._original_color
 
     def on_collision(self):
+        if (self.collision_cooldown > 0):
+            return
         self.sprite.color = (255, 0, 0)
-        self.shield -= 5
+        self.shield -= 500
+        self.collision_cooldown = COLLISION_COOLDOW
+        
 
     def get_collidable(self):
         return SpriteCollision(self.sprite) 

@@ -63,6 +63,7 @@ TYPE_PLAYER_SHIP = "Player"
 TYPE_HOSTILE_SHIP = "Hostile"
 TYPE_DEBRIS = "Debris"
 TYPE_TERRAIN = "Terrain"
+
 ##Ship Movement Characteristics
 SHIP_SPEED = 1.0
 # The maximum amplitude of the ship's path, 1 being the top of the screen
@@ -76,4 +77,8 @@ MAX_FREQUENCY = 3*math.pi
 MIN_FREQUENCY = .25*math.pi
 MAX_FREQUENCY_VELOCITY = .5*math.pi
 
+MAX_SHIELDS = 2000
+STARTING_SHIELDS = 500
+SHIELD_CHARGE_RATE = 50/math.pi
+COLLISION_COOLDOW = 1
 
