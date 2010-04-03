@@ -383,7 +383,7 @@ class LevelOne(LevelBase):
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
         for playership in playerships: 
-            playership.line_color = (1,0.5,0,1)
+            playership.line_color = LEVEL1_PATH_COLOR
                 
     def update(self, dt):
         self._timeline.Tick(dt)
@@ -423,6 +423,10 @@ class LevelTwo(LevelBase):
             12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
+
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL2_PATH_COLOR
 
     def update(self, dt):
         self._timeline.Tick(dt)
@@ -464,6 +468,10 @@ class LevelThree(LevelBase):
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
 
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL3_PATH_COLOR
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -503,6 +511,10 @@ class LevelFour(LevelBase):
             12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
+
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL4_PATH_COLOR
                 
     def update(self, dt):
         self._timeline.Tick(dt)

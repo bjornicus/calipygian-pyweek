@@ -47,6 +47,12 @@ SIZE_OF_GAMESPACE_Y = 480
 
 PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND = 50
 
+# line colors (r, g, b, a)
+LEVEL1_PATH_COLOR = (1, 0.5, 0, 0.9)
+LEVEL2_PATH_COLOR = (0.5, 0, 0.5, 0.9)
+LEVEL3_PATH_COLOR = (0.9, 0.9, 0.9, 0.9)
+LEVEL4_PATH_COLOR = (0.2, 0.2, 0.8, 0.9)
+
 # amplitude and frequency adjust flags
 ( INCREASE, CONSTANT, DECREASE ) = range(3)
 
@@ -65,3 +71,5 @@ MAX_AMPLITUDE_VELOCITY = 0.1
 MAX_FREQUENCY = 3*math.pi
 MIN_FREQUENCY = .25*math.pi
 MAX_FREQUENCY_VELOCITY = .5*math.pi
+
+
