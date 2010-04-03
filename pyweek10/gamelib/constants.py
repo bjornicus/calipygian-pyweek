@@ -48,3 +48,15 @@ PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND = 200
 # amplitude and frequency adjust flags
 ( INCREASE, CONSTANT, DECREASE ) = range(3)
 
+##Ship Movement Characteristics
+import math
+# The maximum amplitude of the ship's path, 1 being the top of the screen
+MAX_AMPLITUDE = 1
+# the minimum amplitude of the ships path, 0 being perfectly horizontal
+MIN_AMPLITUDE = 0
+# how far the ship can move per tick
+MAX_AMPLITUDE_VELOCITY = 0.1
+
+MAX_FREQUENCY = 3*math.pi
+MIN_FREQUENCY = .25*math.pi
+MAX_FREQUENCY_VELOCITY = .5*math.pi

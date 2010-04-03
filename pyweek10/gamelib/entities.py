@@ -14,21 +14,8 @@ if DEBUG:
 
 TWOPI = (2*math.pi)
 
-
-##Ship Movement Characteristics
-
-# The maximum amplitude of the ship's path, 1 being the top of the screen
-MAX_AMPLITUDE = 1
-# the minimum amplitude of the ships path, 0 being perfectly horizontal
-MIN_AMPLITUDE = 0
-# how far the ship can move per tick
-MAX_AMPLITUDE_VELOCITY = 0.1
 # calculates the amp movement of the ship
 AMPLITUDE_ACCEL_FUNC = lambda t, accel: min(MAX_AMPLITUDE_VELOCITY * t + accel, MAX_AMPLITUDE_VELOCITY)
-
-MAX_FREQUENCY = 3*math.pi
-MIN_FREQUENCY = .5*math.pi
-MAX_FREQUENCY_VELOCITY = .5*math.pi
 FREQUENCY_ACCEL_FUNC = lambda t, accel: min(MAX_FREQUENCY_VELOCITY * t + accel, MAX_FREQUENCY_VELOCITY)
 
 def SinusoidToCartesian(A, omega, t , phi):
