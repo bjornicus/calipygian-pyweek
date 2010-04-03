@@ -1,11 +1,11 @@
 #summary To Do List
 {{{
  [done] Collision detection
- [bjorn] Collision with enviroment
+ [done] Collision with environment
  Debris
  Shields
  Level select screen
- Level win/loose logic (or at least finish and transition to next)
+ [bjorn] Level win/loose logic (or at least finish and transition to next)
 
  tweaking the foregrounds to be more "fun" (some parts are really hard)
  tweaking the spawn location of hostiles
