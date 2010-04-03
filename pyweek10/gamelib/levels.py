@@ -266,7 +266,7 @@ class LevelBase(mode.Mode):
             for baddie in hostiles:
                 if(collide(playership.get_collidable(), baddie.get_collidable())):
                     print "HIT"
-                    playership.on_collision();
+                    playership.on_collision()
                     baddie.delete()
     
     def on_key_press(self, sym, mods):
