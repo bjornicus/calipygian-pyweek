@@ -148,12 +148,10 @@ class Player(Actor, Oscillator):
         return SpriteCollision(self.sprite) 
 
     def draw(self):
-        Actor.draw(self)
         self.sprite.x = self.GetScaledX(self.x)
         self.sprite.y = self.GetScaledY(self.y)
-        #self.sprite.rotation = -self.GetAngle()
         self.draw_path()
-        self.sprite.draw()
+        Actor.draw(self)
         if DEBUG:
             draw_bounding_box(self.sprite)
         
