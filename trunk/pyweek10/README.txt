@@ -29,7 +29,7 @@ Othewise open a terminal / console and "cd" to the game directory and run:
 HOW TO PLAY THE GAME:
 
 Use the arrow keys: up and down adjust amplitude, left and right frequency.
-
+(if you are running Linux you can use a joystick or gamepad too)
 
 LICENSE:
 

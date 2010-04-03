@@ -411,6 +411,7 @@ class LevelOne(LevelBase):
         self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
         self.music = data.load_song('Level1Music.ogg')
         self._timeline = TimeLine({
+            1:      TimeLineEntity(entities.Debris,      [SIZE_OF_GAMESPACE_X, 300, self]), 
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
             12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),

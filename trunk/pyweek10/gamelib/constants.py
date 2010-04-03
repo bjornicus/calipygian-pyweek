@@ -59,6 +59,7 @@ LEVEL4_PATH_COLOR = (0.2, 0.2, 0.8, 0.9)
 #Object of Interest types
 TYPE_PLAYER_SHIP = "Player"
 TYPE_HOSTILE_SHIP = "Hostile"
+TYPE_DEBRIS = "Debris"
 ##Ship Movement Characteristics
 
 # The maximum amplitude of the ship's path, 1 being the top of the screen
