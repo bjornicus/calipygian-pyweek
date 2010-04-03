@@ -60,8 +60,9 @@ LEVEL4_PATH_COLOR = (0.2, 0.2, 0.8, 0.9)
 TYPE_PLAYER_SHIP = "Player"
 TYPE_HOSTILE_SHIP = "Hostile"
 TYPE_DEBRIS = "Debris"
+TYPE_TERRAIN = "Terrain"
 ##Ship Movement Characteristics
-
+SHIP_SPEED = 1.0
 # The maximum amplitude of the ship's path, 1 being the top of the screen
 MAX_AMPLITUDE = 1
 # the minimum amplitude of the ships path, 0 being perfectly horizontal
