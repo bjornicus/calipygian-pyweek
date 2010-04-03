@@ -40,7 +40,7 @@ class Titlescreen(mode.Mode):
         self.selected_option = 'start'
         self.music_player = media.Player()
         self.music = None
-        #self.music = data.load_song('TitlescreenMusic.ogg')
+        self.music = data.load_song('TitlescreenMusic.ogg')
 
     def on_resize(self, width, height):
         if self.window is None:
@@ -170,6 +170,9 @@ class LevelBase(mode.Mode):
         self.fps_display = pyglet.clock.ClockDisplay()
         self.music_player = media.Player()
         self.music = None
+
+        player.Player(self)
+        player.Hud(self)
         
     def connect(self, control):
         mode.Mode.connect(self, control)
@@ -364,12 +367,10 @@ class LevelOne(LevelBase):
     def __init__(self ):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level One", font_size=20)
-        player.Player(self)
-        player.Hud(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25)
         self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
-        #self.music = data.load_song('Level1Music.ogg')
+        self.music = data.load_song('Level1Music.ogg')
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
