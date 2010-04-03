@@ -303,6 +303,12 @@ class LevelBase(mode.Mode):
 
         player.Player(self)
         player.Hud(self)
+        
+        # construction and loading of levels can take quite a while, the result is
+        # that the first time update gets called, the dt is quite large
+        # this causes strangeness, so we ignore the first update. 
+        # once update gets called it should start ticking along nicely
+        self.ignore_next_update = True
 
     def connect(self, control):
         mode.Mode.connect(self, control)
@@ -324,6 +330,7 @@ class LevelBase(mode.Mode):
         pass
 
     def restart(self):
+        pyglet.clock.unschedule(self.on_level_complete)
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
         self._objects_of_interest = {}
@@ -339,6 +346,7 @@ class LevelBase(mode.Mode):
             self.register_entity(self._Foreground, 1, TYPE_TERRAIN)
         
         self.setup_timeline()
+        pyglet.clock.schedule_once(self.on_level_complete, self.endtime)
 
     def on_level_complete(self, dt=0):
         self.control.switch_handler('loading')
@@ -396,7 +404,10 @@ class LevelBase(mode.Mode):
             self._letterbox_2.draw()
         self.fps_display.draw()
 
-    def update(self, dt):       
+    def update(self, dt):
+        if self.ignore_next_update:
+            self.ignore_next_update = False
+            return
         self.timeline.Tick(dt)
         for actor in self.actorlist:
             actor.Tick(dt)
@@ -544,8 +555,6 @@ class LevelOne(LevelBase):
             playership.line_color = LEVEL1_PATH_COLOR
         self.setup_timeline()
         
-        self.endtime = 90
-                
     def setup_timeline(self):
          self.timeline = TimeLine({
             1:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, 2,   self, 1]),
@@ -715,15 +724,17 @@ class TestLevel(LevelBase):
         self.setup_timeline()
         self.endtime = 30
                 
-    def setup_timeline(self):
-         self.timeline = TimeLine({
-            2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
-            6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
-            12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
-            12.25:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 190, self]),
-            12.5:   TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 180, self]),
-            12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
-            15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
+    def setup_timeline(self):         
+        self.timeline = TimeLine({
+            1:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, 2,   self, 1]),
+            5:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 50,  2,   self, 1]),
+            15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, 2,   self, 1]),
+            17:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 50,  2,   self, 1]),
+            23:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, 1.5, self, 2]),
+            23.25:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 310, 1.5, self, 2]),
+            23.5:   TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 320, 1.5, self, 2]),
+            23.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 330, 1.5, self, 2]),
+            30:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 40,  2,   self, 1]),
             })
 
     def connect(self, control):
