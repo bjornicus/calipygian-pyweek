@@ -8,6 +8,7 @@ the entities they contain.
 import pyglet
 from pyglet.window import key
 from pyglet.gl import *
+import joystick
 from entities import *
 from constants import *
 import levels
@@ -102,6 +103,7 @@ class Player(Actor, Oscillator):
         self._original_color = self.sprite.color
         self.line_color = (1,1,1,1)
         self.shield = 100
+        self.dpad = joystick.DPad()
 
     def getHudContents(self):
         return ["Shields:{0}".format(self.shield)]
@@ -115,16 +117,17 @@ class Player(Actor, Oscillator):
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
         
     def handle_input(self, keys):
-        if keys[key.UP] and not keys[key.DOWN]:
+        self.dpad.update()
+        if keys[key.UP] and not keys[key.DOWN] or self.dpad.axis1 < 0:
             self.AmplitudeAdjust = INCREASE
-        elif keys[key.DOWN] and not keys[key.UP]:
+        elif keys[key.DOWN] and not keys[key.UP] or self.dpad.axis1 > 0:
             self.AmplitudeAdjust = DECREASE
         else:
             self.AmplitudeAdjust = CONSTANT
 
-        if keys[key.LEFT] and not keys[key.RIGHT]:
+        if keys[key.LEFT] and not keys[key.RIGHT] or self.dpad.axis0 > 0:
             self.FrequencyAdjust = DECREASE
-        elif keys[key.RIGHT] and not keys[key.LEFT]:
+        elif keys[key.RIGHT] and not keys[key.LEFT] or self.dpad.axis0 < 0:
             self.FrequencyAdjust = INCREASE
         else:
             self.FrequencyAdjust = CONSTANT
