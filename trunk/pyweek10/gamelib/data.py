@@ -18,6 +18,7 @@ from pyglet import media
 from common import *
 from constants import *
 
+images = {}
 
 font.add_directory(os.path.join(DATA_DIR, "fonts"))
 
@@ -39,6 +40,14 @@ def load_file(path, mode="rb"):
     file_path = os.path.join(DATA_DIR, path)
     return open(file_path, mode)
 
+def load_image(path):
+    """
+    Load an image from the graphics directory
+    """
+    if path not in images:
+        image_path = os.path.join(DATA_DIR, "graphics", path)
+        images[path] = pyglet.image.load(image_path)
+    return images[path]
 
 def load_song(path):
     """Load a music stream from the music directory.

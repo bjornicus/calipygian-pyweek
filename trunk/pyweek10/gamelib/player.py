@@ -6,6 +6,7 @@ the entities they contain.
 '''
 
 import pyglet
+from pyglet.window import key
 from pyglet.gl import *
 from entities import *
 from constants import *
@@ -25,38 +26,54 @@ HITBOX_WIDTH = lambda hitbox: hitbox[2]
 HITBOX_HEIGHT = lambda hitbox: hitbox[3]
 
 
-class Player(Oscillator, Reactor):
+class Player(Actor, Oscillator):
     '''
     The main player object. This derives from Oscillator and adds in sprite rendering capabilities.
     This is the rendering side of the Oscillator object.
     '''
     def __init__(self, parent_level):
+        sprite_image = data.load_image('Ship.png')
+        sprite_image.anchor_y = sprite_image.height/2  
+        Actor.__init__(self, sprite_image, parent_level)
         Oscillator.__init__(self)
-        self._ShipSprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Ship.png')))
-        self._ShipSprite.image.anchor_y = self._ShipSprite.image.height/2
-        Reactor.__init__(self, parent_level)
-        
-        self._x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
-        self._y = SIZE_OF_GAMESPACE_Y//2
+        self.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
+        self.y = SIZE_OF_GAMESPACE_Y//2
         self.z = 1 #draw this above other stuff
         
-        self._original_color = self._ShipSprite.color
+        self._original_color = self.sprite.color
 
         
     def Rescale(self, NewScaleFactor):
-        Reactor.Rescale(self, NewScaleFactor)
-        self._ShipSprite.scale = float(NewScaleFactor)
+        super(Player, self).Rescale(NewScaleFactor)
 
-
-    def Tick(self, delta_t, KeyState):
+    def Tick(self, delta_t):
+        Oscillator.Tick(self, delta_t)
         shipPos = self.GetCurrentValue()
-        self._y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
-        Oscillator.Tick(self, delta_t, KeyState)
-        Reactor.Tick(self, delta_t, KeyState)
+        self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
     
+    def handle_input(self, keys):
+        if keys[key.UP] and not keys[key.DOWN]:
+            self.AmplitudeAdjust = INCREASE
+        elif keys[key.DOWN] and not keys[key.UP]:
+            self.AmplitudeAdjust = DECREASE
+        else:
+            self.AmplitudeAdjust = CONSTANT
+
+        if keys[key.RIGHT] and not keys[key.LEFT]:
+            self.FrequencyAdjust = INCREASE
+        elif keys[key.LEFT] and not keys[key.RIGHT]:
+            self.FrequencyAdjust = DECREASE
+        else:
+            self.FrequencyAdjust = CONSTANT
+
+        if keys[key.SPACE]:
+            self.frozen = True
+        else: 
+            self.frozen = False
+
     def get_hitbox(self):
         # TODO: make this hit box smaller
-        return (self._ShipSprite.x, self._ShipSprite.y, self._ShipSprite.width, self._ShipSprite.height)
+        return (self.sprite.x, self.sprite.y, self.sprite.width, self.sprite.height)
     
     def CollidedWith(self, actor):
         # TODO: this should be refined to maybe take pixels into account. 
@@ -82,23 +99,23 @@ class Player(Oscillator, Reactor):
         # print "collide! player: ", player_hitbox, " actor: ", actor_hitbox, " collision: ", collision 
         
         if collision:
-            self._ShipSprite.color = (255,0,0)
+            self.sprite.color = (255,0,0)
         else:
-            self._ShipSprite.color = self._original_color
+            self.sprite.color = self._original_color
         
         return collision
         
     def reset_color(self):
-        self._ShipSprite.color = self._original_color
+        self.sprite.color = self._original_color
 
     def draw(self):
-        self._ShipSprite.x = self.GetScaledX(self._x)
-        self._ShipSprite.y = self.GetScaledY(self._y)
-        self._ShipSprite.rotation = -self.GetAngle()
+        self.sprite.x = self.GetScaledX(self.x)
+        self.sprite.y = self.GetScaledY(self.y)
+        self.sprite.rotation = -self.GetAngle()
         self.draw_path()
-        self._ShipSprite.draw()
+        self.sprite.draw()
         if DEBUG:
-            draw_bounding_box(self._ShipSprite)
+            draw_bounding_box(self.sprite)
         
     def draw_path(self):
         glColor4f(0.75, 0.75, 1, 1) 
@@ -106,7 +123,7 @@ class Player(Oscillator, Reactor):
         glBegin(GL_LINE_STRIP)
         for time in arange(0, SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
             t, y, a = self.GetPredictiveCoordinate(time)
-            x = self.GetScaledX(SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self._x )
+            x = self.GetScaledX(SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self.x )
             y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
             glVertex2f(x,y)
         glEnd()
