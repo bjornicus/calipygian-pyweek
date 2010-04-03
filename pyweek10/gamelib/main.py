@@ -21,7 +21,6 @@ from constants import *
 
 import levels
 
-
 class Controller(object):
     """Top level controller object.
 
