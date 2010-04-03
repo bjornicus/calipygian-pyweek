@@ -120,6 +120,8 @@ class Player(Actor, Oscillator):
         if self.hitting_terrain:
             self.shield -= SHIELD_TERRAIN_DRAIN_RATE 
         self.shield = min(self.shield + SHIELD_CHARGE_RATE * dt * self._Omega,  MAX_SHIELDS)
+        if self.shield < 0:
+            self.die()
         if (self.collision_cooldown > 0):
             self.collision_cooldown = max(self.collision_cooldown - dt, 0)
         
@@ -176,6 +178,8 @@ class Player(Actor, Oscillator):
         self.shield -= 500
         self.collision_cooldown = COLLISION_COOLDOW
         
+    def die(self):
+        print 'YOU ARE DEAD!'
 
     def get_collidable(self):
         return SpriteCollision(self.sprite) 

@@ -682,7 +682,7 @@ class TestLevel(LevelBase):
         for playership in playerships: 
             playership.line_color = LEVEL1_PATH_COLOR
 
-        self.endtime = 2
+        self.endtime = 30
                 
     def connect(self, control):
         LevelBase.connect(self, control)
