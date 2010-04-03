@@ -101,7 +101,8 @@ class Player(Oscillator, Reactor):
             draw_bounding_box(self._ShipSprite)
         
     def draw_path(self):
-        #glColor4f(0.5, 0.5, 1, 1) 
+        glColor4f(0.75, 0.75, 1, 1) 
+        glLineWidth(2)
         glBegin(GL_LINE_STRIP)
         for time in arange(0, SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
             t, y, a = self.GetPredictiveCoordinate(time)
@@ -109,5 +110,6 @@ class Player(Oscillator, Reactor):
             y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
             glVertex2f(x,y)
         glEnd()
+        glLineWidth(1)
         glColor4f(1, 1, 1, 1) 
 
