@@ -370,7 +370,89 @@ class LevelTwo(LevelBase):
 
     def on_key_press(self, sym, mods):
         if DEBUG and sym == key.BACKSPACE:
+            self.control.switch_handler("level3")
+        else:
+            return EVENT_UNHANDLED
+        return EVENT_HANDLED
+
+
+class LevelThree(LevelBase):
+    '''
+    Level Three
+    '''
+    name = "level3"
+
+    def __init__(self ):
+        LevelBase.__init__(self)
+        self.level_label = pyglet.text.Label("Level Three", font_size=20)
+        self.playership = player.Player(self)
+        self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.5)
+        #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
+        #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        
+        self._timeline = TimeLine({
+            2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
+            6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
+            12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
+            12.25:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 190, self]),
+            12.5:   TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 180, self]),
+            12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
+            15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
+            })
+                
+    def update(self, dt):
+        self._timeline.Tick(dt)
+        LevelBase.update(self, dt)
+
+    def on_draw(self):
+        LevelBase.on_draw(self)
+        self.level_label.draw()
+
+    def on_key_press(self, sym, mods):
+        if DEBUG and sym == key.BACKSPACE:
+            self.control.switch_handler("level4")
+        else:
+            return EVENT_UNHANDLED
+        return EVENT_HANDLED
+
+
+class LevelFour(LevelBase):
+    '''
+    Level Four
+    '''
+    name = "level4"
+
+    def __init__(self ):
+        LevelBase.__init__(self)
+        self.level_label = pyglet.text.Label("Level Four", font_size=20)
+        self.playership = player.Player(self)
+        self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.5)
+        #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
+        #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        
+        self._timeline = TimeLine({
+            2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
+            6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
+            12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
+            12.25:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 190, self]),
+            12.5:   TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 180, self]),
+            12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
+            15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
+            })
+                
+    def update(self, dt):
+        self._timeline.Tick(dt)
+        LevelBase.update(self, dt)
+
+    def on_draw(self):
+        LevelBase.on_draw(self)
+        self.level_label.draw()
+
+    def on_key_press(self, sym, mods):
+        if DEBUG and sym == key.BACKSPACE:
             self.control.switch_handler("level1")
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
+
+
