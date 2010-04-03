@@ -69,7 +69,7 @@ class Titlescreen(mode.Mode):
     def disconnect(self):
         super(Titlescreen, self).disconnect()
         self.music_player.pause()
-        
+
     def update(self, dt):
         mode.Mode.update(self, dt)
 
@@ -101,31 +101,42 @@ class FullscreenScrollingSprite(Actor):
     A class to manage a full-screen scrolling sprite.
     '''
     def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
-        self.Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath(filename)))
+        self.Image = pyglet.image.load(data.filepath(filename))
+        self._ImagePieces = []
+        x = 0
+        while x < self.Image.width:
+            width = min(SIZE_OF_GAMESPACE_X, self.Image.width - x)
+            self._ImagePieces.append(self.Image.get_region(x, 0, width, self.Image.height))
+            x += width
+
         Actor.__init__(self, parent_level, layer=layer)
         self._x = 0
         self._y = 0
-        self.Sprite.opacity = 255
         self._scrolling_factor = scrolling_factor
 
     def Rescale(self, NewScaleFactor):
         Actor.Rescale(self, NewScaleFactor)
-        self.Sprite.scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Sprite.image.height))
+        self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
 
     def Tick(self, dt):
         self._x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
-        if (self._x < -self.Sprite.image.width):
-            self._x += self.Sprite.image.width
+        if (self._x < -self.Image.width):
+            self._x += self.Image.width
 
         Actor.Tick(self, dt)
 
     def draw(self):
         x = int(self._x - 0.5)
-        while (x + self.Sprite.image.width < SIZE_OF_GAMESPACE_X + self.Sprite.image.width):
-            self.Sprite.x = int(self.GetScaledX(x) - .5)
-            self.Sprite.y = int(self.GetScaledY(self._y) - .5)
-            self.Sprite.draw()
-            x += self.Sprite.image.width
+        while (x + self.Image.width < SIZE_OF_GAMESPACE_X + self.Image.width):
+            x_offset = x
+            for image in self._ImagePieces:
+                if (x_offset + image.width < 0 or x_offset > SIZE_OF_GAMESPACE_X):
+                    pass
+                else:
+                    image.blit(self.GetScaledX(x_offset), 0)
+                x_offset += image.width
+
+            x += self.Image.width
 
         Actor.draw(self)
 
@@ -313,7 +324,7 @@ class TimeLine:
         self._current_time = 0
         self._timeline = timeline
         self._event_times = self._timeline.keys()
-        
+
         self._event_times.sort()
         self._event_times.reverse()
 
@@ -328,7 +339,7 @@ class TimeLine:
                 self._event_times.append(event_time)
                 break
         self._current_time = tick_end
-        
+
 
 class LevelOne(LevelBase):
     '''
@@ -341,8 +352,10 @@ class LevelOne(LevelBase):
         self.level_label = pyglet.text.Label("Level One", font_size=20)
         self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
+        self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25)
+        self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
         self.music = data.load_song('Level1Music.ogg')
-        
+
     def on_draw(self):
         LevelBase.on_draw(self)
         self.level_label.draw()
@@ -364,11 +377,11 @@ class LevelTwo(LevelBase):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self.playership = player.Player(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.5)
-        #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
-        #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.0)
+        self._Middleground = FullscreenScrollingSprite('graphics/Level2Middleground.png', self, 0, 0.25)
+        self._Foreground = FullscreenScrollingSprite('graphics/Level2Foreground.png', self, 1, 1.0)
         self.music = data.load_song('Level2Music.ogg')
-        
+
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
@@ -378,7 +391,7 @@ class LevelTwo(LevelBase):
             12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
-                
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -405,11 +418,11 @@ class LevelThree(LevelBase):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Three", font_size=20)
         self.playership = player.Player(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.5)
-        #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
-        #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.0)
+        self._Middleground = FullscreenScrollingSprite('graphics/Level3Middleground.png', self, 0, 0.25)
+        self._Foreground = FullscreenScrollingSprite('graphics/Level3Foreground.png', self, 1, 1.0)
         self.music = data.load_song('Level3Music.ogg')
-        
+
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
@@ -419,7 +432,7 @@ class LevelThree(LevelBase):
             12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
-                
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
@@ -446,11 +459,11 @@ class LevelFour(LevelBase):
         LevelBase.__init__(self)
         self.level_label = pyglet.text.Label("Level Four", font_size=20)
         self.playership = player.Player(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.5)
-        #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
-        #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
+        self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25)
+        self._Foreground = FullscreenScrollingSprite('graphics/Level4Foreground.png', self, 1, 1.0)
         self.music = data.load_song('Level4Music.ogg')
-        
+
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
