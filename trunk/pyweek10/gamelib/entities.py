@@ -288,7 +288,7 @@ class HostileShip(Actor):
     
     entity_type = TYPE_HOSTILE_SHIP
     def __init__(self, starting_x, starting_y, parent_level):
-        sprite_image = data.load_image('Ship.png')
+        sprite_image = data.load_image('enemy.png')
         sprite_image.anchor_y = sprite_image.height/2  
         Actor.__init__(self, sprite_image, parent_level)
 
@@ -296,8 +296,6 @@ class HostileShip(Actor):
         self._y = starting_y
 
         self.sprite.color = (128,0,0)
-        self.sprite.rotation = 180
-        self._collidable = SpriteCollision(self.sprite)        
                 
     def Rescale(self, NewScaleFactor):
         Actor.Rescale(self, NewScaleFactor)
@@ -320,4 +318,4 @@ class HostileShip(Actor):
             debug.draw_bounding_box(self.sprite)
             
     def get_collidable(self):
-        return self._collidable
+        return SpriteCollision(self.sprite) 

@@ -83,11 +83,12 @@ class SpriteCollision:
 
 def collide(lhs, rhs):
     '''Checks for collision between two sprites'''
-    
+ 
     if lhs is None or rhs is None: return False
     
     # first check if the bounds overlap, no need to go further if they don't
     r1, r2 = lhs.get_rect(), rhs.get_rect()
+
     if r1.collides(r2):
         # calculate the overlapping area
         ri = r1.intersect(r2)

@@ -135,6 +135,12 @@ class Player(Actor, Oscillator):
     def reset_color(self):
         self.sprite.color = self._original_color
 
+    def on_collision(self):
+        self.sprite.color = (255, 0, 0)
+
+    def get_collidable(self):
+        return SpriteCollision(self.sprite) 
+
     def draw(self):
         Actor.draw(self)
         self.sprite.x = self.GetScaledX(self.x)
