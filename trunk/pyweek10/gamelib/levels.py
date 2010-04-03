@@ -282,7 +282,7 @@ class LevelBase(mode.Mode):
         self.fps_display = pyglet.clock.ClockDisplay()
         self.music_player = media.Player()
         self.music = None
-        self.endtime = 180 # 3 minutes
+        self.endtime = DEFAULT_LEVEL_TIME 
 
         player.Player(self)
         player.Hud(self)
