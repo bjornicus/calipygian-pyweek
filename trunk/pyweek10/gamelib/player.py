@@ -34,39 +34,40 @@ class Hud(Entity):
         
         self._lables = []
         self._hud_background = None
-        self._contents = []
         
         Entity.__init__(self, parent_level)
         
-    def ConstructHud(self):
+    def ConstructHud(self, contents):
         
         max_x = 0
-        y = 5*self._scale
+        y = 5
         self._lables = []    
-        
-        for line in self._contents:
+        contents.reverse()
+        for line in contents:
             label = pyglet.text.Label(line, font_size=20*self._scale) 
             max_x = max(max_x, label.content_width)
             self._lables.append((label, 0, y))
-            y = y + label.content_height + 5*self._scale
+            y = y + label.content_height + 5
      
-        if (len(self._lables) > 0) and (max_x > 0):
-            hud_texture = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
-            hud_image = pyglet.image.create(int(max_x), int(y), hud_texture)
-            self._hud_background = pyglet.sprite.Sprite(hud_image)
-            self._hud_background.image.anchor_y = self._hud_background.image.height
+        hud_texture = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
+        hud_image = pyglet.image.create(max_x, y, hud_texture)
+        self._hud_background = pyglet.sprite.Sprite(hud_image)
+        self._hud_background.image.anchor_y = self._hud_background.image.height
+        self._hud_background.scale = float(self._scale)
         
     def Rescale(self, NewScaleFactor):
         Entity.Rescale(self, NewScaleFactor)
         self._scale = NewScaleFactor
-        self.ConstructHud()
+        if self._hud_background is not None:
+            self._hud_background.scale = float(NewScaleFactor)
+        for label, x, y in self._lables:
+            label.font_size = 20*self._scale
                     
     def Tick(self, delta_t):
         ships = self.parent_level.get_objects_of_interest(TYPE_PLAYER_SHIP)
         if len(ships) > 0:
-            self._contents = ships[0].getHudContents()
-            self._contents.reverse()
-            self.ConstructHud()
+            contents = ships[0].getHudContents()
+            self.ConstructHud(contents)
         Entity.Tick(self, delta_t)
         
     def draw(self):
@@ -78,7 +79,7 @@ class Hud(Entity):
         
         for label, x, y in self._lables:
             label.x = self.GetScaledX(self.x + x)
-            label.y = self.GetScaledY(self.y + y) - self._hud_background.image.height
+            label.y = self.GetScaledY(self.y - self._hud_background.image.height + y)
             label.draw()
 
 class Player(Actor, Oscillator):
@@ -100,9 +101,10 @@ class Player(Actor, Oscillator):
         
         self._original_color = self.sprite.color
         self.line_color = (1,1,1,1)
+        self.shield = 100
 
     def getHudContents(self):
-        return ["Shields"]
+        return ["Shields:{0}".format(self.shield)]
         
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)
@@ -137,6 +139,7 @@ class Player(Actor, Oscillator):
 
     def on_collision(self):
         self.sprite.color = (255, 0, 0)
+        self.shield -= 5
 
     def get_collidable(self):
         return SpriteCollision(self.sprite) 
