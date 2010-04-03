@@ -31,6 +31,11 @@ HOW TO PLAY THE GAME:
 Use the arrow keys: up and down adjust amplitude, left and right frequency.
 (if you are running Linux you can use a joystick or gamepad too)
 
+You ship has a shield system that recharges faster as your ship oscillates faster.
+
+There are four levels, but if you find one of them too hard you can skip to the next level
+by hitting Escape during a level, then starting the game again from the title screen.
+
 LICENSE:
 
 New BSD Licence: http://www.opensource.org/licenses/bsd-license.php
