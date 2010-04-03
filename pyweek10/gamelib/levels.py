@@ -62,7 +62,7 @@ class Titlescreen(mode.Mode):
 
     def connect(self, control):
         super(Titlescreen, self).connect(control)
-        
+
         if self.music is not None:
             self.music_player.queue(self.music)
             self.music_player.play()
@@ -88,7 +88,7 @@ class Titlescreen(mode.Mode):
             self.selected_option = 'start' if self.selected_option == 'quit' else 'quit'
         elif sym == key.ENTER:
             if self.selected_option == 'start':
-                self.control.switch_handler("level1")
+                self.control.switch_handler("loading")
             elif self.selected_option == 'quit':
                 self.window.dispatch_event('on_close')
             else:
@@ -96,6 +96,33 @@ class Titlescreen(mode.Mode):
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
+
+class Loading(mode.Mode):
+    '''
+    The loading screen. Derives from Mode.
+    '''
+    name = "loading"
+    def __init__(self):
+        mode.Mode.__init__(self)
+        self._Background = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Loading.png')))
+        self._Connected = False
+        self._Frames = 0
+
+    def connect(self, control):
+        super(Loading, self).connect(control)
+        self._Connected = True
+
+    def disconnect(self):
+        super(Loading, self).disconnect()
+
+    def update(self, dt):
+        mode.Mode.update(self, dt)
+
+    def on_draw(self):
+        self._Frames += 1
+        self._Background.draw()
+        if self._Connected and self._Frames > 10:
+            self.control.switch_handler("level1")
 
 class FullscreenScrollingSprite(Entity):
     '''
@@ -105,7 +132,7 @@ class FullscreenScrollingSprite(Entity):
         self.Image = pyglet.image.load(data.filepath(filename))
         self._ImagePieces = []
         self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
-        
+
         x = 0
         while x < self.Image.width:
             width = min(SIZE_OF_GAMESPACE_X, self.Image.width - x)
@@ -185,10 +212,10 @@ class LevelBase(mode.Mode):
 
         player.Player(self)
         player.Hud(self)
-        
+
     def connect(self, control):
         mode.Mode.connect(self, control)
-        
+
         # Immedietly rescale the gamefield to the window
         self.Rescale()
         if self.music is not None:
@@ -198,7 +225,7 @@ class LevelBase(mode.Mode):
     def disconnect(self):
         super(LevelBase, self).disconnect()
         self.music_player.pause()
-        
+
     def on_resize(self, width, height):
         self.Rescale()
 
@@ -261,7 +288,7 @@ class LevelBase(mode.Mode):
             playership.handle_input(self.keys)
             playership.reset_color()
             # see if any of the actors collided with the player.
-            
+
             hostiles = self.get_objects_of_interest(TYPE_HOSTILE_SHIP)
             for baddie in hostiles:
                 if(collide(playership.get_collidable(), baddie.get_collidable())):
@@ -394,9 +421,9 @@ class LevelOne(LevelBase):
             })
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships: 
+        for playership in playerships:
             playership.line_color = LEVEL1_PATH_COLOR
-                
+
     def update(self, dt):
         self._timeline.Tick(dt)
         LevelBase.update(self, dt)
