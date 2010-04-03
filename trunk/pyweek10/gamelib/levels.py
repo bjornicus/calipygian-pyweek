@@ -110,7 +110,7 @@ class FullscreenScrollingSprite(Entity):
             x += width
 
         Entity.__init__(self, parent_level, layer=layer)
-        self._x = 0
+        self.x = 0
         self._y = 0
         self._scrolling_factor = scrolling_factor
 
@@ -119,14 +119,14 @@ class FullscreenScrollingSprite(Entity):
         self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
 
     def Tick(self, dt):
-        self._x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
-        if (self._x < -self.Image.width):
-            self._x += self.Image.width
+        self.x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
+        if (self.x < -self.Image.width):
+            self.x += self.Image.width
 
         super(FullscreenScrollingSprite, self).Tick(dt)
 
     def draw(self):
-        x = int(self._x - 0.5)
+        x = int(self.x - 0.5)
         while (x + self.Image.width < SIZE_OF_GAMESPACE_X + self.Image.width):
             x_offset = x
             for image in self._ImagePieces:
@@ -275,8 +275,7 @@ class LevelBase(mode.Mode):
             return 1 if xz>yz else -1 if xz<yz else 0
         self.renderlist_layers[layer].sort(cmp=compare_depth)
 
-        if(isinstance(entity, Actor)):
-            self.actorlist.append(entity)
+        self.actorlist.append(entity)
 
 
 class TimeLineEntity:
