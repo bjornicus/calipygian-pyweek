@@ -104,6 +104,7 @@ class Player(Actor, Oscillator):
         self.line_color = (1,1,1,1)
         self.shield = STARTING_SHIELDS
         self.collision_cooldown = 0
+        self._hitting_terrain = False
         self.dpad = joystick.DPad()
 
     def getHudContents(self):
@@ -112,13 +113,15 @@ class Player(Actor, Oscillator):
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)
 
-    def Tick(self, delta_t):
-        Oscillator.Tick(self, delta_t)
+    def Tick(self, dt):
+        Oscillator.Tick(self, dt)
         shipPos = self.GetCurrentValue()
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
-        self.shield = min(self.shield + SHIELD_CHARGE_RATE * delta_t * self._Omega,  MAX_SHIELDS)
+        if self.hitting_terrain:
+            self.shield -= SHIELD_TERRAIN_DRAIN_RATE 
+        self.shield = min(self.shield + SHIELD_CHARGE_RATE * dt * self._Omega,  MAX_SHIELDS)
         if (self.collision_cooldown > 0):
-            self.collision_cooldown = max(self.collision_cooldown - delta_t, 0)
+            self.collision_cooldown = max(self.collision_cooldown - dt, 0)
         
     def handle_input(self, keys):
         self.dpad.update()
@@ -140,9 +143,29 @@ class Player(Actor, Oscillator):
             self.frozen = True
         else: 
             self.frozen = False
-        
+
+
+    def get_hitting_terrain(self):
+        return self._hitting_terrain
+    def set_hitting_terrain(self, hit):
+        if not hit and self._hitting_terrain:
+            self.on_terrain_depart()
+        if hit and not self._hitting_terrain:
+            self.on_terrain_contact()
+        self._hitting_terrain = hit
+
+    hitting_terrain = property(get_hitting_terrain, set_hitting_terrain)
+
+    def on_terrain_contact(self):
+        print 'terrain contacted'
+
+    def on_terrain_depart(self):
+        pass
+
     def reset_color(self):
-        if (self.collision_cooldown > 0):
+        if self.hitting_terrain:
+            self.sprite.color = (255,128,0)
+        elif (self.collision_cooldown > 0):
             self.sprite.color = (255, 0, 0)
         else:
             self.sprite.color = self._original_color

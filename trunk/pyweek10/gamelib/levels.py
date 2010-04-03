@@ -366,9 +366,12 @@ class LevelBase(mode.Mode):
                     playership.on_collision()
                     baddie.delete()
             terrains = self.get_objects_of_interest(TYPE_TERRAIN)
+            terrain_collision = False
             for terrain in terrains:
                 if terrain.collide(playership_collider):
-                    print "hit terrain"
+                    terrain_collision = True
+            playership.hitting_terrain = terrain_collision
+
     
     def on_key_press(self, sym, mods):
         if sym == key.ESCAPE:
@@ -479,7 +482,6 @@ class LevelOne(LevelBase):
 
     def __init__(self ):
         LevelBase.__init__(self)
-        self.level_label = pyglet.text.Label("Level One", font_size=20)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = CollidableTerrain('graphics/Level1Foreground.png', self, 1, SHIP_SPEED)
@@ -505,7 +507,6 @@ class LevelOne(LevelBase):
 
     def on_draw(self):
         LevelBase.on_draw(self)
-        self.level_label.draw()
 
     def on_key_press(self, sym, mods):
         if DEBUG and sym == key.BACKSPACE:
@@ -522,7 +523,6 @@ class LevelTwo(LevelBase):
 
     def __init__(self ):
         LevelBase.__init__(self)
-        self.level_label = pyglet.text.Label("Level Two", font_size=20)
         self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level2Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = CollidableTerrain('graphics/Level2Foreground.png', self, 1, SHIP_SPEED)
@@ -548,7 +548,6 @@ class LevelTwo(LevelBase):
 
     def on_draw(self):
         LevelBase.on_draw(self)
-        self.level_label.draw()
 
     def on_key_press(self, sym, mods):
         if DEBUG and sym == key.BACKSPACE:
@@ -566,7 +565,6 @@ class LevelThree(LevelBase):
 
     def __init__(self ):
         LevelBase.__init__(self)
-        self.level_label = pyglet.text.Label("Level Three", font_size=20)
         self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level3Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = CollidableTerrain('graphics/Level3Foreground.png', self, 1, SHIP_SPEED)
@@ -592,7 +590,6 @@ class LevelThree(LevelBase):
 
     def on_draw(self):
         LevelBase.on_draw(self)
-        self.level_label.draw()
 
     def on_key_press(self, sym, mods):
         if DEBUG and sym == key.BACKSPACE:
@@ -610,11 +607,53 @@ class LevelFour(LevelBase):
 
     def __init__(self ):
         LevelBase.__init__(self)
-        self.level_label = pyglet.text.Label("Level Four", font_size=20)
         self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = CollidableTerrain('graphics/Level4Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level4Music.ogg')
+
+        self._timeline = TimeLine({
+            2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
+            6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
+            12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
+            12.25:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 190, self]),
+            12.5:   TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 180, self]),
+            12.75:  TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 170, self]),
+            15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
+            })
+
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL4_PATH_COLOR
+                
+    def update(self, dt):
+        self._timeline.Tick(dt)
+        LevelBase.update(self, dt)
+
+    def on_draw(self):
+        LevelBase.on_draw(self)
+
+    def on_key_press(self, sym, mods):
+        if DEBUG and sym == key.BACKSPACE:
+            self.control.switch_handler("level1")
+        else:
+            return LevelBase.on_key_press(self, sym, mods)
+        return EVENT_HANDLED
+
+
+class TestLevel(LevelBase):
+    '''
+    A small test level
+    '''
+    name = "testlevel"
+
+    def __init__(self ):
+        LevelBase.__init__(self)
+        self.level_label = pyglet.text.Label("TEST LEVEL", font_size=20)
+        #self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
+        #self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25*SHIP_SPEED)
+        self._Foreground = CollidableTerrain('graphics/TestLevelForeground.png', self, 1, SHIP_SPEED)
+        #self.music = data.load_song('Level4Music.ogg')
 
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
