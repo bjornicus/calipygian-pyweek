@@ -313,6 +313,7 @@ class LevelBase(mode.Mode):
             self.music_player.queue(self.music)
             self.music_player.play()
         pyglet.clock.schedule_once(self.on_level_complete, self.endtime)
+        self.restart()
 
     def disconnect(self):
         super(LevelBase, self).disconnect()
