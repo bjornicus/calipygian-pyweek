@@ -134,14 +134,16 @@ class CollidableTerrain(Entity):
     entity_type = TYPE_TERRAIN
 
     def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
+        print 'loading terrain...'
         self.image = pyglet.image.load(data.filepath(filename))
         self._ImagePieces = []
+        self._Colliders = []
         self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.image.height))
         Entity.__init__(self, parent_level, layer=layer)
 
         x = 0
         while x < self.image.width:
-            width = min(SIZE_OF_GAMESPACE_X, self.image.width - x)
+            width = min(WIDTH_OF_TERRAIN_SLICE, self.image.width - x)
             ImagePiece = self.image.get_region(x, 0, width, self.image.height)
             sprite = pyglet.sprite.Sprite(ImagePiece)
             sprite.x = self.GetScaledX(x)
@@ -149,6 +151,11 @@ class CollidableTerrain(Entity):
             self._ImagePieces.append(sprite)
             x += width
 
+        print 'loading collision data...'
+        for piece in self._ImagePieces:
+            collider = SpriteCollision(piece)
+            collider.get_image() #pre-cache the collision pixel data
+            self._Colliders.append(collider)
         self.x = 0
         self.y = 0
 
@@ -181,7 +188,7 @@ class CollidableTerrain(Entity):
 
 
     def collide(self,collideable):
-        return False
+        #return False
         for piece in self._ImagePieces:
             if collide(collideable, SpriteCollision(piece)):
                 return True
