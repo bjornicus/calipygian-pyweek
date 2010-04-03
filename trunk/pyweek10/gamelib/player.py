@@ -32,20 +32,20 @@ class Hud(Entity):
         self.x = 0
         self.y = SIZE_OF_GAMESPACE_Y
         self._scale = 1
-        
+
         self._lables = []
         self._hud_background = None
-        
+
         Entity.__init__(self, parent_level)
-        
+
     def ConstructHud(self, contents):
-        
+
         max_x = 0
         y = 5
-        self._lables = []    
+        self._lables = []
         contents.reverse()
         for line in contents:
-            label = pyglet.text.Label(line, font_size=20*self._scale) 
+            label = pyglet.text.Label(line, font_size=20*self._scale)
             max_x = max(max_x, label.content_width)
             self._lables.append((label, 0, y))
             y = y + label.content_height + 5
@@ -135,9 +135,9 @@ class Player(Actor, Oscillator):
             self.AmplitudeAdjust = CONSTANT
 
         if keys[key.LEFT] and not keys[key.RIGHT] or self.dpad.axis0 > 0:
-            self.FrequencyAdjust = DECREASE
-        elif keys[key.RIGHT] and not keys[key.LEFT] or self.dpad.axis0 < 0:
             self.FrequencyAdjust = INCREASE
+        elif keys[key.RIGHT] and not keys[key.LEFT] or self.dpad.axis0 < 0:
+            self.FrequencyAdjust = DECREASE
         else:
             self.FrequencyAdjust = CONSTANT
 
