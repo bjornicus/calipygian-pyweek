@@ -8,10 +8,13 @@ from __future__ import division
 
 import os
 
+import config
+import pyglet
+pyglet.options['audio'] = config.audio
+
 from pyglet import font
 from pyglet import media
 
-import config
 from common import *
 from constants import *
 

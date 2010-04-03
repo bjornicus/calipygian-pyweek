@@ -108,7 +108,8 @@ profile = False
 local = LocalConfig(
     fullscreen = False,
     window_width = 852,
-    window_height = 480
+    window_height = 480,
+    audio = ('alsa', 'openal', 'silent')
 )
 
 # See the module docstring for details of these methods.
