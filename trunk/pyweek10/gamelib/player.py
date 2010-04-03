@@ -180,6 +180,7 @@ class Player(Actor, Oscillator):
         
     def die(self):
         print 'YOU ARE DEAD!'
+        self.parent_level.restart()
 
     def get_collidable(self):
         return SpriteCollision(self.sprite) 

@@ -164,6 +164,15 @@ class CollidableTerrain(Entity):
 
         self._scrolling_factor = scrolling_factor
 
+    def reset(self):
+        x = 0
+        for sprite in self._ImagePieces:
+            width = min(WIDTH_OF_TERRAIN_SLICE, self.image.width - x)
+            sprite.x = self.GetScaledX(x)
+            sprite.scale = self._scale
+            x += width
+
+
     def Rescale(self, NewScaleFactor):
         super(CollidableTerrain, self).Rescale(NewScaleFactor)
         self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.image.height))
@@ -216,10 +225,13 @@ class FullscreenScrollingSprite(Entity):
             x += width
 
         Entity.__init__(self, parent_level, layer=layer)
+        self._scrolling_factor = scrolling_factor
+
+        self.reset()
+
+    def reset(self):
         self.x = 0
         self.y = 0
-
-        self._scrolling_factor = scrolling_factor
 
     def Rescale(self, NewScaleFactor):
         super(FullscreenScrollingSprite, self).Rescale(NewScaleFactor)
@@ -270,6 +282,9 @@ class LevelBase(mode.Mode):
         self.window = None
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
+        self._Background = None
+        self._Middleground = None
+        self._Foreground = None
 
         self._objects_of_interest = {}
         self._scale = 1
@@ -282,6 +297,8 @@ class LevelBase(mode.Mode):
         self.fps_display = pyglet.clock.ClockDisplay()
         self.music_player = media.Player()
         self.music = None
+
+        self.timeline = TimeLine({})
         self.endtime = DEFAULT_LEVEL_TIME 
 
         player.Player(self)
@@ -301,6 +318,25 @@ class LevelBase(mode.Mode):
         super(LevelBase, self).disconnect()
         self.music_player.pause()
         pyglet.clock.unschedule(self.on_level_complete)
+
+    def setup_timeline(self):
+        pass
+
+    def restart(self):
+        self.renderlist_layers = [[],[],[],[],[]]
+        self.actorlist = []
+        if self._Background:
+            self.register_entity(self._Background, 0)
+        if self._Middleground:
+            self._Middleground.reset()
+            self.register_entity(self._Middleground, 0)
+        if self._Foreground:
+            self._Foreground.reset()
+            self.register_entity(self._Foreground, 1, TYPE_TERRAIN)
+        player.Player(self)
+        player.Hud(self)
+        
+        self.setup_timeline()
 
     def on_level_complete(self, dt=0):
         self.control.switch_handler('loading')
@@ -359,6 +395,7 @@ class LevelBase(mode.Mode):
         self.fps_display.draw()
 
     def update(self, dt):
+        self.timeline.Tick(dt)
         for actor in self.actorlist:
             actor.Tick(dt)
             
@@ -499,8 +536,14 @@ class LevelOne(LevelBase):
         self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = CollidableTerrain('graphics/Level1Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level1Music.ogg')
-        self._timeline = TimeLine({
-            1:      TimeLineEntity(entities.Debris,      [SIZE_OF_GAMESPACE_X, 300, self]), 
+
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships:
+            playership.line_color = LEVEL1_PATH_COLOR
+        self.setup_timeline()
+                
+    def setup_timeline(self):
+         self.timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
             12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
@@ -510,17 +553,10 @@ class LevelOne(LevelBase):
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
 
-        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships:
-            playership.line_color = LEVEL1_PATH_COLOR
 
     def connect(self, control):
         LevelBase.connect(self, control)
         set_next_level('level2')
-
-    def update(self, dt):
-        self._timeline.Tick(dt)
-        LevelBase.update(self, dt)
 
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -541,7 +577,13 @@ class LevelTwo(LevelBase):
         self._Foreground = CollidableTerrain('graphics/Level2Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level2Music.ogg')
 
-        self._timeline = TimeLine({
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL2_PATH_COLOR
+        self.setup_timeline()
+                
+    def setup_timeline(self):
+         self.timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
             12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
@@ -551,17 +593,10 @@ class LevelTwo(LevelBase):
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
 
-        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships: 
-            playership.line_color = LEVEL2_PATH_COLOR
 
     def connect(self, control):
         LevelBase.connect(self, control)
         set_next_level('level3')
-
-    def update(self, dt):
-        self._timeline.Tick(dt)
-        LevelBase.update(self, dt)
 
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -583,7 +618,13 @@ class LevelThree(LevelBase):
         self._Foreground = CollidableTerrain('graphics/Level3Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level3Music.ogg')
 
-        self._timeline = TimeLine({
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL3_PATH_COLOR
+        self.setup_timeline()
+                
+    def setup_timeline(self):
+         self.timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
             12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
@@ -593,17 +634,10 @@ class LevelThree(LevelBase):
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
 
-        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships: 
-            playership.line_color = LEVEL3_PATH_COLOR
 
     def connect(self, control):
         LevelBase.connect(self, control)
         set_next_level('level4')
-
-    def update(self, dt):
-        self._timeline.Tick(dt)
-        LevelBase.update(self, dt)
 
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -625,7 +659,13 @@ class LevelFour(LevelBase):
         self._Foreground = CollidableTerrain('graphics/Level4Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level4Music.ogg')
 
-        self._timeline = TimeLine({
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL4_PATH_COLOR
+        self.setup_timeline()
+                  
+    def setup_timeline(self):
+         self.timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
             12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
@@ -635,17 +675,10 @@ class LevelFour(LevelBase):
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
 
-        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships: 
-            playership.line_color = LEVEL4_PATH_COLOR
-                
+              
     def connect(self, control):
         LevelBase.connect(self, control)
         set_next_level('titlescreen')
-
-    def update(self, dt):
-        self._timeline.Tick(dt)
-        LevelBase.update(self, dt)
 
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -668,7 +701,15 @@ class TestLevel(LevelBase):
         self._Foreground = CollidableTerrain('graphics/TestLevelForeground.png', self, 1, SHIP_SPEED)
         #self.music = data.load_song('Level4Music.ogg')
 
-        self._timeline = TimeLine({
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships: 
+            playership.line_color = LEVEL1_PATH_COLOR
+
+        self.setup_timeline()
+        self.endtime = 30
+                
+    def setup_timeline(self):
+         self.timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
             6:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 300, self]),
             12:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 200, self]),
@@ -678,19 +719,9 @@ class TestLevel(LevelBase):
             15:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 400, self])
             })
 
-        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships: 
-            playership.line_color = LEVEL1_PATH_COLOR
-
-        self.endtime = 30
-                
     def connect(self, control):
         LevelBase.connect(self, control)
         set_next_level('level1')
-
-    def update(self, dt):
-        self._timeline.Tick(dt)
-        LevelBase.update(self, dt)
 
     def on_draw(self):
         LevelBase.on_draw(self)
