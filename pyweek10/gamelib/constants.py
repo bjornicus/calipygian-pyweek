@@ -61,6 +61,9 @@ LEVEL4_PATH_COLOR = (0.2, 0.2, 0.8, 0.9)
 # how many points of shield are drained per second of contact with terrain
 SHIELD_TERRAIN_DRAIN_RATE = 10
 
+# the default time in seconds for each level to last
+DEFAULT_LEVEL_TIME = 120 # two minutes
+
 #Object of Interest types
 TYPE_PLAYER_SHIP = "Player"
 TYPE_HOSTILE_SHIP = "Hostile"
