@@ -62,7 +62,7 @@ LEVEL4_PATH_COLOR = (0.2, 0.2, 0.8, 0.9)
 SHIELD_TERRAIN_DRAIN_RATE = 10
 
 # the default time in seconds for each level to last
-DEFAULT_LEVEL_TIME = 90 
+DEFAULT_LEVEL_TIME = 10 
 
 #Object of Interest types
 TYPE_PLAYER_SHIP = "Player"
