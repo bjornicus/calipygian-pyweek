@@ -88,6 +88,8 @@ class Player(Oscillator, Reactor):
         
         return collision
         
+    def reset_color(self):
+        self._ShipSprite.color = self._original_color
 
     def draw(self):
         self._ShipSprite.x = self.GetScaledX(self._x)
