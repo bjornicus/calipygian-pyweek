@@ -14,5 +14,5 @@
  Offense
  Powerups
 
- [bjorn] joystick 
+ [done] joystick (linux)
 }}}
