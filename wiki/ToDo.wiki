@@ -5,7 +5,7 @@
  Debris
  Shields
  Level select screen
- Level win/loose logic
+ Level win/loose logic (or at least finish and transition to next)
 
  tweaking the foregrounds to be more "fun" (some parts are really hard)
  tweaking the spawn location of hostiles
