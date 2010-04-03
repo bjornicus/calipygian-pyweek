@@ -1,0 +1,15 @@
+#summary To Do List
+
+Collision detection
+Collision with enviroment
+Debris
+Shields
+Level select screen
+Level win/loose logic
+
+tweaking the foregrounds to be more "fun" (some parts are really hard)
+tweaking the spawn location of hostiles
+
+Cutscenes
+Offense
+Powerups
