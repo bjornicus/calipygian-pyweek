@@ -323,7 +323,7 @@ class LevelOne(LevelBase):
         self.level_label = pyglet.text.Label("Level One", font_size=20)
         self.playership = player.Player(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
-        self.music = data.load_song('Level2Music.ogg')
+        self.music = data.load_song('Level1Music.ogg')
         
     def on_draw(self):
         LevelBase.on_draw(self)
@@ -349,6 +349,7 @@ class LevelTwo(LevelBase):
         self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.5)
         #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
         #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        self.music = data.load_song('Level2Music.ogg')
         
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
@@ -389,6 +390,7 @@ class LevelThree(LevelBase):
         self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.5)
         #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
         #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        self.music = data.load_song('Level3Music.ogg')
         
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
@@ -429,6 +431,7 @@ class LevelFour(LevelBase):
         self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.5)
         #self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.5)
         #self._Foreground = FullscreenScrollingSprite('graphics/Level1Foreground.png', self, 1, 1.0)
+        self.music = data.load_song('Level4Music.ogg')
         
         self._timeline = TimeLine({
             2:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, self]),
