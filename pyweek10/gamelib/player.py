@@ -25,12 +25,71 @@ HITBOX_Y = lambda hitbox: hitbox[1]
 HITBOX_WIDTH = lambda hitbox: hitbox[2]
 HITBOX_HEIGHT = lambda hitbox: hitbox[3]
 
+class Hud(Entity):
+    entity_type = None
+    def __init__(self, parent_level):
+        self.x = 0
+        self.y = SIZE_OF_GAMESPACE_Y
+        self._scale = 1
+        
+        self._lables = []
+        self._hud_background = None
+        
+        Entity.__init__(self, parent_level)
+        
+    def ConstructHud(self, contents):
+        
+        max_x = 0
+        y = 5
+        self._lables = []    
+        contents.reverse()
+        for line in contents:
+            label = pyglet.text.Label(line, font_size=20*self._scale) 
+            max_x = max(max_x, label.content_width)
+            self._lables.append((label, 0, y))
+            y = y + label.content_height + 5
+     
+        hud_texture = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
+        hud_image = pyglet.image.create(max_x, y, hud_texture)
+        self._hud_background = pyglet.sprite.Sprite(hud_image)
+        self._hud_background.image.anchor_y = self._hud_background.image.height
+        self._hud_background.scale = float(self._scale)
+        
+    def Rescale(self, NewScaleFactor):
+        Entity.Rescale(self, NewScaleFactor)
+        self._scale = NewScaleFactor
+        if self._hud_background is not None:
+            self._hud_background.scale = float(NewScaleFactor)
+        for label, x, y in self._lables:
+            label.font_size = 20*self._scale
+                    
+    def Tick(self, delta_t):
+        ships = self.parent_level.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        if len(ships) > 0:
+            contents = ships[0].getHudContents()
+            self.ConstructHud(contents)
+        Entity.Tick(self, delta_t)
+        
+    def draw(self):
+        Entity.draw(self)
+        if self._hud_background is not None:
+            self._hud_background.x = self.GetScaledX(self.x)
+            self._hud_background.y = self.GetScaledY(self.y)
+            self._hud_background.draw()
+        
+        for label, x, y in self._lables:
+            label.x = self.GetScaledX(self.x + x)
+            label.y = self.GetScaledY(self.y - self._hud_background.image.height + y)
+            label.draw()
 
 class Player(Actor, Oscillator):
     '''
     The main player object. This derives from Oscillator and adds in sprite rendering capabilities.
     This is the rendering side of the Oscillator object.
     '''
+    
+    entity_type = TYPE_PLAYER_SHIP
+    
     def __init__(self, parent_level):
         sprite_image = data.load_image('Ship.png')
         sprite_image.anchor_y = sprite_image.height/2  
@@ -42,6 +101,8 @@ class Player(Actor, Oscillator):
         
         self._original_color = self.sprite.color
 
+    def getHudContents(self):
+        return ["Shields"]
         
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)
@@ -50,7 +111,7 @@ class Player(Actor, Oscillator):
         Oscillator.Tick(self, delta_t)
         shipPos = self.GetCurrentValue()
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
-    
+        
     def handle_input(self, keys):
         if keys[key.UP] and not keys[key.DOWN]:
             self.AmplitudeAdjust = INCREASE
@@ -70,45 +131,12 @@ class Player(Actor, Oscillator):
             self.frozen = True
         else: 
             self.frozen = False
-
-    def get_hitbox(self):
-        # TODO: make this hit box smaller
-        return (self.sprite.x, self.sprite.y, self.sprite.width, self.sprite.height)
-    
-    def CollidedWith(self, actor):
-        # TODO: this should be refined to maybe take pixels into account. 
-        
-        # return 1 if you collided with the actor or 0 if you did not.
-        
-        # figure out what the hit box of the player is
-        player_hitbox = self.get_hitbox()
-        
-        # figure out what the hit box of the actor is
-        actor_hitbox = actor.get_hitbox()
-        
-        # see if they collide
-        collision = 0
-        
-        if(actor_hitbox is not None):
-            if(HITBOX_X(player_hitbox) <= HITBOX_X(actor_hitbox) and \
-               HITBOX_X(actor_hitbox) <= HITBOX_X(player_hitbox) + HITBOX_WIDTH(player_hitbox)):
-                if(HITBOX_Y(player_hitbox) <= HITBOX_Y(actor_hitbox) and \
-                   HITBOX_Y(actor_hitbox) <= HITBOX_Y(player_hitbox) + HITBOX_HEIGHT(player_hitbox)):
-                    collision = 1;
-        
-        # print "collide! player: ", player_hitbox, " actor: ", actor_hitbox, " collision: ", collision 
-        
-        if collision:
-            self.sprite.color = (255,0,0)
-        else:
-            self.sprite.color = self._original_color
-        
-        return collision
         
     def reset_color(self):
         self.sprite.color = self._original_color
 
     def draw(self):
+        Actor.draw(self)
         self.sprite.x = self.GetScaledX(self.x)
         self.sprite.y = self.GetScaledY(self.y)
         self.sprite.rotation = -self.GetAngle()
