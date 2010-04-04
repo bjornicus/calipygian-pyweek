@@ -30,6 +30,12 @@ HOW TO PLAY THE GAME:
 
 Use the arrow keys: up and down adjust amplitude, left and right frequency.
 (if you are running Linux you can use a joystick or gamepad too)
+** If the frequency adjust feels backwards to you, set 
+    
+    reverse_frequency_keys = True
+
+in gamelib/config.py and they will switch.
+
 
 You ship has a shield system that recharges faster as your ship oscillates faster.
 

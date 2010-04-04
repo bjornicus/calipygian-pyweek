@@ -11,6 +11,7 @@ from pyglet.gl import *
 import joystick
 from entities import *
 from constants import *
+import config
 import levels
 import data
 import math
@@ -137,9 +138,15 @@ class Player(Actor, Oscillator):
             self.AmplitudeAdjust = CONSTANT
 
         if keys[key.LEFT] and not keys[key.RIGHT] or self.dpad.axis0 > 0:
-            self.FrequencyAdjust = INCREASE
+            if config.reverse_frequency_keys:
+                self.FrequencyAdjust = DECREASE
+            else:
+                self.FrequencyAdjust = INCREASE
         elif keys[key.RIGHT] and not keys[key.LEFT] or self.dpad.axis0 < 0:
-            self.FrequencyAdjust = DECREASE
+            if config.reverse_frequency_keys:
+                self.FrequencyAdjust = INCREASE
+            else:
+                self.FrequencyAdjust = DECREASE
         else:
             self.FrequencyAdjust = CONSTANT
 
