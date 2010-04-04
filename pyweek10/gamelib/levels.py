@@ -381,14 +381,17 @@ class LevelBase(mode.Mode):
         self.music = None
 
         self.timeline = TimeLine({})
-        self.endtime = DEFAULT_LEVEL_TIME 
+        self.endtime = DEFAULT_LEVEL_TIME
 
         player.Player(self)
         player.Hud(self)
-        
+
+        self.LevelTimeScale = 1.0
+        self.ChangeSplash('LevelStartReady.png')
+
         # construction and loading of levels can take quite a while, the result is
         # that the first time update gets called, the dt is quite large
-        # this causes strangeness, so we ignore the first update. 
+        # this causes strangeness, so we ignore the first update.
         # once update gets called it should start ticking along nicely
         self.ignore_next_update = True
 
@@ -426,13 +429,13 @@ class LevelBase(mode.Mode):
         if self._Foreground:
             self._Foreground.reset()
             self.register_entity(self._Foreground, 1, TYPE_TERRAIN)
-        
+
         self.setup_timeline()
         pyglet.clock.schedule_once(self.on_level_complete, self.endtime)
 
     def on_level_complete(self, dt=0):
-        self.control.switch_handler('story')
-    
+        self.ChangeSplash('LevelEndCongratulations.png')
+
     def on_resize(self, width, height):
         self.Rescale()
 
@@ -486,16 +489,20 @@ class LevelBase(mode.Mode):
             self._letterbox_2.draw()
         self.fps_display.draw()
 
+        if self._ShowingSplash:
+            self._SplashSprite.draw()
+
     def update(self, dt):
+        dt *= self.LevelTimeScale
         if self.ignore_next_update:
             self.ignore_next_update = False
             return
         self.timeline.Tick(dt)
         for actor in self.actorlist:
             actor.Tick(dt)
-            
+
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships: 
+        for playership in playerships:
             playership.handle_input(self.keys)
             playership.reset_color()
             # see if any of the actors collided with the player.
@@ -513,15 +520,38 @@ class LevelBase(mode.Mode):
                     terrain_collision = True
             playership.hitting_terrain = terrain_collision
 
-    
     def on_key_press(self, sym, mods):
         if DEBUG and sym == key.BACKSPACE:
             self.on_level_complete()
         elif sym == key.ESCAPE:
             self.control.switch_handler("titlescreen")
+        elif self._ShowingSplash and sym == key.ENTER:
+            self.ChangeSplash()
         else:
             return EVENT_UNHANDLED
         return EVENT_HANDLED
+
+    def ChangeSplash(self, NewSplash = None):
+        if NewSplash is None:
+            self._ShowingSplash = False
+            if (self._CurrentSplash == 'LevelStartReady.png'):
+                self._CurrentSplash = 'LevelStartGo.png'
+                self._ShowingSplash = True
+            elif (self._CurrentSplash == 'LevelEndCongratulations.png'):
+                self.control.switch_handler('loading')
+            elif (self._CurrentSplash == 'ShipExploded.png'):
+                self.restart()
+        else:
+            self._CurrentSplash = NewSplash
+            self._ShowingSplash = True
+
+        if (self._ShowingSplash):
+            self.LevelTimeScale = 0.1
+        else:
+            self.LevelTimeScale = 1.0
+        self._SplashSprite = pyglet.sprite.Sprite(data.load_image(self._CurrentSplash))
+        self._SplashSprite.x = SIZE_OF_GAMESPACE_X / 2 - self._SplashSprite.width / 2
+        self._SplashSprite.y = SIZE_OF_GAMESPACE_Y / 2 - self._SplashSprite.height / 2
 
     def remove_entity(self, entity, object_of_interest_type = None):
         if entity in self.actorlist:
@@ -529,7 +559,7 @@ class LevelBase(mode.Mode):
         for renderlist in self.renderlist_layers:
             if entity in renderlist:
                 renderlist.remove(entity)
-                
+
         if(object_of_interest_type is not None):
             if object_of_interest_type in self._objects_of_interest.keys():
                 self._objects_of_interest[object_of_interest_type].remove(entity)
@@ -565,7 +595,7 @@ class LevelBase(mode.Mode):
 class TimeLineEntity:
     """
     Class for storing the locations of entities that will appear within a level
-    
+
     Entities are not initialized until the realize method is called, at which
     point their constructor is called along with the provided list of parameters
     (parameters will be given to the constructor in the order they are provided)
@@ -587,7 +617,7 @@ class TimeLineEntity:
 class TimeLine:
     """
     Class for storing the sequence of entities that will appear within a level
-    
+
     A dictionary of time:TimeLineEntity mappings is provided to the constructor.
     
     Every tick we check to see if any of the times listed in the keys of the provided
@@ -636,7 +666,7 @@ class LevelOne(LevelBase):
         for playership in playerships:
             playership.line_color = LEVEL1_PATH_COLOR
         self.setup_timeline()
-        
+
     def setup_timeline(self):
          self.timeline = TimeLine({
             1:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 350, 2,   self, 1]),
@@ -731,10 +761,10 @@ class LevelThree(LevelBase):
         self.music = data.load_song('Level3Music.ogg')
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        for playership in playerships: 
+        for playership in playerships:
             playership.line_color = LEVEL3_PATH_COLOR
         self.setup_timeline()
-                
+
     def setup_timeline(self):
          self.timeline = TimeLine({
             })
