@@ -185,7 +185,9 @@ class Loading(mode.Mode):
     name = "loading"
     def __init__(self):
         mode.Mode.__init__(self)
-        filename = data.filepath('graphics/Level1Story.jpg')
+        filename = None
+        if (NEXT_LEVEL == 'level1'):
+            filename = data.filepath('graphics/Level1Story.jpg')
         if (NEXT_LEVEL == 'level2'):
             filename = data.filepath('graphics/Level2Story.jpg')
         elif (NEXT_LEVEL == 'level3'):
