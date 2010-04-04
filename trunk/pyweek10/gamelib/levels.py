@@ -94,13 +94,42 @@ class Titlescreen(mode.Mode):
             self.selected_option = 'start' if self.selected_option == 'quit' else 'quit'
         elif sym == key.ENTER:
             if self.selected_option == 'start':
-                self.control.switch_handler("loading")
+                self.control.switch_handler("story")
             elif self.selected_option == 'quit':
                 self.window.dispatch_event('on_close')
             else:
                 return EVENT_UNHANDLED
         else:
             return EVENT_UNHANDLED
+        return EVENT_HANDLED
+
+class Story(mode.Mode):
+    '''
+    Story Boards
+    '''
+    name = "story"
+    def connect(self,control):
+        super(Story, self).connect(control)
+        storyboard = None
+        if NEXT_LEVEL == 'level1':
+            storyboard = 'Level1Story.jpg'
+        elif NEXT_LEVEL == 'level2':
+            storyboard = 'Level2Story.jpg'
+        elif NEXT_LEVEL == 'level3':
+            storyboard = 'Level3Story.jpg'
+        elif NEXT_LEVEL == 'level4':
+            storyboard = 'Level4Story.jpg'
+
+        if storyboard:
+            self.image = data.load_image(storyboard)
+        else: # go straight to loading screen
+            self.control.switch_handler('loading')
+
+    def on_draw(self):
+        self.image.blit(0,0)
+
+    def on_key_press(self, sym, mods):
+        self.control.switch_handler('loading')
         return EVENT_HANDLED
 
 class Loading(mode.Mode):
@@ -349,7 +378,7 @@ class LevelBase(mode.Mode):
         pyglet.clock.schedule_once(self.on_level_complete, self.endtime)
 
     def on_level_complete(self, dt=0):
-        self.control.switch_handler('loading')
+        self.control.switch_handler('story')
     
     def on_resize(self, width, height):
         self.Rescale()
