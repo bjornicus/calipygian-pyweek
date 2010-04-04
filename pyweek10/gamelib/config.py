@@ -109,7 +109,7 @@ local = LocalConfig(
     fullscreen = False,
     window_width = 852,
     window_height = 480,
-    audio = ('alsa', 'openal', 'silent'),
+    audio = ('directsound', 'alsa', 'openal', 'silent'),
     reverse_frequency_keys = False
 )
 

@@ -190,7 +190,6 @@ class Player(Actor, Oscillator):
         self.collision_cooldown = COLLISION_COOLDOW
 
     def die(self):
-        print 'YOU ARE DEAD!'
         self.parent_level.ChangeSplash('ShipExploded.png')
 
     def get_collidable(self):
