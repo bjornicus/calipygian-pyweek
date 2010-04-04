@@ -119,7 +119,7 @@ class LevelSelect(mode.Mode):
         self.selected_option = 0
         self.music_player = media.Player()
         self.music = None
-        self.music = data.load_song('LevelselectMusic.ogg')
+        self.music = data.load_song('LevelSelectMusic.ogg')
         self.select_arrow_positions = [(526, 480-67), (526, 480-173), (526, 480-278), (526, 480-387)]
 
     def on_resize(self, width, height):
