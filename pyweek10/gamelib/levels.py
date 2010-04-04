@@ -525,7 +525,7 @@ class LevelBase(mode.Mode):
             self.on_level_complete()
         elif sym == key.ESCAPE:
             self.control.switch_handler("titlescreen")
-        elif self._ShowingSplash and sym == key.ENTER:
+        elif self._ShowingSplash:
             self.ChangeSplash()
         else:
             return EVENT_UNHANDLED
