@@ -94,13 +94,13 @@ class Player(Actor, Oscillator):
     
     def __init__(self, parent_level):
         sprite_image = data.load_image('Ship.png')
-        sprite_image.anchor_y = sprite_image.height/2  
+        sprite_image.anchor_y = sprite_image.height/2
         Actor.__init__(self, sprite_image, parent_level)
         Oscillator.__init__(self)
         self.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
         self.y = SIZE_OF_GAMESPACE_Y//2
         self.z = 1 #draw this above other stuff
-        
+
         self._original_color = self.sprite.color
         self.line_color = (1,1,1,1)
         self.shield = STARTING_SHIELDS
@@ -112,7 +112,7 @@ class Player(Actor, Oscillator):
         timeleft = self.parent_level.endtime - self.parent_level.timeline._current_time
         return ["Shields:{0}".format(int(self.shield)),
                 "Next Level In {0}".format(int(timeleft))]
-        
+
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)
 
@@ -121,7 +121,7 @@ class Player(Actor, Oscillator):
         shipPos = self.GetCurrentValue()
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
         if self.hitting_terrain:
-            self.shield -= SHIELD_TERRAIN_DRAIN_RATE 
+            self.shield -= SHIELD_TERRAIN_DRAIN_RATE
         self.shield = min(self.shield + SHIELD_CHARGE_RATE * dt * self._Omega,  MAX_SHIELDS)
         if self.shield < 0:
             self.die()
@@ -188,13 +188,13 @@ class Player(Actor, Oscillator):
         self.sprite.color = (255, 0, 0)
         self.shield -= 500
         self.collision_cooldown = COLLISION_COOLDOW
-        
+
     def die(self):
         print 'YOU ARE DEAD!'
-        self.parent_level.restart()
+        self.parent_level.ChangeSplash('ShipExploded.png')
 
     def get_collidable(self):
-        return SpriteCollision(self.sprite) 
+        return SpriteCollision(self.sprite)
 
     def draw(self):
         self.sprite.x = self.GetScaledX(self.x)
