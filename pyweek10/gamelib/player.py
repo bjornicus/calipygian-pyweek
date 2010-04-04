@@ -137,12 +137,12 @@ class Player(Actor, Oscillator):
         else:
             self.AmplitudeAdjust = CONSTANT
 
-        if keys[key.LEFT] and not keys[key.RIGHT] or self.dpad.axis0 > 0:
+        if keys[key.LEFT] and not keys[key.RIGHT] or self.dpad.axis0 < 0:
             if config.reverse_frequency_keys:
                 self.FrequencyAdjust = DECREASE
             else:
                 self.FrequencyAdjust = INCREASE
-        elif keys[key.RIGHT] and not keys[key.LEFT] or self.dpad.axis0 < 0:
+        elif keys[key.RIGHT] and not keys[key.LEFT] or self.dpad.axis0 > 0:
             if config.reverse_frequency_keys:
                 self.FrequencyAdjust = INCREASE
             else:
