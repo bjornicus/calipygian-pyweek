@@ -94,7 +94,7 @@ class Titlescreen(mode.Mode):
             self.selected_option = 'start' if self.selected_option == 'quit' else 'quit'
         elif sym == key.ENTER:
             if self.selected_option == 'start':
-                self.control.switch_handler("story")
+                self.control.switch_handler('levelselect')
             elif self.selected_option == 'quit':
                 self.window.dispatch_event('on_close')
             else:
@@ -103,33 +103,79 @@ class Titlescreen(mode.Mode):
             return EVENT_UNHANDLED
         return EVENT_HANDLED
 
-class Story(mode.Mode):
+class LevelSelect(mode.Mode):
     '''
-    Story Boards
+    The level selection screen. Derives from Mode.
     '''
-    name = "story"
-    def connect(self,control):
-        super(Story, self).connect(control)
-        storyboard = None
-        if NEXT_LEVEL == 'level1':
-            storyboard = 'Level1Story.jpg'
-        elif NEXT_LEVEL == 'level2':
-            storyboard = 'Level2Story.jpg'
-        elif NEXT_LEVEL == 'level3':
-            storyboard = 'Level3Story.jpg'
-        elif NEXT_LEVEL == 'level4':
-            storyboard = 'Level4Story.jpg'
+    name = "levelselect"
+    def __init__(self):
+        mode.Mode.__init__(self)
 
-        if storyboard:
-            self.image = data.load_image(storyboard)
-        else: # go straight to loading screen
-            self.control.switch_handler('loading')
+        self._Sprite = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/LevelSelectWS.jpg')))
+        self.select_arrow = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/SelectionArrowBlue.png')))
+        self.select_arrow.image.anchor_x = self.select_arrow.image.width/2
+        self.select_arrow.image.anchor_y = self.select_arrow.image.height/2
+        self.select_arrow.scale = 0.75
+        self.selected_option = 0
+        self.music_player = media.Player()
+        self.music = None
+        self.music = data.load_song('LevelselectMusic.ogg')
+        self.select_arrow_positions = [(526, 480-67), (526, 480-173), (526, 480-278), (526, 480-387)]
+
+    def on_resize(self, width, height):
+        if self.window is None:
+            return
+        window_x = self.window.width
+        window_y = self.window.height
+
+        x_scale = float(window_x)/float(self._Sprite.image.width)
+        y_scale = float(window_y)/float(self._Sprite.image.height)
+
+        if y_scale < x_scale:
+            self._Sprite.scale = y_scale
+            self._Sprite.y = 0
+            self._Sprite.x =  int((float(window_x) - float(self._Sprite.image.width) * y_scale)/2 + .5)
+        else:
+            self._Sprite.scale = x_scale
+            self._Sprite.x =  0
+            self._Sprite.y = int((float(window_y) - float(self._Sprite.image.height) * x_scale)/2 + .5)
+
+    def connect(self, control):
+        super(LevelSelect, self).connect(control)
+
+        if self.music is not None:
+            self.music_player.queue(self.music)
+            self.music_player.play()
+
+    def disconnect(self):
+        super(LevelSelect, self).disconnect()
+        self.music_player.pause()
+
+    def update(self, dt):
+        mode.Mode.update(self, dt)
 
     def on_draw(self):
-        self.image.blit(0,0)
+        self._Sprite.draw()
+        self.select_arrow.position = self.select_arrow_positions[self.selected_option]
+        self.select_arrow.draw()
 
     def on_key_press(self, sym, mods):
-        self.control.switch_handler('loading')
+        if sym == key.UP:
+            self.selected_option -= 1
+            set_next_level('level' + str(self.selected_option+1))
+            if self.selected_option < 0:
+                self.selected_option = 3
+        elif sym == key.DOWN:
+            self.selected_option += 1
+            set_next_level('level' + str(self.selected_option+1))
+            if self.selected_option > 3:
+                self.selected_option = 0
+        elif sym == key.ESCAPE:
+            self.control.switch_handler("titlescreen")
+        elif sym == key.ENTER:
+            self.control.switch_handler("loading")
+        else:
+            return EVENT_UNHANDLED
         return EVENT_HANDLED
 
 class Loading(mode.Mode):
@@ -139,7 +185,14 @@ class Loading(mode.Mode):
     name = "loading"
     def __init__(self):
         mode.Mode.__init__(self)
-        self._Background = pyglet.sprite.Sprite(pyglet.image.load(data.filepath('graphics/Loading.png')))
+        filename = data.filepath('graphics/Level1Story.jpg')
+        if (NEXT_LEVEL == 'level2'):
+            filename = data.filepath('graphics/Level2Story.jpg')
+        elif (NEXT_LEVEL == 'level3'):
+            filename = data.filepath('graphics/Level3Story.jpg')
+        elif (NEXT_LEVEL == 'level4'):
+            filename = data.filepath('graphics/Level4Story.jpg')
+        self._Background = pyglet.sprite.Sprite(pyglet.image.load(filename))
         self._Connected = False
         self._Frames = 0
 
