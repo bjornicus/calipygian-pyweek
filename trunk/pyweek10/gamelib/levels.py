@@ -733,6 +733,21 @@ class LevelTwo(LevelBase):
                 
     def setup_timeline(self):
          self.timeline = TimeLine({
+            1:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 240, 2,   self, 1]),
+            5:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 1,   self, 2]),
+            11:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 4,   self, 3]),
+            17:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 3,   self, 4]),
+            23:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 240, 1,   self, 1]),
+            30:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 2,   self, 2]),
+            36:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 240, 4,   self, 3]),
+            42:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 3,   self, 4]),
+            48:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 1,   self, 1]),
+            54:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 2,   self, 2]),
+            60:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 240, 4,   self, 3]),
+            66:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 3,   self, 4]),
+            72:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 240, 1,   self, 1]),
+            78:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 2,   self, 2]),
+            84:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 3,   self, 4]),
             })
 
 
@@ -767,6 +782,14 @@ class LevelThree(LevelBase):
 
     def setup_timeline(self):
          self.timeline = TimeLine({
+            1:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 2,   self, 2]),
+            11:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 210, 4,   self, 1]),
+            21:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 1,   self, 3]),
+            16:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 4,   self, 2]),
+            48:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 210, 1,   self, 3]),
+            60:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 4,   self, 1]),
+            72:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 1,   self, 2]),
+            84:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 210, 1,   self, 4]),
             })
 
 
@@ -801,6 +824,14 @@ class LevelFour(LevelBase):
                   
     def setup_timeline(self):
          self.timeline = TimeLine({
+            1:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 2,   self, 2]),
+            11:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 210, 4,   self, 1]),
+            21:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 1,   self, 3]),
+            16:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 4,   self, 2]),
+            48:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 210, 1,   self, 3]),
+            60:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 230, 4,   self, 1]),
+            72:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 250, 1,   self, 2]),
+            84:     TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 210, 1,   self, 4]),
             })
 
               
