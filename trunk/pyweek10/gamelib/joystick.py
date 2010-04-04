@@ -15,9 +15,17 @@ if sys.platform == 'linux2':
         def __init__(self, device_number=0):
             device = '/dev/input/js%s' % device_number
             event.EventDispatcher.__init__(self)
-            self.dev = open(device)
+            try:
+                self.dev = open(device)
+                self.joystick_found = True
+            except:
+                print 'No Joysticks found'
+                self.joystick_found = False
+
 
         def dispatch_events(self):
+            if not self.joystick_found:
+                return
             r,w,e = select([self.dev],[],[], 0)
             if self.dev not in r: return
             evt = self.dev.read(self.JS_EVENT_SIZE)
