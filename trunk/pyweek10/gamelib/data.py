@@ -20,8 +20,6 @@ from constants import *
 
 images = {}
 
-font.add_directory(os.path.join(DATA_DIR, "fonts"))
-
 def filepath(filename):
     """ determine the pathe to a file in the data directory
     """
