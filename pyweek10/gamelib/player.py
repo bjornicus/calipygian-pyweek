@@ -4,7 +4,6 @@ Levels render in a window, handle input, and update
 the entities they contain.
 
 '''
-
 import pyglet
 from pyglet.window import key
 from pyglet.gl import *
@@ -16,6 +15,7 @@ import levels
 import data
 import math
 from numpy import arange
+import oscillator
 if DEBUG:
     from debug import *
 
@@ -84,7 +84,7 @@ class Hud(Entity):
             label.y = self.GetScaledY(self.y - self._hud_background.image.height + y)
             label.draw()
 
-class Player(Actor, Oscillator):
+class Player(Actor, oscillator.Oscillator):
     '''
     The main player object. This derives from Oscillator and adds in sprite rendering capabilities.
     This is the rendering side of the Oscillator object.
@@ -96,7 +96,7 @@ class Player(Actor, Oscillator):
         sprite_image = data.load_image('Ship.png')
         sprite_image.anchor_y = sprite_image.height/2
         Actor.__init__(self, sprite_image, parent_level)
-        Oscillator.__init__(self)
+        oscillator.Oscillator.__init__(self)
         self.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
         self.y = SIZE_OF_GAMESPACE_Y//2
         self.z = 1 #draw this above other stuff
@@ -117,7 +117,7 @@ class Player(Actor, Oscillator):
         super(Player, self).Rescale(NewScaleFactor)
 
     def Tick(self, dt):
-        Oscillator.Tick(self, dt)
+        oscillator.Oscillator.Tick(self, dt)
         shipPos = self.GetCurrentValue()
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
         if self.hitting_terrain:

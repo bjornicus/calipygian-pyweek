@@ -10,8 +10,6 @@ from pyglet.event import EVENT_HANDLED
 from pyglet.event import EVENT_UNHANDLED
 from pyglet.window import key
 from constants import *
-if DEBUG:
-    from debug import *
 
 import mode
 from entities import *
@@ -24,6 +22,12 @@ import random
 import player
 import entities
 import data
+import entities
+
+if DEBUG:
+    from debug import *
+
+
 
 NEXT_LEVEL = 'level1'
 def set_next_level(name):
@@ -213,82 +217,6 @@ class Loading(mode.Mode):
         self._Background.draw()
         if self._Connected and self._Frames > 10:
             self.control.switch_handler(NEXT_LEVEL)
-
-class CollidableTerrain(Entity):
-    '''
-    A class to manage our foreground terrain
-    '''
-    entity_type = TYPE_TERRAIN
-
-    def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
-        print 'loading terrain...'
-        self.image = pyglet.image.load(data.filepath(filename))
-        self._ImagePieces = []
-        self._Colliders = []
-        self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.image.height))
-        Entity.__init__(self, parent_level, layer=layer)
-
-        x = 0
-        while x < self.image.width:
-            width = min(WIDTH_OF_TERRAIN_SLICE, self.image.width - x)
-            ImagePiece = self.image.get_region(x, 0, width, self.image.height)
-            sprite = pyglet.sprite.Sprite(ImagePiece)
-            sprite.x = self.GetScaledX(x)
-            sprite.scale = self._scale
-            self._ImagePieces.append(sprite)
-            x += width
-
-        print 'loading collision data...'
-        for piece in self._ImagePieces:
-            collider = SpriteCollision(piece)
-            collider.get_image() #pre-cache the collision pixel data
-            self._Colliders.append(collider)
-        self.x = 0
-        self.y = 0
-
-        self._scrolling_factor = scrolling_factor
-
-    def reset(self):
-        x = 0
-        for sprite in self._ImagePieces:
-            width = min(WIDTH_OF_TERRAIN_SLICE, self.image.width - x)
-            sprite.x = self.GetScaledX(x)
-            sprite.scale = self._scale
-            x += width
-
-
-    def Rescale(self, NewScaleFactor):
-        super(CollidableTerrain, self).Rescale(NewScaleFactor)
-        self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.image.height))
-        for sprite in self._ImagePieces:
-            sprite.scale = self._scale
-        self.scaled_gamespace_width = self.GetScaledX(SIZE_OF_GAMESPACE_X)
-        self.scaled_image_width = self.GetScaledX(self.image.width)
-
-    def Tick(self, dt):
-        dx = (self.scaled_gamespace_width * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
-        for sprite in self._ImagePieces:
-            sprite.x -= dx
-            if (sprite.x + sprite.width < 0):
-                sprite.x += self.scaled_image_width
-
-        super(CollidableTerrain, self).Tick(dt)
-
-    def draw(self):
-        for sprite in self._ImagePieces:
-            if sprite.x + sprite.width > 0 and sprite.x < self.scaled_gamespace_width:
-                sprite.draw()
-                if DEBUG:
-                    draw_bounding_box(sprite)
-        super(CollidableTerrain, self).draw()
-
-
-    def collide(self,collideable):
-        #return False
-        for piece in self._ImagePieces:
-            if collide(collideable, SpriteCollision(piece)):
-                return True
-        return False
 
 class FullscreenScrollingSprite(Entity):
     '''
@@ -661,7 +589,7 @@ class LevelOne(LevelBase):
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25*SHIP_SPEED)
-        self._Foreground = CollidableTerrain('graphics/Level1Foreground.png', self, 1, SHIP_SPEED)
+        self._Foreground = entities.CollidableTerrain('graphics/Level1Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level1Music.ogg')
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
@@ -725,7 +653,7 @@ class LevelTwo(LevelBase):
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level2Middleground.png', self, 0, 0.25*SHIP_SPEED)
-        self._Foreground = CollidableTerrain('graphics/Level2Foreground.png', self, 1, SHIP_SPEED)
+        self._Foreground = entities.CollidableTerrain('graphics/Level2Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level2Music.ogg')
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
@@ -774,7 +702,7 @@ class LevelThree(LevelBase):
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level3Middleground.png', self, 0, 0.25*SHIP_SPEED)
-        self._Foreground = CollidableTerrain('graphics/Level3Foreground.png', self, 1, SHIP_SPEED)
+        self._Foreground = entities.CollidableTerrain('graphics/Level3Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level3Music.ogg')
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
@@ -816,7 +744,7 @@ class LevelFour(LevelBase):
         LevelBase.__init__(self)
         self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
         self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25*SHIP_SPEED)
-        self._Foreground = CollidableTerrain('graphics/Level4Foreground.png', self, 1, SHIP_SPEED)
+        self._Foreground = entities.CollidableTerrain('graphics/Level4Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level4Music.ogg')
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
@@ -859,7 +787,7 @@ class TestLevel(LevelBase):
         self.level_label = pyglet.text.Label("TEST LEVEL", font_size=20)
         #self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
         #self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25*SHIP_SPEED)
-        self._Foreground = CollidableTerrain('graphics/TestLevelForeground.png', self, 1, SHIP_SPEED)
+        self._Foreground = entities.CollidableTerrain('graphics/TestLevelForeground.png', self, 1, SHIP_SPEED)
         #self.music = data.load_song('Level4Music.ogg')
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
