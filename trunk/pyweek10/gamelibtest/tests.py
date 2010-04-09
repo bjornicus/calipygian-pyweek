@@ -8,6 +8,7 @@ from gamelib.constants import *
 import math
 
 from pyglet.window import key
+import oscillator
 
 def test_Levellevelbase_on_draw_clears_window():
     class mock_Window:
@@ -25,7 +26,7 @@ def test_Levellevelbase_on_draw_clears_window():
  
 #------------- oscillator tests --------------#
 def test_Oscillator_AdjustFrequency_does_not_change_position():
-    oscillator = Oscillator()
+    oscillator = oscillator.Oscillator()
     oscillator._Omega = MIN_FREQUENCY
       
     for t_step in range(0,200):
@@ -50,7 +51,7 @@ def test_Oscillator_AdjustFrequency_does_not_change_position():
         oscillator.Tick(0.01, pyglet.window.key.KeyStateHandler())
 
 def test_Oscillator_AdjustAmplitude_does_not_change_position():
-    oscillator = Oscillator()
+    oscillator = oscillator.Oscillator()
     oscillator._Amplitude = MIN_AMPLITUDE
           
     for t_step in range(0,200):
