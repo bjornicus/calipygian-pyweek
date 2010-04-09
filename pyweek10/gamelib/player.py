@@ -65,12 +65,12 @@ class Hud(Entity):
         for label, x, y in self._lables:
             label.font_size = 20*self._scale
                     
-    def Tick(self, delta_t):
+    def update(self, delta_t):
         ships = self.parent_level.get_objects_of_interest(TYPE_PLAYER_SHIP)
         if len(ships) > 0:
             contents = ships[0].getHudContents()
             self.ConstructHud(contents)
-        Entity.Tick(self, delta_t)
+        Entity.update(self, delta_t)
         
     def draw(self):
         Entity.draw(self)
@@ -116,8 +116,8 @@ class Player(Actor, oscillator.Oscillator):
     def Rescale(self, NewScaleFactor):
         super(Player, self).Rescale(NewScaleFactor)
 
-    def Tick(self, dt):
-        oscillator.Oscillator.Tick(self, dt)
+    def update(self, dt):
+        oscillator.Oscillator.update(self, dt)
         shipPos = self.GetCurrentValue()
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
         if self.hitting_terrain:

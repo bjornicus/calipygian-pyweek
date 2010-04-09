@@ -251,12 +251,12 @@ class FullscreenScrollingSprite(Entity):
         for sprite in self._ImagePieces:
             sprite.scale = self._scale
 
-    def Tick(self, dt):
+    def update(self, dt):
         self.x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
         if (self.x < -self.Image.width):
             self.x += self.Image.width
 
-        super(FullscreenScrollingSprite, self).Tick(dt)
+        super(FullscreenScrollingSprite, self).update(dt)
 
     def draw(self):
         x = int(self.x - 0.5)
@@ -427,9 +427,9 @@ class LevelBase(mode.Mode):
         if self.ignore_next_update:
             self.ignore_next_update = False
             return
-        self.timeline.Tick(dt)
+        self.timeline.update(dt)
         for actor in self.actorlist:
-            actor.Tick(dt)
+            actor.update(dt)
 
         playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
         for playership in playerships:
@@ -564,13 +564,13 @@ class TimeLine:
         self._event_times.sort()
         self._event_times.reverse()
 
-    def Tick(self, dt):
+    def update(self, dt):
         tick_end = self._current_time + dt
         while len(self._event_times) > 0 :
             event_time = self._event_times.pop()
             if event_time <= tick_end:
                 self._timeline[event_time].realize()
-                self._timeline[event_time].get_object().Tick(tick_end - event_time)
+                self._timeline[event_time].get_object().update(tick_end - event_time)
             else:
                 self._event_times.append(event_time)
                 break
