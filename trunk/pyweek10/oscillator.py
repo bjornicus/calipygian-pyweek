@@ -33,7 +33,7 @@ class Oscillator(object):
         self.AmplitudeAdjust = CONSTANT
         self.FrequencyAdjust = CONSTANT
 
-    def Tick(self, delta_t):
+    def update(self, delta_t):
         """
         Simulate the passage of time on the ships sinusodial position.
 

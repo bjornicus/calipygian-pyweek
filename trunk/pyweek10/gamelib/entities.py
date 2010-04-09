@@ -7,13 +7,14 @@ import data
 import math
 from collide import *
 from pyglet.window import key
-from gamelib.collide import *
-from gamelib.constants import *
 
 if DEBUG:
     import debug
 
 class Entity(object):
+    '''
+    An entity is anything in the game that gets updated 
+    '''
     entity_type = None
     def __init__(self, parent_level, layer = 2):
         self.parent_level = parent_level
@@ -43,10 +44,13 @@ class Entity(object):
     def draw(self):
         pass
 
-    def Tick(self, delta_t):
+    def update(self, delta_t):
         pass
 
 class Actor(Entity):
+    '''
+    Actors are entities that have an associated sprite
+    '''
     entity_type = None
     def __init__(self, sprite_image, parent_level, layer = 2):
         self.sprite = pyglet.sprite.Sprite(sprite_image)
@@ -90,10 +94,10 @@ class HostileShip(Actor):
         Actor.Rescale(self, NewScaleFactor)
         self.sprite.scale = float(NewScaleFactor)
 
-    def Tick(self, delta_t):
+    def update(self, delta_t):
         self._x = self._x - (SIZE_OF_GAMESPACE_X * (delta_t / SECONDS_TO_CROSS_GAMESPACE) + (self.speed * delta_t/abs(delta_t)))
 
-        Actor.Tick(self, delta_t)
+        Actor.update(self, delta_t)
 
         if self._x <= 0:
             self.delete()
@@ -159,21 +163,21 @@ class CollidableTerrain(Entity):
         self.scaled_gamespace_width = self.GetScaledX(SIZE_OF_GAMESPACE_X)
         self.scaled_image_width = self.GetScaledX(self.image.width)
 
-    def Tick(self, dt):
+    def update(self, dt):
         dx = (self.scaled_gamespace_width * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
         for sprite in self._ImagePieces:
             sprite.x -= dx
             if (sprite.x + sprite.width < 0):
                 sprite.x += self.scaled_image_width
 
-        super(CollidableTerrain, self).Tick(dt)
+        super(CollidableTerrain, self).update(dt)
 
     def draw(self):
         for sprite in self._ImagePieces:
             if sprite.x + sprite.width > 0 and sprite.x < self.scaled_gamespace_width:
                 sprite.draw()
                 if DEBUG:
-                    draw_bounding_box(sprite)
+                    debug.draw_bounding_box(sprite)
         super(CollidableTerrain, self).draw()
 
 
@@ -198,7 +202,7 @@ class Debris(Actor):
         self.vx = 0
         self.vy = 0
 
-    def Tick(self, dt):
+    def update(self, dt):
         self.x = self.x - (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE))
 
     def draw(self):
