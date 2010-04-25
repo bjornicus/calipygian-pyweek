@@ -313,8 +313,8 @@ class LevelBase(mode.Mode):
         self.timeline = TimeLine({})
         self.endtime = DEFAULT_LEVEL_TIME
 
-        player.Player(self)
-        player.Hud(self)
+        thePlayer = player.Player(self)
+        player.Hud(self,thePlayer)
 
         self.LevelTimeScale = 1.0
         self.ChangeSplash('LevelStartReady.png')
@@ -349,8 +349,8 @@ class LevelBase(mode.Mode):
         self.renderlist_layers = [[],[],[],[],[]]
         self.actorlist = []
         self._objects_of_interest = {}
-        player.Player(self)
-        player.Hud(self)
+        thePlayer = player.Player(self)
+        player.Hud(self, thePlayer)
         if self._Background:
             self.register_entity(self._Background, 0)
         if self._Middleground:
