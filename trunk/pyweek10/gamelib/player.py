@@ -19,70 +19,26 @@ import oscillator
 if DEBUG:
     from debug import *
 
-PATH_POINTS = 50.0
-
-# hit box helpers.
-HITBOX_X = lambda hitbox: hitbox[0]
-HITBOX_Y = lambda hitbox: hitbox[1]
-HITBOX_WIDTH = lambda hitbox: hitbox[2]
-HITBOX_HEIGHT = lambda hitbox: hitbox[3]
-
 class Hud(Entity):
     entity_type = None
-    def __init__(self, parent_level):
+    SHIELD_BAR_WIDTH = 40
+    SHIELD_BAR_MAX_LENGTH = 200
+    def __init__(self, parent_level, player):
         self.x = 0
-        self.y = SIZE_OF_GAMESPACE_Y
+        self.y = SIZE_OF_GAMESPACE_Y - 10
         self._scale = 1
-
-        self._lables = []
-        self._hud_background = None
-
+        self.player = player
         Entity.__init__(self, parent_level)
 
-    def ConstructHud(self, contents):
-
-        max_x = 0
-        y = 5
-        self._lables = []
-        contents.reverse()
-        for line in contents:
-            label = pyglet.text.Label(line, font_size=20*self._scale)
-            max_x = max(max_x, label.content_width)
-            self._lables.append((label, 0, y))
-            y = y + label.content_height + 5
-     
-        hud_texture = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
-        hud_image = pyglet.image.create(max_x, y, hud_texture)
-        self._hud_background = pyglet.sprite.Sprite(hud_image)
-        self._hud_background.image.anchor_y = self._hud_background.image.height
-        self._hud_background.scale = float(self._scale)
-        
-    def Rescale(self, NewScaleFactor):
-        Entity.Rescale(self, NewScaleFactor)
-        self._scale = NewScaleFactor
-        if self._hud_background is not None:
-            self._hud_background.scale = float(NewScaleFactor)
-        for label, x, y in self._lables:
-            label.font_size = 20*self._scale
-                    
-    def update(self, delta_t):
-        ships = self.parent_level.get_objects_of_interest(TYPE_PLAYER_SHIP)
-        if len(ships) > 0:
-            contents = ships[0].getHudContents()
-            self.ConstructHud(contents)
-        Entity.update(self, delta_t)
-        
     def draw(self):
+        percent_shield = self.player.shield/MAX_SHIELDS
+        glLineWidth(Hud.SHIELD_BAR_WIDTH)
+        glColor4f(1-percent_shield, percent_shield, 0, 0.8)
+        glRectf(self.x, self.y, self.x + percent_shield * Hud.SHIELD_BAR_MAX_LENGTH ,self.y - Hud.SHIELD_BAR_WIDTH)
+        glColor4f(1,1,1,1)
+        glLineWidth(1)
         Entity.draw(self)
-        if self._hud_background is not None:
-            self._hud_background.x = self.GetScaledX(self.x)
-            self._hud_background.y = self.GetScaledY(self.y)
-            self._hud_background.draw()
         
-        for label, x, y in self._lables:
-            label.x = self.GetScaledX(self.x + x)
-            label.y = self.GetScaledY(self.y - self._hud_background.image.height + y)
-            label.draw()
 
 class Player(Actor, oscillator.Oscillator):
     '''
@@ -102,7 +58,7 @@ class Player(Actor, oscillator.Oscillator):
         self.z = 1 #draw this above other stuff
 
         self._original_color = self.sprite.color
-        self.line_color = (1,1,1,1)
+        self.line_color = (1, 0.5, 0, 0.9)
         self.shield = STARTING_SHIELDS
         self.collision_cooldown = 0
         self._hitting_terrain = False
