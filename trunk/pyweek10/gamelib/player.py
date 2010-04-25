@@ -78,7 +78,7 @@ class Player(Actor, oscillator.Oscillator):
         self.y  = SIZE_OF_GAMESPACE_Y//2 + (shipPos * SIZE_OF_GAMESPACE_Y//2)
         if self.hitting_terrain:
             self.shield -= SHIELD_TERRAIN_DRAIN_RATE
-        self.shield = min(self.shield + SHIELD_CHARGE_RATE * dt * self._Omega,  MAX_SHIELDS)
+        self.shield = min(self.shield + SHIELD_CHARGE_RATE * dt,  MAX_SHIELDS)
         if self.shield < 0:
             self.die()
         if (self.collision_cooldown > 0):
