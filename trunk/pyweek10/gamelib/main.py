@@ -154,7 +154,8 @@ class Controller(object):
         self.setup_pyglet()
         self.setup_gl()
         if DEBUG:
-            self.switch_handler('testlevel')
+            #self.switch_handler('testlevel')
+            self.switch_handler('level0')
         else:
             self.switch_handler("titlescreen")
         self.window.set_visible()

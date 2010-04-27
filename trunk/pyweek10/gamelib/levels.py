@@ -23,6 +23,7 @@ import player
 import entities
 import data
 import entities
+import gamelib.entities
 
 if DEBUG:
     from debug import *
@@ -189,7 +190,7 @@ class Loading(mode.Mode):
     name = "loading"
     def __init__(self):
         mode.Mode.__init__(self)
-        filename = None
+        filename = data.filepath('graphics/Loading.png')
         if (NEXT_LEVEL == 'level1'):
             filename = data.filepath('graphics/Level1Story.jpg')
         if (NEXT_LEVEL == 'level2'):
@@ -217,69 +218,6 @@ class Loading(mode.Mode):
         self._Background.draw()
         if self._Connected and self._Frames > 10:
             self.control.switch_handler(NEXT_LEVEL)
-
-class FullscreenScrollingSprite(Entity):
-    '''
-    A class to manage a full-screen scrolling sprite.
-    '''
-    def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
-        self.Image = pyglet.image.load(data.filepath(filename))
-        self._ImagePieces = []
-        self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
-
-        x = 0
-        while x < self.Image.width:
-            width = min(SIZE_OF_GAMESPACE_X, self.Image.width - x)
-            ImagePiece = self.Image.get_region(x, 0, width, self.Image.height)
-            sprite = pyglet.sprite.Sprite(ImagePiece)
-            sprite.scale = self._scale
-            self._ImagePieces.append(sprite)
-            x += width
-
-        Entity.__init__(self, parent_level, layer=layer)
-        self._scrolling_factor = scrolling_factor
-
-        self.reset()
-
-    def reset(self):
-        self.x = 0
-        self.y = 0
-
-    def Rescale(self, NewScaleFactor):
-        super(FullscreenScrollingSprite, self).Rescale(NewScaleFactor)
-        self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
-        for sprite in self._ImagePieces:
-            sprite.scale = self._scale
-
-    def update(self, dt):
-        self.x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
-        if (self.x < -self.Image.width):
-            self.x += self.Image.width
-
-        super(FullscreenScrollingSprite, self).update(dt)
-
-    def draw(self):
-        x = int(self.x - 0.5)
-        while (x + self.Image.width < SIZE_OF_GAMESPACE_X + self.Image.width):
-            x_offset = x
-            x_draw_offset = self.GetScaledX(x_offset)
-            for sprite in self._ImagePieces:
-                if (x_offset + sprite.image.width < 0 or x_offset > SIZE_OF_GAMESPACE_X):
-                    pass
-                else:
-                    sprite.x = x_draw_offset
-                    sprite.y = self.GetScaledY(self.y)
-                    sprite.draw()
-                x_draw_offset += int(sprite.width - .5)
-                x_offset += sprite.image.width
-
-            x += self.Image.width
-
-        super(FullscreenScrollingSprite, self).draw()
-
-
-    def get_collidable(self):
-        return None
 
 class LevelBase(mode.Mode):
     '''
@@ -577,6 +515,35 @@ class TimeLine:
         self._current_time = tick_end
 
 
+class LevelZero(LevelBase):
+    '''
+    Level Zero
+    '''
+    name = "level0"
+
+    def __init__( self ):
+        print ''
+        print 'Initializing Level Zero...'
+        LevelBase.__init__(self)
+        #self._Background = gamelib.entities.FullscreenScrollingSprite('graphics/Level0Background.png', self, 0, 0.0)
+        #self._Middleground = gamelib.entities.FullscreenScrollingSprite('graphics/Level0Middleground.png', self, 0, 0.25*SHIP_SPEED)
+        self._Foreground = entities.CollidableTerrain('graphics/Level0Foreground.png', self, 1, SHIP_SPEED)
+        #self.music = data.load_song('Level1Music.ogg')
+
+        playerships = self.get_objects_of_interest(TYPE_PLAYER_SHIP)
+        for playership in playerships:
+            playership.line_color = LEVEL1_PATH_COLOR
+        self.setup_timeline()
+
+    def setup_timeline(self):
+         self.timeline = TimeLine({
+            5:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 50,  2,   self, 1]),
+            })
+
+    def connect(self, control):
+        LevelBase.connect(self, control)
+        set_next_level('level2')
+
 class LevelOne(LevelBase):
     '''
     Level One
@@ -587,8 +554,8 @@ class LevelOne(LevelBase):
         print ''
         print 'Initializing Level One...'
         LevelBase.__init__(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
-        self._Middleground = FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25*SHIP_SPEED)
+        self._Background = gamelib.entities.FullscreenScrollingSprite('graphics/Level1Background.png', self, 0, 0.0)
+        self._Middleground = gamelib.entities.FullscreenScrollingSprite('graphics/Level1Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = entities.CollidableTerrain('graphics/Level1Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level1Music.ogg')
 
@@ -637,8 +604,6 @@ class LevelOne(LevelBase):
         LevelBase.connect(self, control)
         set_next_level('level2')
 
-    def on_draw(self):
-        LevelBase.on_draw(self)
 
 
 class LevelTwo(LevelBase):
@@ -651,8 +616,8 @@ class LevelTwo(LevelBase):
         print ''
         print 'Initializing Level Two...'
         LevelBase.__init__(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.0)
-        self._Middleground = FullscreenScrollingSprite('graphics/Level2Middleground.png', self, 0, 0.25*SHIP_SPEED)
+        self._Background = gamelib.entities.FullscreenScrollingSprite('graphics/Level2Background.png', self, 0, 0.0)
+        self._Middleground = gamelib.entities.FullscreenScrollingSprite('graphics/Level2Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = entities.CollidableTerrain('graphics/Level2Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level2Music.ogg')
 
@@ -685,10 +650,6 @@ class LevelTwo(LevelBase):
         LevelBase.connect(self, control)
         set_next_level('level3')
 
-    def on_draw(self):
-        LevelBase.on_draw(self)
-
-
 
 class LevelThree(LevelBase):
     '''
@@ -700,8 +661,8 @@ class LevelThree(LevelBase):
         print ''
         print 'Initializing Level Three...'
         LevelBase.__init__(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.0)
-        self._Middleground = FullscreenScrollingSprite('graphics/Level3Middleground.png', self, 0, 0.25*SHIP_SPEED)
+        self._Background = gamelib.entities.FullscreenScrollingSprite('graphics/Level3Background.png', self, 0, 0.0)
+        self._Middleground = gamelib.entities.FullscreenScrollingSprite('graphics/Level3Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = entities.CollidableTerrain('graphics/Level3Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level3Music.ogg')
 
@@ -727,10 +688,6 @@ class LevelThree(LevelBase):
         LevelBase.connect(self, control)
         set_next_level('level4')
 
-    def on_draw(self):
-        LevelBase.on_draw(self)
-
-
 
 class LevelFour(LevelBase):
     '''
@@ -742,8 +699,8 @@ class LevelFour(LevelBase):
         print ''
         print 'Initializing Level Four...'
         LevelBase.__init__(self)
-        self._Background = FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
-        self._Middleground = FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25*SHIP_SPEED)
+        self._Background = gamelib.entities.FullscreenScrollingSprite('graphics/Level4Background.png', self, 0, 0.0)
+        self._Middleground = gamelib.entities.FullscreenScrollingSprite('graphics/Level4Middleground.png', self, 0, 0.25*SHIP_SPEED)
         self._Foreground = entities.CollidableTerrain('graphics/Level4Foreground.png', self, 1, SHIP_SPEED)
         self.music = data.load_song('Level4Music.ogg')
 
@@ -768,10 +725,6 @@ class LevelFour(LevelBase):
     def connect(self, control):
         LevelBase.connect(self, control)
         set_next_level('titlescreen')
-
-    def on_draw(self):
-        LevelBase.on_draw(self)
-
 
 
 class TestLevel(LevelBase):
@@ -812,10 +765,5 @@ class TestLevel(LevelBase):
 
     def connect(self, control):
         LevelBase.connect(self, control)
-        set_next_level('level1')
-
-    def on_draw(self):
-        LevelBase.on_draw(self)
-        self.level_label.draw()
-
+        set_next_level('level0')
 
