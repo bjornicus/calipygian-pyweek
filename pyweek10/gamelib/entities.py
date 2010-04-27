@@ -7,9 +7,9 @@ import data
 import math
 from collide import *
 from pyglet.window import key
+from gamelib.constants import *
+from gamelib.levels import SIZE_OF_GAMESPACE_Y, SECONDS_TO_CROSS_GAMESPACE
 
-if DEBUG:
-    import debug
 
 class Entity(object):
     '''
@@ -112,6 +112,72 @@ class HostileShip(Actor):
     def get_collidable(self):
         return SpriteCollision(self.sprite) 
 
+
+class FullscreenScrollingSprite(Entity):
+    '''
+    A class to manage a full-screen scrolling sprite.
+    '''
+    def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
+        self.Image = pyglet.image.load(data.filepath(filename))
+        self._ImagePieces = []
+        self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
+
+        x = 0
+        while x < self.Image.width:
+            width = min(SIZE_OF_GAMESPACE_X, self.Image.width - x)
+            ImagePiece = self.Image.get_region(x, 0, width, self.Image.height)
+            sprite = pyglet.sprite.Sprite(ImagePiece)
+            sprite.scale = self._scale
+            self._ImagePieces.append(sprite)
+            x += width
+
+        Entity.__init__(self, parent_level, layer=layer)
+        self._scrolling_factor = scrolling_factor
+
+        self.reset()
+
+    def reset(self):
+        self.x = 0
+        self.y = 0
+
+    def Rescale(self, NewScaleFactor):
+        super(FullscreenScrollingSprite, self).Rescale(NewScaleFactor)
+        self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
+        for sprite in self._ImagePieces:
+            sprite.scale = self._scale
+
+    def update(self, dt):
+        self.x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
+        if (self.x < -self.Image.width):
+            self.x += self.Image.width
+
+        super(FullscreenScrollingSprite, self).update(dt)
+
+    def draw(self):
+        x = int(self.x - 0.5)
+        while (x + self.Image.width < SIZE_OF_GAMESPACE_X + self.Image.width):
+            x_offset = x
+            x_draw_offset = self.GetScaledX(x_offset)
+            for sprite in self._ImagePieces:
+                if (x_offset + sprite.image.width < 0 or x_offset > SIZE_OF_GAMESPACE_X):
+                    pass
+                else:
+                    sprite.x = x_draw_offset
+                    sprite.y = self.GetScaledY(self.y)
+                    sprite.draw()
+                x_draw_offset += int(sprite.width - .5)
+                x_offset += sprite.image.width
+
+            x += self.Image.width
+
+        super(FullscreenScrollingSprite, self).draw()
+
+
+    def get_collidable(self):
+        return None
+
+if DEBUG:
+    import debug
 class CollidableTerrain(Entity):
     '''
     A class to manage our foreground terrain
