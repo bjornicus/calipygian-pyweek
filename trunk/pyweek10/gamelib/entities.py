@@ -1,11 +1,14 @@
 import pyglet
+from pyglet.gl import *
 
 from constants import *
 import levels
 import random
 import data
 import math
+from numpy import arange
 from collide import *
+import oscillator
 from pyglet.window import key
 from gamelib.constants import *
 from gamelib.levels import SIZE_OF_GAMESPACE_Y, SECONDS_TO_CROSS_GAMESPACE
@@ -253,6 +256,35 @@ class CollidableTerrain(Entity):
             if collide(collideable, SpriteCollision(piece)):
                 return True
         return False
+
+class TargetPath(Entity, oscillator.Oscillator):
+    def __init__(self, parent_level, layer = 2):
+        Entity.__init__(self, parent_level, layer)
+        oscillator.Oscillator.__init__(self)
+        self.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
+        self.y = SIZE_OF_GAMESPACE_Y//2
+        self.z = 1 #draw this above other stuff
+        self.line_color = (1,1,1,1)
+
+    def draw(self):
+        self.draw_path()
+
+    def update(self, dt):
+        oscillator.Oscillator.update(self, dt)
+        self.y  = SIZE_OF_GAMESPACE_Y//2 + (self.GetCurrentValue() * SIZE_OF_GAMESPACE_Y//2)
+
+    def draw_path(self):
+        glColor4f(*self.line_color) 
+        glLineWidth(2)
+        glBegin(GL_LINES)
+        for time in arange(0, SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
+            t, y, a = self.GetPredictiveCoordinate(time)
+            x = self.GetScaledX(SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self.x )
+            y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
+            glVertex2f(x,y)
+        glEnd()
+        glLineWidth(1)
+        glColor4f(1, 1, 1, 1) 
 
 class Debris(Actor):
     entity_type = TYPE_DEBRIS
