@@ -10,7 +10,6 @@ import os
 
 import config
 import pyglet
-pyglet.options['audio'] = config.audio
 
 from pyglet import font
 from pyglet import media

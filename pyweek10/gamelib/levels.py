@@ -537,6 +537,7 @@ class LevelZero(LevelBase):
 
     def setup_timeline(self):
          self.timeline = TimeLine({
+            1:      TimeLineEntity(entities.TargetPath, [self,1]),
             5:      TimeLineEntity(entities.HostileShip, [SIZE_OF_GAMESPACE_X, 50,  2,   self, 1]),
             })
 

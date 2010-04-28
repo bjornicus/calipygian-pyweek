@@ -158,7 +158,7 @@ class Player(Actor, oscillator.Oscillator):
         Actor.draw(self)
         if DEBUG:
             draw_bounding_box(self.sprite)
-        
+
     def draw_path(self):
         glColor4f(*self.line_color) 
         glLineWidth(2)
