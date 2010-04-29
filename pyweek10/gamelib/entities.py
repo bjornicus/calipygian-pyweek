@@ -23,23 +23,8 @@ class Entity(object):
         self.parent_level = parent_level
 
         self._scaleFactor = 1
-        self._x_offset = 0
-        self._y_offset = 0
 
         self.parent_level.register_entity(self, layer, self.entity_type)
-
-    def Rescale(self, NewScaleFactor):
-        self._scaleFactor = NewScaleFactor
-
-    def SetOffsets(self, x, y):
-        self._x_offset = x
-        self._y_offset = y
-
-    def GetScaledX(self, x):
-        return x * self._scaleFactor + self._x_offset
-
-    def GetScaledY(self, y):
-        return y * self._scaleFactor + self._y_offset
 
     def delete(self):
         self.parent_level.remove_entity(self, self.entity_type)
@@ -59,10 +44,6 @@ class Actor(Entity):
         self.sprite = pyglet.sprite.Sprite(sprite_image)
         self.collider = SpriteCollision(self.sprite) 
         Entity.__init__(self, parent_level, layer)
-
-    def Rescale(self, NewScaleFactor):
-        Entity.Rescale(self, NewScaleFactor)
-        self.sprite.scale = float(NewScaleFactor)
 
     def draw(self):
         self.sprite.draw()
@@ -93,10 +74,6 @@ class HostileShip(Actor):
         self._y = starting_y
         self.speed = speed
 
-    def Rescale(self, NewScaleFactor):
-        Actor.Rescale(self, NewScaleFactor)
-        self.sprite.scale = float(NewScaleFactor)
-
     def update(self, delta_t):
         self._x = self._x - (SIZE_OF_GAMESPACE_X * (delta_t / SECONDS_TO_CROSS_GAMESPACE) + (self.speed * delta_t/abs(delta_t)))
 
@@ -106,8 +83,8 @@ class HostileShip(Actor):
             self.delete()
 
     def draw(self):
-        self.sprite.x = self.GetScaledX(self._x)
-        self.sprite.y = self.GetScaledY(self._y)
+        self.sprite.x = self._x
+        self.sprite.y = self._y
         Actor.draw(self)
         if DEBUG:
             debug.draw_bounding_box(self.sprite)
@@ -143,12 +120,6 @@ class FullscreenScrollingSprite(Entity):
         self.x = 0
         self.y = 0
 
-    def Rescale(self, NewScaleFactor):
-        super(FullscreenScrollingSprite, self).Rescale(NewScaleFactor)
-        self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
-        for sprite in self._ImagePieces:
-            sprite.scale = self._scale
-
     def update(self, dt):
         self.x -= (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
         if (self.x < -self.Image.width):
@@ -160,13 +131,13 @@ class FullscreenScrollingSprite(Entity):
         x = int(self.x - 0.5)
         while (x + self.Image.width < SIZE_OF_GAMESPACE_X + self.Image.width):
             x_offset = x
-            x_draw_offset = self.GetScaledX(x_offset)
+            x_draw_offset = x_offset
             for sprite in self._ImagePieces:
                 if (x_offset + sprite.image.width < 0 or x_offset > SIZE_OF_GAMESPACE_X):
                     pass
                 else:
                     sprite.x = x_draw_offset
-                    sprite.y = self.GetScaledY(self.y)
+                    sprite.y = self.y
                     sprite.draw()
                 x_draw_offset += int(sprite.width - .5)
                 x_offset += sprite.image.width
@@ -200,8 +171,7 @@ class CollidableTerrain(Entity):
             width = min(WIDTH_OF_TERRAIN_SLICE, self.image.width - x)
             ImagePiece = self.image.get_region(x, 0, width, self.image.height)
             sprite = pyglet.sprite.Sprite(ImagePiece)
-            sprite.x = self.GetScaledX(x)
-            sprite.scale = self._scale
+            sprite.x = x
             self._ImagePieces.append(sprite)
             x += width
 
@@ -219,31 +189,21 @@ class CollidableTerrain(Entity):
         x = 0
         for sprite in self._ImagePieces:
             width = min(WIDTH_OF_TERRAIN_SLICE, self.image.width - x)
-            sprite.x = self.GetScaledX(x)
-            sprite.scale = self._scale
+            sprite.x = x
             x += width
 
-
-    def Rescale(self, NewScaleFactor):
-        super(CollidableTerrain, self).Rescale(NewScaleFactor)
-        self._scale = float(NewScaleFactor) * (float(SIZE_OF_GAMESPACE_Y) / float(self.image.height))
-        for sprite in self._ImagePieces:
-            sprite.scale = self._scale
-        self.scaled_gamespace_width = self.GetScaledX(SIZE_OF_GAMESPACE_X)
-        self.scaled_image_width = self.GetScaledX(self.image.width)
-
     def update(self, dt):
-        dx = (self.scaled_gamespace_width * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
+        dx = (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE)) * self._scrolling_factor
         for sprite in self._ImagePieces:
             sprite.x -= dx
             if (sprite.x + sprite.width < 0):
-                sprite.x += self.scaled_image_width
+                sprite.x += self.image.width
 
         super(CollidableTerrain, self).update(dt)
 
     def draw(self):
         for sprite in self._ImagePieces:
-            if sprite.x + sprite.width > 0 and sprite.x < self.scaled_gamespace_width:
+            if sprite.x + sprite.width > 0 and sprite.x < SIZE_OF_GAMESPACE_X:
                 sprite.draw()
                 if DEBUG:
                     debug.draw_bounding_box(sprite)
@@ -279,8 +239,8 @@ class TargetPath(Entity, oscillator.Oscillator):
         glBegin(GL_LINES)
         for time in arange(0, SECONDS_TO_CROSS_GAMESPACE, 0.2/self._Omega):
             t, y, a = self.GetPredictiveCoordinate(time)
-            x = self.GetScaledX(SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self.x )
-            y = self.GetScaledY(SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2))
+            x = SIZE_OF_GAMESPACE_X * t/float(SECONDS_TO_CROSS_GAMESPACE) + self.x 
+            y = SIZE_OF_GAMESPACE_Y//2 + (y * SIZE_OF_GAMESPACE_Y//2)
             glVertex2f(x,y)
         glEnd()
         glLineWidth(1)
@@ -304,8 +264,8 @@ class Debris(Actor):
         self.x = self.x - (SIZE_OF_GAMESPACE_X * (dt / SECONDS_TO_CROSS_GAMESPACE))
 
     def draw(self):
-        self.sprite.x = self.GetScaledX(self.x)
-        self.sprite.y = self.GetScaledY(self.y)
+        self.sprite.x = self.x
+        self.sprite.y = self.y
         Actor.draw(self)
 
     def get_collidable(self):

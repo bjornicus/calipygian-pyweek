@@ -237,10 +237,6 @@ class LevelBase(mode.Mode):
         self._Middleground = None
         self._Foreground = None
 
-        self._scale = 1
-        self._x_offset = 0
-        self._y_offset = 0
-
         self._letterbox_1 = None
         self._letterbox_2 = None
 
@@ -266,8 +262,6 @@ class LevelBase(mode.Mode):
     def connect(self, control):
         mode.Mode.connect(self, control)
 
-        # Immedietly rescale the gamefield to the window
-        self.Rescale()
         if self.music is not None:
             self.music_player.queue(self.music)
             self.music_player.play()
@@ -304,46 +298,6 @@ class LevelBase(mode.Mode):
     def on_level_complete(self, dt=0):
         self.ChangeSplash('LevelEndCongratulations.png')
 
-    def on_resize(self, width, height):
-        self.Rescale()
-
-    def Rescale(self):
-        if self.window is None:
-            return
-        window_x = self.window.width
-        window_y = self.window.height
-
-        x_scale = float(window_x)/float(SIZE_OF_GAMESPACE_X)
-        y_scale = float(window_y)/float(SIZE_OF_GAMESPACE_Y)
-
-        if y_scale < x_scale:
-            self._scale = y_scale
-            self._y_offset = 0
-            self._x_offset = int((float(window_x) - float(SIZE_OF_GAMESPACE_X) * self._scale)/2 + .5)
-        else:
-            self._scale = x_scale
-            self._x_offset = 0
-            self._y_offset = int((float(window_y) - float(SIZE_OF_GAMESPACE_Y) * self._scale)/2 + .5)
-
-        for renderlist in self.renderlist_layers:
-            for drawable in renderlist:
-                drawable.Rescale(self._scale)
-                drawable.SetOffsets(self._x_offset, self._y_offset)
-
-        if self._x_offset != 0:
-            letterbox = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
-            letterbox_image = pyglet.image.create(int(self._x_offset ), self.window.height, letterbox)
-            self._letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
-            self._letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=self.window.width - self._x_offset, y=0)
-        elif self._y_offset != 0:
-            letterbox = pyglet.image.SolidColorImagePattern((0, 0, 0, 255))
-            letterbox_image = pyglet.image.create(self.window.width, int(self._y_offset), letterbox)
-            self._letterbox_1 = pyglet.sprite.Sprite(letterbox_image, x=0, y=0)
-            self._letterbox_2 = pyglet.sprite.Sprite(letterbox_image, x=0, y=self.window.height - self._y_offset)
-        else:
-            self._letterbox_1 = None
-            self._letterbox_2 = None
-
     def on_draw(self):
         self.window.clear()
 
@@ -351,10 +305,6 @@ class LevelBase(mode.Mode):
             for drawable in renderlist:
                 drawable.draw()
 
-        if self._letterbox_1 is not None:
-            self._letterbox_1.draw()
-        if self._letterbox_2 is not None:
-            self._letterbox_2.draw()
         self.fps_display.draw()
 
         if self._ShowingSplash:
@@ -433,10 +383,6 @@ class LevelBase(mode.Mode):
                 self._objects_of_interest[object_of_interest_type].remove(entity)
 
     def register_entity(self, entity, layer = 2, object_of_interest_type = None):
-
-        entity.Rescale(self._scale)
-        entity.SetOffsets(self._x_offset, self._y_offset)
-
         assert layer >= 0 and layer < 5, 'Invalid layer number (%i)' % layer
         self.renderlist_layers[layer].append(entity)
 
@@ -543,7 +489,7 @@ class LevelZero(LevelBase):
 
     def connect(self, control):
         LevelBase.connect(self, control)
-        set_next_level('level2')
+        set_next_level('level1')
 
 class LevelOne(LevelBase):
     '''
