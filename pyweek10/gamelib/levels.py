@@ -53,24 +53,6 @@ class Titlescreen(mode.Mode):
         self.music = None
         self.music = data.load_song('TitlescreenMusic.ogg')
 
-    def on_resize(self, width, height):
-        if self.window is None:
-            return
-        window_x = self.window.width
-        window_y = self.window.height
-
-        x_scale = float(window_x)/float(self._Sprite.image.width)
-        y_scale = float(window_y)/float(self._Sprite.image.height)
-
-        if y_scale < x_scale:
-            self._Sprite.scale = y_scale
-            self._Sprite.y = 0
-            self._Sprite.x =  int((float(window_x) - float(self._Sprite.image.width) * y_scale)/2 + .5)
-        else:
-            self._Sprite.scale = x_scale
-            self._Sprite.x =  0
-            self._Sprite.y = int((float(window_y) - float(self._Sprite.image.height) * x_scale)/2 + .5)
-
     def connect(self, control):
         super(Titlescreen, self).connect(control)
 
@@ -126,24 +108,6 @@ class LevelSelect(mode.Mode):
         self.music = None
         self.music = data.load_song('LevelSelectMusic.ogg')
         self.select_arrow_positions = [(526, 480-67), (526, 480-173), (526, 480-278), (526, 480-387)]
-
-    def on_resize(self, width, height):
-        if self.window is None:
-            return
-        window_x = self.window.width
-        window_y = self.window.height
-
-        x_scale = float(window_x)/float(self._Sprite.image.width)
-        y_scale = float(window_y)/float(self._Sprite.image.height)
-
-        if y_scale < x_scale:
-            self._Sprite.scale = y_scale
-            self._Sprite.y = 0
-            self._Sprite.x =  int((float(window_x) - float(self._Sprite.image.width) * y_scale)/2 + .5)
-        else:
-            self._Sprite.scale = x_scale
-            self._Sprite.x =  0
-            self._Sprite.y = int((float(window_y) - float(self._Sprite.image.height) * x_scale)/2 + .5)
 
     def connect(self, control):
         super(LevelSelect, self).connect(control)

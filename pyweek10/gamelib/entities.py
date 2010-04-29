@@ -21,9 +21,6 @@ class Entity(object):
     entity_type = None
     def __init__(self, parent_level, layer = 2):
         self.parent_level = parent_level
-
-        self._scaleFactor = 1
-
         self.parent_level.register_entity(self, layer, self.entity_type)
 
     def delete(self):
@@ -100,14 +97,12 @@ class FullscreenScrollingSprite(Entity):
     def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
         self.Image = pyglet.image.load(data.filepath(filename))
         self._ImagePieces = []
-        self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.Image.height))
 
         x = 0
         while x < self.Image.width:
             width = min(SIZE_OF_GAMESPACE_X, self.Image.width - x)
             ImagePiece = self.Image.get_region(x, 0, width, self.Image.height)
             sprite = pyglet.sprite.Sprite(ImagePiece)
-            sprite.scale = self._scale
             self._ImagePieces.append(sprite)
             x += width
 
@@ -163,7 +158,6 @@ class CollidableTerrain(Entity):
         self.image = pyglet.image.load(data.filepath(filename))
         self._ImagePieces = []
         self._Colliders = []
-        self._scale = (float(SIZE_OF_GAMESPACE_Y) / float(self.image.height))
         Entity.__init__(self, parent_level, layer=layer)
 
         x = 0
