@@ -1,12 +1,12 @@
-
-# needed to cast image data
-from ctypes import *
-
 """ 
     FYI: This is a library from 
     http://swiftcoder.wordpress.com/2009/05/16/sprite-collision-revisited/
     and was not written by us.
 """
+
+# needed to cast image data
+from ctypes import *
+
 
 class Rect:
     '''Fast rectangular collision structure'''
