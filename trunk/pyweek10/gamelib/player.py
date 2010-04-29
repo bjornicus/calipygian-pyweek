@@ -26,7 +26,6 @@ class Hud(Entity):
     def __init__(self, parent_level, player):
         self.x = 0
         self.y = SIZE_OF_GAMESPACE_Y - 10
-        self._scale = 1
         self.player = player
         Entity.__init__(self, parent_level)
 
@@ -68,9 +67,6 @@ class Player(Actor, oscillator.Oscillator):
         timeleft = self.parent_level.endtime - self.parent_level.timeline._current_time
         return ["Shields:{0}".format(int(self.shield)),
                 "Next Level In {0}".format(int(timeleft))]
-
-    def Rescale(self, NewScaleFactor):
-        super(Player, self).Rescale(NewScaleFactor)
 
     def update(self, dt):
         oscillator.Oscillator.update(self, dt)
