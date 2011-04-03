@@ -10,6 +10,7 @@ License: see LICENSE.txt
 
 Running the Game
 ----------------
+You'll need pyglet 1.1 installed (http://www.pyglet.org).
 
 On Windows or Mac OS X, locate the "run_game.pyw" file and double-click it.
 
