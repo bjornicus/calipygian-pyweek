@@ -1,6 +1,6 @@
-import EnneadGame
+import game
 
 def main():
     """ your app starts here
     """
-    EnneadGame.run()
+    game.run()
