@@ -1,6 +1,8 @@
 import pyglet
 from pyglet import clock
 from spaces import *
+
+import random
 import platformer
 import puzzle
 
@@ -20,6 +22,8 @@ class Playfield(CordinateSpace):
     def __init__(self, ResourceName):
         CordinateSpace.__init__(self)
         self.image = pyglet.resource.image(ResourceName)
+        self.width = self.image.width
+        self.heigh = self.image.height
 
     def Draw(self, xy_pos):
         x,y = xy_pos
@@ -30,20 +34,23 @@ class PuzzleBlock(CordinateSpace):
 
     def __init__(self, solution_image):
         CordinateSpace.__init__(self)
+        self.width = PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
+        self.heigh = PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
         solution_tiles = pyglet.image.ImageGrid(
                 solution_image, 
                 PUZZLE_BLOCK_SIDE_TILE_LENGTH,
                 PUZZLE_BLOCK_SIDE_TILE_LENGTH)
 
-        solution_tiles_texture_grid = solution_tiles.get_texture_sequence()
+        solution_tile_list = []
+        for tile in solution_tiles.get_texture_sequence():
+            solution_tile_list.append(tile)
+
+        random.shuffle(solution_tile_list)
 
         for x in range (0, PUZZLE_BLOCK_SIDE_TILE_LENGTH):
             for y in range(0,PUZZLE_BLOCK_SIDE_TILE_LENGTH):
                 self.AddObject(
-                        #using element [y,x] results in a solved puzzle
-                        #so choosing a random, not used tile should be 
-                        #done at some point.
-                        puzzle.PuzzleElement(solution_tiles_texture_grid[y,x]),
+                        puzzle.PuzzleElement(solution_tile_list.pop()),
                         x*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH, 
                         y*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH)
 
