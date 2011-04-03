@@ -98,18 +98,9 @@ def run():
     pyglet.resource.path = ['data','design']
     pyglet.resource.reindex()
 
-    PlatformSpace = Playfield('Platformer_Playfield.png')
-    for x in range(0, 810, 90):
-        PlatformSpace.AddObject(GrassBlock(), x, 0)
-    PlatformSpace.AddObject(PlayerBlock(), 0, 90)
-    
-    DefaultGameSpace.AddObject(PlatformSpace, 0, 90)
+    setup_platformer()
 
-    PuzzleSpace = Playfield('Puzzle_Playfield.png')
-    for x in range(0, 810, 90):
-        PuzzleSpace.AddObject(PuzzleBlock(), x, 0)
-    DefaultGameSpace.AddObject(PuzzleSpace, 0, 0)
-    DefaultGameSpace.AddObject(TestLabel(), window.width//2, y=window.height//2)
+    setup_puzzles(window)
 
     @window.event
     def on_draw():
@@ -126,4 +117,19 @@ def run():
     clock.schedule_interval_soft(update, 1.0 / UPDATE_RATE)
         
     pyglet.app.run()
+
+def setup_puzzles(window):
+    PuzzleSpace = Playfield('Puzzle_Playfield.png')
+    for x in range(0, 810, 90):
+        PuzzleSpace.AddObject(PuzzleBlock(), x, 0)
+    DefaultGameSpace.AddObject(PuzzleSpace, 0, 0)
+    DefaultGameSpace.AddObject(TestLabel(), window.width//2, y=window.height//2)
+
+def setup_platformer():
+    PlatformSpace = Playfield('Platformer_Playfield.png')
+    for x in range(0, 810, 90):
+        PlatformSpace.AddObject(GrassBlock(), x, 0)
+    PlatformSpace.AddObject(PlayerBlock(), 0, 90)
+
+    DefaultGameSpace.AddObject(PlatformSpace, 0, 90)
 
