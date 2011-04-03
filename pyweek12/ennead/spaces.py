@@ -33,34 +33,32 @@ class SpaceCordinate():
         return "SpaceCordinate(%s, %d, %d)" % (self.Space, self._x, self._y)
 
 class RefCordinate():
-    #NOTE, these cordinates are relative to the containing space, and
-    # are NOT drawspace cordinates. 
     def __init__(self, baseCord, offsetCord, space):
         self.Space = space
         self._baseCord = baseCord
         self._offsetCord = offsetCord
 
     def get_x(self):
-        return baseCord.get_x() + offsetCord.get_x()
+        return self._baseCord.get_x() + self._offsetCord.get_x()
     
     def get_y(self):
-        return baseCord.get_x() + offsetCord.get_x()
+        return self._baseCord.get_y() + self._offsetCord.get_y()
 
     def set_x(self, x):
-        baseCord.set_x(x - offsetCord.get_x())
+        self._baseCord.set_x(x - self._offsetCord.get_x())
     
     def set_y(self, y):
-        baseCord.set_y(y - offsetCord.get_y())
+        self._baseCord.set_y(y - self._offsetCord.get_y())
     
     def __repr__(self):
-        return "SpaceCordinate(%s, %d, %d)" % (self.Space, self._x, self._y)
+        return "RefCordinate(%s, %s, %s)" % (self._baseCord, self._offsetCord, self.Space)
 
     def __str__(self):
-        return "SpaceCordinate(%s, %d, %d)" % (self.Space, self._x, self._y)
+        return "RefCordinate(%s, %s, %s)" % (self._baseCord, self._offsetCord, self.Space)
 
 class GameObject(object):
     '''
-    Ay element of the game
+    Any element of the game
     '''
     GameObjectType = None
 
@@ -81,7 +79,7 @@ class GameObject(object):
     
     def GetCordinatesInParentSpace(self):
         if self.parent_space is not None:
-            return self.parent_space.GetCordinatesOfObject(self)
+            return self.parent_space.GetCordinatesOfContainedObject(self)
         else:
             return SpaceCordinate(None)
 
@@ -108,13 +106,14 @@ class CordinateSpace(GameObject):
                 SubSpace = GameObj
                 OffsetCord = self.ContentObjects[SubSpace];
                 BaseCord = SubSpace.GetCordinatesOfContainedObject(TargetObject)
-                return RefCordinate(BaseCord, OffsetCord)
+                return RefCordinate(BaseCord, OffsetCord, self)
 
     def Update(self, delta_t):
         for GameObj in self.ContentObjects.keys():
             GameObj.Update(delta_t)
 
     def __iter__(self):
+        yield self
         for GameObj in self.ContentObjects.keys():
             for SubGameObj in GameObj:
                 if SubGameObj is not None:
