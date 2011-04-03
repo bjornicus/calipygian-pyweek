@@ -93,14 +93,13 @@ class PlayerBlock(PlatformElement):
         
     
 def run():
-    window = pyglet.window.Window(810, 360)
-
     pyglet.resource.path = ['data','design']
     pyglet.resource.reindex()
 
     setup_platformer()
-
     setup_puzzles()
+
+    window = pyglet.window.Window(810, 360)
 
     @window.event
     def on_draw():
