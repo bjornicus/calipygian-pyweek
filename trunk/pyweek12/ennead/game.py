@@ -1,6 +1,8 @@
 import pyglet
 from pyglet import clock
 from spaces import *
+import platformer
+import puzzle
 
 UPDATE_RATE = 60 #Update GameState logic 60 times per second
 WINDOW_WIDTH = 810
@@ -41,49 +43,16 @@ class PuzzleBlock(CordinateSpace):
                         #using element [y,x] results in a solved puzzle
                         #so choosing a random, not used tile should be 
                         #done at some point.
-                        PuzzleElement(solution_tiles_texture_grid[y,x]),
+                        puzzle.PuzzleElement(solution_tiles_texture_grid[y,x]),
                         x*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH, 
                         y*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH)
 
-class PuzzleElement(GameObject):
-    GameObjectType = "PuzzleElement"
-    
-    def __init__(self, sprite_texture_region):
-        GameObject.__init__(self)
-        self.sprite = sprite_texture_region
-
-    def Draw(self, xy_pos):
-        x,y = xy_pos
-        self.sprite.blit(x,y)
-
-class PlatformElement(GameObject):
-    GameObjectType = "PlatformElement"
-
-    def __init__(self, SpriteName):
-        GameObject.__init__(self)
-        self.Sprite = pyglet.resource.image(SpriteName)
-
-    def Draw(self, xy_pos):
-        x,y = xy_pos
-        self.Sprite.blit(x,y)
-
-class GrassBlock(PlatformElement):
+class GrassBlock(platformer.PlatformElement):
     GameObjectType = "GrassBlock"
 
     def __init__(self):
-        PlatformElement.__init__(self, 'Grass_Block.png')
+        platformer.PlatformElement.__init__(self, 'Grass_Block.png')
 
-class PlayerBlock(PlatformElement):
-    GameObjectType = "PlayerBlock"
-
-    def __init__(self):
-        PlatformElement.__init__(self, 'Player_Block.png')
-
-    def Update(self, delta_t):
-        cord = self.GetCordinatesInParentSpace()
-        cord.set_x(cord.get_x() + (20 * delta_t))
-        
-    
 def run():
     pyglet.resource.path = ['data','design']
     pyglet.resource.reindex()
@@ -133,7 +102,7 @@ def setup_platformer():
     PlatformSpace = Playfield('Platformer_Playfield.png')
     for x in range(0, WINDOW_WIDTH, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH):
         PlatformSpace.AddObject(GrassBlock(), x, 0)
-    PlatformSpace.AddObject(PlayerBlock(), 0, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH)
+    PlatformSpace.AddObject(platformer.PlayerBlock(), 0, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH)
 
     DefaultGameSpace.AddObject(PlatformSpace, 0, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH)
 
