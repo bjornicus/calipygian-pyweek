@@ -3,6 +3,9 @@ from pyglet import clock
 from spaces import *
 
 UPDATE_RATE = 60 #Update GameState logic 60 times per second
+WINDOW_WIDTH = 810
+WINDOW_HEIGHT = 360
+PUZZLEBLOCK_SIDE_LENGTH = 90
 
 DefaultGameSpace = CordinateSpace()
 
@@ -99,7 +102,7 @@ def run():
     setup_platformer()
     setup_puzzles()
 
-    window = pyglet.window.Window(810, 360)
+    window = pyglet.window.Window(WINDOW_WIDTH, WINDOW_HEIGHT)
 
     @window.event
     def on_draw():
@@ -119,7 +122,7 @@ def run():
 
 def setup_puzzles():
     PuzzleSpace = Playfield('Puzzle_Playfield.png')
-    for x in range(0, 810, 90):
+    for x in range(0, WINDOW_WIDTH, PUZZLEBLOCK_SIDE_LENGTH):
         PuzzleSpace.AddObject(PuzzleBlock(), x, 0)
     DefaultGameSpace.AddObject(PuzzleSpace, 0, 0)
 
@@ -127,7 +130,7 @@ def setup_platformer():
     PlatformSpace = Playfield('Platformer_Playfield.png')
     for x in range(0, 810, 90):
         PlatformSpace.AddObject(GrassBlock(), x, 0)
-    PlatformSpace.AddObject(PlayerBlock(), 0, 90)
+    PlatformSpace.AddObject(PlayerBlock(), 0, PUZZLEBLOCK_SIDE_LENGTH)
 
-    DefaultGameSpace.AddObject(PlatformSpace, 0, 90)
+    DefaultGameSpace.AddObject(PlatformSpace, 0, PUZZLEBLOCK_SIDE_LENGTH)
 
