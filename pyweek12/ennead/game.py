@@ -100,7 +100,7 @@ def run():
 
     setup_platformer()
 
-    setup_puzzles(window)
+    setup_puzzles()
 
     @window.event
     def on_draw():
@@ -118,12 +118,11 @@ def run():
         
     pyglet.app.run()
 
-def setup_puzzles(window):
+def setup_puzzles():
     PuzzleSpace = Playfield('Puzzle_Playfield.png')
     for x in range(0, 810, 90):
         PuzzleSpace.AddObject(PuzzleBlock(), x, 0)
     DefaultGameSpace.AddObject(PuzzleSpace, 0, 0)
-    DefaultGameSpace.AddObject(TestLabel(), window.width//2, y=window.height//2)
 
 def setup_platformer():
     PlatformSpace = Playfield('Platformer_Playfield.png')
