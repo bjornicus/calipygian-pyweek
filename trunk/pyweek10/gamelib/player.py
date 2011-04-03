@@ -23,11 +23,11 @@ class Hud(Entity):
     entity_type = None
     SHIELD_BAR_WIDTH = 40
     SHIELD_BAR_MAX_LENGTH = 200
-    def __init__(self, parent_level, player):
+    def __init__(self, player):
         self.x = 0
         self.y = SIZE_OF_GAMESPACE_Y - 10
         self.player = player
-        Entity.__init__(self, parent_level)
+        Entity.__init__(self)
 
     def draw(self):
         percent_shield = self.player.shield/MAX_SHIELDS
@@ -47,10 +47,10 @@ class Player(Actor, oscillator.Oscillator):
     
     entity_type = TYPE_PLAYER_SHIP
     
-    def __init__(self, parent_level):
+    def __init__(self):
         sprite_image = data.load_image('Ship.png')
         sprite_image.anchor_y = sprite_image.height/2
-        Actor.__init__(self, sprite_image, parent_level)
+        Actor.__init__(self, sprite_image)
         oscillator.Oscillator.__init__(self)
         self.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
         self.y = SIZE_OF_GAMESPACE_Y//2
@@ -62,11 +62,6 @@ class Player(Actor, oscillator.Oscillator):
         self.collision_cooldown = 0
         self._hitting_terrain = False
         self.dpad = joystick.DPad()
-
-    def getHudContents(self):
-        timeleft = self.parent_level.endtime - self.parent_level.timeline._current_time
-        return ["Shields:{0}".format(int(self.shield)),
-                "Next Level In {0}".format(int(timeleft))]
 
     def update(self, dt):
         oscillator.Oscillator.update(self, dt)

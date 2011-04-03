@@ -19,12 +19,8 @@ class Entity(object):
     An entity is anything in the game that gets updated 
     '''
     entity_type = None
-    def __init__(self, parent_level, layer = 2):
-        self.parent_level = parent_level
-        self.parent_level.register_entity(self, layer, self.entity_type)
-
-    def delete(self):
-        self.parent_level.remove_entity(self, self.entity_type)
+    def __init__(self, layer = 2):
+        self.z = layer
 
     def draw(self):
         pass
@@ -153,12 +149,12 @@ class CollidableTerrain(Entity):
     '''
     entity_type = TYPE_TERRAIN
 
-    def __init__(self, filename, parent_level, layer = 2, scrolling_factor = 1.0):
+    def __init__(self, filename, layer = 2, scrolling_factor = 1.0):
         print 'loading terrain...'
         self.image = pyglet.image.load(data.filepath(filename))
         self._ImagePieces = []
         self._Colliders = []
-        Entity.__init__(self, parent_level, layer=layer)
+        Entity.__init__(self, layer=layer)
 
         x = 0
         while x < self.image.width:
@@ -212,8 +208,8 @@ class CollidableTerrain(Entity):
         return False
 
 class TargetPath(Entity, oscillator.Oscillator):
-    def __init__(self, parent_level, layer = 2):
-        Entity.__init__(self, parent_level, layer)
+    def __init__(self, layer = 2):
+        Entity.__init__(self, layer)
         oscillator.Oscillator.__init__(self)
         self.x = PLAYER_OFFFSET_FROM_RIGHT_SCREEN_BOUND
         self.y = SIZE_OF_GAMESPACE_Y//2
@@ -242,13 +238,13 @@ class TargetPath(Entity, oscillator.Oscillator):
 
 class Debris(Actor):
     entity_type = TYPE_DEBRIS
-    def __init__(self, starting_x, starting_y, parent_level):
+    def __init__(self, starting_x, starting_y):
         # this should mb come in as a parameter 
         # or we should choose at random, but we need to know from what set
         sprite_image = data.load_image('Level1Debris1.png')
         sprite_image.anchor_x = sprite_image.width/2
         sprite_image.anchor_y = sprite_image.height/2
-        Actor.__init__(self, sprite_image, parent_level)
+        Actor.__init__(self, sprite_image)
         self.x = starting_x
         self.y = starting_y
         self.vx = 0

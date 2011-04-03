@@ -294,7 +294,7 @@ class LevelBase(mode.Mode):
                 if collide(playership_collider, baddie.get_collidable()):
                     print "HIT"
                     playership.on_collision()
-                    baddie.delete()
+                    self.remove_entity(baddie)
             terrains = self.get_objects_of_interest(TYPE_TERRAIN)
             terrain_collision = False
             for terrain in terrains:
