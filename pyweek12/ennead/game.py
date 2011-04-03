@@ -128,7 +128,7 @@ def setup_puzzles():
 
 def setup_platformer():
     PlatformSpace = Playfield('Platformer_Playfield.png')
-    for x in range(0, 810, 90):
+    for x in range(0, WINDOW_WIDTH, PUZZLEBLOCK_SIDE_LENGTH):
         PlatformSpace.AddObject(GrassBlock(), x, 0)
     PlatformSpace.AddObject(PlayerBlock(), 0, PUZZLEBLOCK_SIDE_LENGTH)
 
