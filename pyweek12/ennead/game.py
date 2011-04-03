@@ -5,7 +5,10 @@ from spaces import *
 UPDATE_RATE = 60 #Update GameState logic 60 times per second
 WINDOW_WIDTH = 810
 WINDOW_HEIGHT = 360
-PUZZLEBLOCK_SIDE_LENGTH = 90
+PUZZLE_BLOCK_SIDE_PIXEL_LENGTH = 90
+PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH = 30
+PUZZLE_BLOCK_SIDE_TILE_LENGTH = (
+        PUZZLE_BLOCK_SIDE_PIXEL_LENGTH/PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH )
 
 DefaultGameSpace = CordinateSpace()
 
@@ -38,34 +41,32 @@ class Playfield(CordinateSpace):
 class PuzzleBlock(CordinateSpace):
     PuzzleBlock = "PuzzleBlock"
 
-    def __init__(self):
+    def __init__(self, solution_image):
         CordinateSpace.__init__(self)
-        ElementSprites = ['Puzzle_A.png', 'Puzzle_B.png', 'Puzzle_C.png']
-        for x in range(0,90,30):
-            for y in range (0, 90, 30):
-                self.AddObject(PuzzleElement(ElementSprites), x, y)
+        solution_tiles = pyglet.image.ImageGrid(
+                solution_image, 
+                PUZZLE_BLOCK_SIDE_TILE_LENGTH,
+                PUZZLE_BLOCK_SIDE_TILE_LENGTH)
+
+        solution_tiles_texture_grid = solution_tiles.get_texture_sequence()
+
+        for x in range (0, PUZZLE_BLOCK_SIDE_TILE_LENGTH):
+            for y in range(0,PUZZLE_BLOCK_SIDE_TILE_LENGTH):
+                self.AddObject(
+                        PuzzleElement(solution_tiles_texture_grid[y,x]),
+                        x*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH, 
+                        y*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH)
 
 class PuzzleElement(GameObject):
     GameObjectType = "PuzzleElement"
     
-    def __init__(self, SpriteNames):
+    def __init__(self, sprite_texture_region):
         GameObject.__init__(self)
-        self.SpriteSequence = []
-        for SpriteName in SpriteNames:
-            self.SpriteSequence.append(pyglet.resource.image(SpriteName))
-
-        self.CurrentSprite = self.SpriteSequence[0]
-
-    def NextSprite(self):
-        if self.CurrentSprite not in self.SpriteSequence:
-            self.CurrentSprite = self.SpriteSequence[0]
-
-        i = self.SpriteSequence.Index(self.CurrentSprite)
-        self.CurrentSprite = self.SpriteSequence[(i+1)% len(self.SpriteSequence)]
+        self.sprite = sprite_texture_region
 
     def Draw(self, xy_pos):
         x,y = xy_pos
-        self.CurrentSprite.blit(x,y)
+        self.sprite.blit(x,y)
 
 class PlatformElement(GameObject):
     GameObjectType = "PlatformElement"
@@ -122,15 +123,29 @@ def run():
 
 def setup_puzzles():
     PuzzleSpace = Playfield('Puzzle_Playfield.png')
-    for x in range(0, WINDOW_WIDTH, PUZZLEBLOCK_SIDE_LENGTH):
-        PuzzleSpace.AddObject(PuzzleBlock(), x, 0)
+    puzzle_images = [
+            pyglet.resource.image('one.png'),
+            pyglet.resource.image('two.png'),
+            pyglet.resource.image('three.png'),
+            pyglet.resource.image('four.png'),
+            pyglet.resource.image('five.png'),
+            pyglet.resource.image('six.png'),
+            pyglet.resource.image('seven.png'),
+            pyglet.resource.image('eight.png'),
+            pyglet.resource.image('nine.png')
+            ]
+    image_index = 0
+    for x in range(0, WINDOW_WIDTH, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH):
+        PuzzleSpace.AddObject(PuzzleBlock(puzzle_images[image_index]), x, 0)
+        image_index += 1
+
     DefaultGameSpace.AddObject(PuzzleSpace, 0, 0)
 
 def setup_platformer():
     PlatformSpace = Playfield('Platformer_Playfield.png')
-    for x in range(0, WINDOW_WIDTH, PUZZLEBLOCK_SIDE_LENGTH):
+    for x in range(0, WINDOW_WIDTH, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH):
         PlatformSpace.AddObject(GrassBlock(), x, 0)
-    PlatformSpace.AddObject(PlayerBlock(), 0, PUZZLEBLOCK_SIDE_LENGTH)
+    PlatformSpace.AddObject(PlayerBlock(), 0, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH)
 
-    DefaultGameSpace.AddObject(PlatformSpace, 0, PUZZLEBLOCK_SIDE_LENGTH)
+    DefaultGameSpace.AddObject(PlatformSpace, 0, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH)
 
