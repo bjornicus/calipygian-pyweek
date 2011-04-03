@@ -12,21 +12,6 @@ PUZZLE_BLOCK_SIDE_TILE_LENGTH = (
 
 DefaultGameSpace = CordinateSpace()
 
-class TestLabel(GameObject):
-    GameObjectType = "Label"
-    
-    def __init__(self):
-        GameObject.__init__(self)
-        self.label = pyglet.text.Label('Hello, world', 
-                                        font_name='Times New Roman', 
-                                        font_size=36,
-                                        color=(0,0,0,255),
-                                        anchor_x='center', anchor_y='center')
-
-    def Draw(self, xy_pos):
-        self.label.x, self.label.y = xy_pos
-        self.label.draw()
-
 class Playfield(CordinateSpace):
     GameObjectType = "Playfield"
     
@@ -53,6 +38,9 @@ class PuzzleBlock(CordinateSpace):
         for x in range (0, PUZZLE_BLOCK_SIDE_TILE_LENGTH):
             for y in range(0,PUZZLE_BLOCK_SIDE_TILE_LENGTH):
                 self.AddObject(
+                        #using element [y,x] results in a solved puzzle
+                        #so choosing a random, not used tile should be 
+                        #done at some point.
                         PuzzleElement(solution_tiles_texture_grid[y,x]),
                         x*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH, 
                         y*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH)
