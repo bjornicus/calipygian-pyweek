@@ -1,4 +1,5 @@
 import pyglet
+from pyglet.gl import *
 from pyglet import clock
 from spaces import CordinateSpace, SpaceCordinate
 from constants import *
@@ -38,6 +39,8 @@ class Game():
     def __init__(self):
         pyglet.resource.path = ['data','design']
         pyglet.resource.reindex()
+
+        glClearColor(0.4,1.0, 1.0, 1.0)
 
         self.root_game_space = CordinateSpace()
         platformspace = platformer.setup_platformer()
