@@ -1,14 +1,11 @@
 from spaces import *
 import platformer
-from game import WINDOW_WIDTH
+from constants import *
 import pyglet
 import random
 
 
-PUZZLE_BLOCK_SIDE_PIXEL_LENGTH = 90
-PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH = 30
-PUZZLE_BLOCK_SIDE_TILE_LENGTH = (
-        PUZZLE_BLOCK_SIDE_PIXEL_LENGTH/PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH )
+
 
 def setup_puzzles(gamespace):
     PuzzleSpace = CordinateSpace()
@@ -39,13 +36,35 @@ class PuzzleElement(GameObject):
     
     def __init__(self, sprite_texture_region):
         GameObject.__init__(self)
-        self.sprite = sprite_texture_region
+        self.selected = False
+        self.sprite = pyglet.sprite.Sprite(sprite_texture_region)
         self.width = self.sprite.width
         self.height = self.sprite.height
+        self.gestures = []
 
     def Draw(self, xy_pos):
-        x,y = xy_pos
-        self.sprite.blit(x,y)
+        if (self.selected):
+            self.sprite.color = (0,128,0)
+        else:
+            self.sprite.color = (255,255,255)
+        self.sprite.x, self.sprite.y = xy_pos
+        self.sprite.draw()
+
+    def Update(self, delta_t):
+        self.selected=False
+        for gesture in self.gestures:
+            if ((gesture.state is MOUSE_GESTURE_ABORTED) or
+                (gesture.state is MOUSE_GESTURE_COMPLETED)):
+                self.gestures.remove(gesture)
+            else:
+                if(self.TestCordIsWithinObject(gesture.depress_cord)):
+                    self.selected = True
+                if(self.TestCordIsWithinObject(gesture.current_cord)):
+                    self.selected = True
+                        
+    def on_mouse_event(self, Event_Type, Chord, buttons, modifiers, gesture):
+        if gesture is not None:
+            self.gestures.append(gesture)
 
 
 class PuzzleBlock(CordinateSpace):

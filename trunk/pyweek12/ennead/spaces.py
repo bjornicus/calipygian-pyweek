@@ -1,5 +1,6 @@
 from __future__ import generators
 import math
+from constants import *
 
 """
 A quick attempt at defining an easy-to-use game-space
@@ -31,9 +32,15 @@ class SpaceCordinate():
     def __str__(self):
         return "SpaceCordinate(%s, %d, %d)" % (self.Space, self._x, self._y)
 
-class RefCordinate():
+    def AdaptCordinateToContainedObject(self, TargetObject):
+        ObjectCord = self.Space.GetCordinatesOfContainedObject(TargetObject)
+        NegativeCord = SpaceCordinate(None, -ObjectCord.get_x(), -ObjectCord.get_y())
+
+        return RefCordinate(self, NegativeCord, TargetObject)
+
+class RefCordinate(SpaceCordinate):
     def __init__(self, baseCord, offsetCord, space):
-        self.Space = space
+        SpaceCordinate.__init__(self, space)
         self._baseCord = baseCord
         self._offsetCord = offsetCord
 
@@ -72,8 +79,8 @@ class GameObject(object):
     def Draw(self, xy_pos):
         pass
 
-    def on_mouse_event(self, Event_Type, x, y, dx, dy, buttons, modifiers):
-        print "Mouse event at %d %d (reported by %s)" % (x,y, self.GameObjectType)
+    def on_mouse_event(self, Event_Type, Chord, buttons, modifiers, gesture):
+        pass
 
     def __iter__(self):
         yield self
@@ -86,6 +93,18 @@ class GameObject(object):
             return self.parent_space.GetCordinatesOfContainedObject(self)
         else:
             return SpaceCordinate(None)
+
+    def TestCordIsWithinObject(self, Cord):
+        if Cord is None:
+            return False
+
+        AdaptedCord = Cord.AdaptCordinateToContainedObject(self)
+
+        if (( 0 <= AdaptedCord.get_x() < self.width ) and
+            ( 0 <= AdaptedCord.get_y() < self.height)):
+            return True
+        else:
+            return False
 
 class CordinateSpace(GameObject):
     GameObjectType = "CordinateSpace"
@@ -111,29 +130,21 @@ class CordinateSpace(GameObject):
                 OffsetCord = self.ContentObjects[SubSpace];
                 BaseCord = SubSpace.GetCordinatesOfContainedObject(TargetObject)
                 return RefCordinate(BaseCord, OffsetCord, self)
+        return None #This should blow up, letting us know when something has gone wrong            
 
     def Update(self, delta_t):
         for GameObj in self.ContentObjects.keys():
             GameObj.Update(delta_t)
 
-    def on_mouse_event(self, Event_Type, x, y, dx, dy, buttons, modifiers):
-        print "Mouse event at %d,%d (reported by %s)" % (x,y, self.GameObjectType)
-        for GameObj, Cord in self.ContentObjects.items():
-            Obj_x_low = Cord.get_x()
-            Obj_x_high = GameObj.width + Obj_x_low
-            
-            Obj_y_low = Cord.get_y()
-            Obj_y_high = GameObj.height + Obj_y_low
-            
-            if (( Obj_x_low < x < Obj_x_high ) and
-                ( Obj_y_low < y < Obj_y_high)):
+    def on_mouse_event(self, Event_Type, Cord, buttons, modifiers, gesture):
+        for GameObj in self.ContentObjects.keys():          
+            if (GameObj.TestCordIsWithinObject(Cord)):
                 GameObj.on_mouse_event(
                     Event_Type,
-                    x - Obj_x_low,
-                    y - Obj_y_low,
-                    dx, dy,
+                    Cord,
                     buttons,
-                    modifiers)
+                    modifiers,
+                    gesture)
             
 
     def __iter__(self):
