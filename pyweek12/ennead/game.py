@@ -40,8 +40,7 @@ class GameState():
         pyglet.resource.reindex()
 
         self.root_draw_location = None
-        glClearColor(0.4,1.0, 1.0, 1.0)
-        
+       
 
         self.root_game_space = CordinateSpace()
         platformspace = platformer.setup_platformer()
@@ -171,6 +170,8 @@ class PuzzleWindow():
 
 def create_game_window(GameObject, Width, Height):
     window = pyglet.window.Window(Width, Height)
+    glClearColor(0.4,1.0, 1.0, 1.0)
+    
     @window.event
     def on_mouse_press(x, y, buttons, modifiers):
         GameObject.mouse_gesture_handler(MOUSE_EVENT_PRESS, x, y, 0, 0, buttons, modifiers)
