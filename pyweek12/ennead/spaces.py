@@ -63,12 +63,17 @@ class GameObject(object):
 
     def __init__(self):
         self.parent_space = None
+        self.width = 0
+        self.height = 0
 
     def Update(self, delta_t):
         pass
 
     def Draw(self, xy_pos):
         pass
+
+    def on_mouse_event(self, Event_Type, x, y, dx, dy, buttons, modifiers):
+        print "Mouse event at %d %d (reported by %s)" % (x,y, self.GameObjectType)
 
     def __iter__(self):
         yield self
@@ -110,6 +115,26 @@ class CordinateSpace(GameObject):
     def Update(self, delta_t):
         for GameObj in self.ContentObjects.keys():
             GameObj.Update(delta_t)
+
+    def on_mouse_event(self, Event_Type, x, y, dx, dy, buttons, modifiers):
+        print "Mouse event at %d,%d (reported by %s)" % (x,y, self.GameObjectType)
+        for GameObj, Cord in self.ContentObjects.items():
+            Obj_x_low = Cord.get_x()
+            Obj_x_high = GameObj.width + Obj_x_low
+            
+            Obj_y_low = Cord.get_y()
+            Obj_y_high = GameObj.height + Obj_y_low
+            
+            if (( Obj_x_low < x < Obj_x_high ) and
+                ( Obj_y_low < y < Obj_y_high)):
+                GameObj.on_mouse_event(
+                    Event_Type,
+                    x - Obj_x_low,
+                    y - Obj_y_low,
+                    dx, dy,
+                    buttons,
+                    modifiers)
+            
 
     def __iter__(self):
         yield self

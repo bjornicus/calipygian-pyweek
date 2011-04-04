@@ -12,6 +12,9 @@ PUZZLE_BLOCK_SIDE_TILE_LENGTH = (
 
 def setup_puzzles(gamespace):
     PuzzleSpace = CordinateSpace()
+    PuzzleSpace.width = WINDOW_WIDTH
+    PuzzleSpace.height = PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
+    
     puzzle_images = [
             pyglet.resource.image('one.png'),
             pyglet.resource.image('two.png'),
@@ -37,6 +40,8 @@ class PuzzleElement(GameObject):
     def __init__(self, sprite_texture_region):
         GameObject.__init__(self)
         self.sprite = sprite_texture_region
+        self.width = self.sprite.width
+        self.height = self.sprite.height
 
     def Draw(self, xy_pos):
         x,y = xy_pos

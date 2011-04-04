@@ -10,30 +10,9 @@ import random
 import platformer
 import puzzle
 
-class PuzzleBlock(CordinateSpace):
-    PuzzleBlock = "PuzzleBlock"
-
-    def __init__(self, solution_image):
-        CordinateSpace.__init__(self)
-        self.width = PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
-        self.heigh = PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
-        solution_tiles = pyglet.image.ImageGrid(
-                solution_image, 
-                PUZZLE_BLOCK_SIDE_TILE_LENGTH,
-                PUZZLE_BLOCK_SIDE_TILE_LENGTH)
-
-        solution_tile_list = []
-        for tile in solution_tiles.get_texture_sequence():
-            solution_tile_list.append(tile)
-
-        random.shuffle(solution_tile_list)
-
-        for x in range (0, PUZZLE_BLOCK_SIDE_TILE_LENGTH):
-            for y in range(0,PUZZLE_BLOCK_SIDE_TILE_LENGTH):
-                self.AddObject(
-                        puzzle.PuzzleElement(solution_tile_list.pop()),
-                        x*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH, 
-                        y*PUZZLE_ELEMENT_SIDE_PIXEL_LENGTH)
+MOUSE_EVENT_PRESS = 1
+MOUSE_EVENT_RELEASE = 2
+MOUSE_EVENT_DRAG = 3
 
 def run():
     pyglet.resource.path = ['data','design']
@@ -53,6 +32,19 @@ def run():
             #here we can insert the logic for scaling!
             if cord is not None:
                 GameObj.Draw((cord.get_x(), cord.get_y()))
+
+    @window.event
+    def on_mouse_press(x, y, buttons, modifiers):
+        root_game_space.on_mouse_event(MOUSE_EVENT_PRESS, x, y, 0, 0, buttons, modifiers)
+
+    @window.event
+    def on_mouse_release(x, y, buttons, modifiers):
+        root_game_space.on_mouse_event(MOUSE_EVENT_RELEASE, x, y, 0, 0, buttons, modifiers)
+
+    @window.event
+    def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+        root_game_space.on_mouse_event(MOUSE_EVENT_DRAG, x, y, 0, 0, buttons, modifiers)
+
 
     def update(dt):
         root_game_space.Update(dt)
