@@ -17,6 +17,7 @@ def setup_platformer():
             x_coord = x * TILE_SIZE_IN_PIXELS
             y_coord = y * TILE_SIZE_IN_PIXELS
             platforspace.AddObject(level_map_key[tyle_type](), x_coord, y_coord)
+    platforspace.AddObject(Player(), 0, TILE_SIZE_IN_PIXELS)
 
     return platforspace
 
@@ -24,15 +25,15 @@ def setup_platformer():
 class Tile(GameObject):
     GameObjectType = "Tile"
 
-    def __init__(self, SpriteName):
+    def __init__(self, sprite_name):
         GameObject.__init__(self)
-        self.Sprite = pyglet.resource.image(SpriteName)
-        self.width = self.Sprite.width
-        self.height = self.Sprite.height
+        self.sprite = pyglet.resource.image(sprite_name)
+        self.width = self.sprite.width
+        self.height = self.sprite.height
 
     def Draw(self, xy_pos):
         x,y = xy_pos
-        self.Sprite.blit(x,y)
+        self.sprite.blit(x,y)
 
 class EmptyTile(GameObject):
     GameObjectType = "Empty"
@@ -72,6 +73,11 @@ class Player(GameObject):
 
     def __init__(self):
         GameObject.__init__(self)
+        self.sprite = pyglet.resource.image('player.png')
+
+    def Draw(self, xy_pos):
+        x,y = xy_pos
+        self.sprite.blit(x,y)
 
     def Update(self, delta_t):
         cord = self.GetCordinatesInParentSpace()
