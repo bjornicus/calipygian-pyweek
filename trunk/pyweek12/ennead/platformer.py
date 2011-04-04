@@ -17,7 +17,7 @@ def setup_platformer():
             x_coord = x * TILE_SIZE_IN_PIXELS
             y_coord = y * TILE_SIZE_IN_PIXELS
             platforspace.AddObject(level_map_key[tyle_type](), x_coord, y_coord)
-    platforspace.AddObject(Player(), 0, TILE_SIZE_IN_PIXELS)
+    platforspace.AddObject(Player(), TILE_SIZE_IN_PIXELS, 3*TILE_SIZE_IN_PIXELS)
 
     return platforspace
 
@@ -68,6 +68,11 @@ level_map = [
         ]
 level_map.reverse()
 
+def find_tile_for_point(x,y):
+    x = int(x / TILE_SIZE_IN_PIXELS)
+    y = int(y / TILE_SIZE_IN_PIXELS)
+    return level_map[y][x]
+
 class Player(GameObject):
     GameObjectType = "Player"
 
@@ -81,4 +86,10 @@ class Player(GameObject):
 
     def Update(self, delta_t):
         cord = self.GetCordinatesInParentSpace()
+        x,y = cord.get_x(), cord.get_y()
+        lower_left_tile = find_tile_for_point(x,y)
+        lower_right_tile = find_tile_for_point(x+TILE_SIZE_IN_PIXELS,y)
+        if lower_left_tile == 0 and lower_right_tile == 0:
+            cord.set_y(cord.get_y() - (20 * delta_t))
+
         cord.set_x(cord.get_x() + (20 * delta_t))
