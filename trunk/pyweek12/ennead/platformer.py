@@ -1,11 +1,14 @@
 import pyglet
 from spaces import GameObject, CordinateSpace
-from game import WINDOW_WIDTH 
+from game import WINDOW_HEIGHT, WINDOW_WIDTH 
 from puzzle import PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
 
 
 def setup_platformer(gamespace):
     PlatformSpace = CordinateSpace()
+    PlatformSpace.width = WINDOW_WIDTH
+    PlatformSpace.height = WINDOW_HEIGHT - PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
+    
     for x in range(0, WINDOW_WIDTH, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH):
         PlatformSpace.AddObject(GrassBlock(), x, 0)
     PlatformSpace.AddObject(PlayerBlock(), 0, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH)
@@ -19,6 +22,8 @@ class PlatformElement(GameObject):
     def __init__(self, SpriteName):
         GameObject.__init__(self)
         self.Sprite = pyglet.resource.image(SpriteName)
+        self.width = self.Sprite.width
+        self.height = self.Sprite.height
 
     def Draw(self, xy_pos):
         x,y = xy_pos
