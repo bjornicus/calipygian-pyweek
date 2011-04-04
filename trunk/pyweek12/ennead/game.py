@@ -2,9 +2,9 @@ import pyglet
 from pyglet import clock
 from spaces import CordinateSpace, SpaceCordinate
 from constants import *
-import random
 import platformer
 import puzzle
+from puzzle import PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
 
 
 class MouseGesture():
@@ -40,8 +40,10 @@ class Game():
         pyglet.resource.reindex()
 
         self.root_game_space = CordinateSpace()
-        platformer.setup_platformer(self.root_game_space)
-        puzzle.setup_puzzles(self.root_game_space)
+        platformspace = platformer.setup_platformer()
+        puzzlespace = puzzle.setup_puzzles()
+        self.root_game_space.AddObject(puzzlespace, 0, 0)
+        self.root_game_space.AddObject(platformspace, 0, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH)
 
         self.current_mouse_gesture = None
         

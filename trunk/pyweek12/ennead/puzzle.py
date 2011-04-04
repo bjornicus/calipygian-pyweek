@@ -5,13 +5,11 @@ import pyglet
 import random
 
 
+def setup_puzzles():
+    puzzlespace = CordinateSpace()
+    puzzlespace.width = WINDOW_WIDTH
+    puzzlespace.height = PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
 
-
-def setup_puzzles(gamespace):
-    PuzzleSpace = CordinateSpace()
-    PuzzleSpace.width = WINDOW_WIDTH
-    PuzzleSpace.height = PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
-    
     puzzle_images = [
             pyglet.resource.image('one.png'),
             pyglet.resource.image('two.png'),
@@ -25,10 +23,10 @@ def setup_puzzles(gamespace):
             ]
     image_index = 0
     for x in range(0, WINDOW_WIDTH, PUZZLE_BLOCK_SIDE_PIXEL_LENGTH):
-        PuzzleSpace.AddObject(PuzzleBlock(puzzle_images[image_index]), x, 0)
+        puzzlespace.AddObject(PuzzleBlock(puzzle_images[image_index]), x, 0)
         image_index += 1
 
-    gamespace.AddObject(PuzzleSpace, 0, 0)
+    return puzzlespace
 
 
 class PuzzleElement(GameObject):
