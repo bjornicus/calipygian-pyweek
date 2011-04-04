@@ -3,7 +3,6 @@ import math
 
 """
 A quick attempt at defining an easy-to-use game-space
-(after having issues last year with this, I figured we can start here.
 """
 
 class SpaceCordinate():
