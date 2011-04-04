@@ -4,7 +4,7 @@ ENNEAD
 Entry in PyWeek #12  <http://www.pyweek.org/12/>
 URL: http://calipygian-pyweek.googlecode.com/svn/trunk/pyweek12/
 Team: YOUR TEAM NAME (leave the "Team: bit")
-Members: Bjørn Hansen, 
+Members: Bjørn Hansen, Jun Ma 
 License: see LICENSE.txt
 
 
