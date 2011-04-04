@@ -1,7 +1,6 @@
 import pyglet
 from spaces import GameObject, CordinateSpace
-from game import WINDOW_HEIGHT, WINDOW_WIDTH 
-from puzzle import PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
+from constants import *
 
 
 def setup_platformer(gamespace):
