@@ -2,6 +2,9 @@ import pyglet
 from spaces import GameObject, CordinateSpace
 from constants import *
 from platformer_level import *
+from pyglet.window import key
+
+keystates = key.KeyStateHandler()
 
 def setup_platformer():
     platforspace = CordinateSpace()
@@ -88,4 +91,5 @@ class Player(GameObject):
         if lower_left_tile == 0 and lower_right_tile == 0:
             cord.set_y(cord.get_y() - (20 * delta_t))
 
-        cord.set_x(cord.get_x() + (20 * delta_t))
+        if keystates[key.RIGHT]:
+            cord.set_x(cord.get_x() + (20 * delta_t))

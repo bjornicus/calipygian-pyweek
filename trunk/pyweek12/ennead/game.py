@@ -6,6 +6,7 @@ from constants import *
 import platformer
 import puzzle
 from puzzle import PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
+from pyglet.window import key
 
 class MouseGesture():
     def __init__(self, space, depress_x, depress_y):
@@ -180,6 +181,7 @@ class PuzzleWindow():
 
 def create_game_window(GameObject, Width, Height):
     window = pyglet.window.Window(Width, Height)
+    window.push_handlers(platformer.keystates)
     glClearColor(0.4,1.0, 1.0, 1.0)
     fps_display = pyglet.clock.ClockDisplay() 
 
