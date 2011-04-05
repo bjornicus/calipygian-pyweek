@@ -51,13 +51,25 @@ class Player(GameObject):
         x,y = xy_pos
         self.sprite.blit(x,y)
 
-    def Update(self, delta_t):
+    def Update(self, dt):
         cord = self.GetCordinatesInParentSpace()
-        x,y = cord.get_x(), cord.get_y()
-        lower_left_tile = find_tile_for_point(x,y)
-        lower_right_tile = find_tile_for_point(x+TILE_SIZE_IN_PIXELS,y)
-        if lower_left_tile == 0 and lower_right_tile == 0:
-            cord.set_y(cord.get_y() - (20 * delta_t))
+        self.fall(dt, cord)
 
         if keystates[key.RIGHT]:
-            cord.set_x(cord.get_x() + (20 * delta_t))
+            self.move_right(dt, cord)
+        elif keystates[key.LEFT]:
+            self.move_left(dt, cord)
+
+    def fall(self, dt, cord):
+        x,y = cord.get_x(), cord.get_y()
+        lower_left_tile = find_tile_for_point(x+10,y)
+        lower_right_tile = find_tile_for_point(x-10+TILE_SIZE_IN_PIXELS,y)
+        if lower_left_tile == 0 and lower_right_tile == 0:
+            cord.set_y(cord.get_y() - (20 * dt))
+
+    def move_right(self, dt, cord):
+        cord.set_x(cord.get_x() + (20 * dt))
+
+    def move_left(self, dt, cord):
+        cord.set_x(cord.get_x() - (20 * dt))
+
