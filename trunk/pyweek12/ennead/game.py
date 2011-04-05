@@ -7,16 +7,12 @@ import platformer
 import puzzle
 from puzzle import PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
 
-
 class MouseGesture():
     def __init__(self, space, depress_x, depress_y):
         self.space = space
         self.depress_cord = SpaceCordinate(self.space, depress_x, depress_y)
-
         self.release_cord = None
-
         self.current_cord = SpaceCordinate(self.space, depress_x, depress_y)
-
         self.state = MOUSE_GESTURE_STARTED
 
     def update(self, current_x, current_y):
@@ -185,7 +181,8 @@ class PuzzleWindow():
 def create_game_window(GameObject, Width, Height):
     window = pyglet.window.Window(Width, Height)
     glClearColor(0.4,1.0, 1.0, 1.0)
-    
+    fps_display = pyglet.clock.ClockDisplay() 
+
     @window.event
     def on_mouse_press(x, y, buttons, modifiers):
         GameObject.mouse_gesture_handler(MOUSE_EVENT_PRESS, x, y, 0, 0, buttons, modifiers)
@@ -206,6 +203,7 @@ def create_game_window(GameObject, Width, Height):
     def on_draw():
         window.clear()
         GameObject.on_draw()
+        fps_display.draw()
     return window
 
 def run():
