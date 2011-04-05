@@ -1,25 +1,41 @@
 import pyglet
 from spaces import GameObject, CordinateSpace
 from constants import *
-
-TILE_SIZE_IN_PIXELS = 30
-LEVEL_WIDTH_IN_TILES = 27
-LEVEL_HEIGHT_IN_TILES = 9
+from platformer_level import *
 
 def setup_platformer():
     platforspace = CordinateSpace()
     platforspace.width = LEVEL_WIDTH_IN_TILES * TILE_SIZE_IN_PIXELS
     platforspace.height = LEVEL_HEIGHT_IN_TILES * TILE_SIZE_IN_PIXELS
     
-    for x in range(0, LEVEL_WIDTH_IN_TILES):
-        for y in range(0, LEVEL_HEIGHT_IN_TILES):
-            tyle_type = level_map[y][x]
-            x_coord = x * TILE_SIZE_IN_PIXELS
-            y_coord = y * TILE_SIZE_IN_PIXELS
-            platforspace.AddObject(level_map_key[tyle_type](), x_coord, y_coord)
-    platforspace.AddObject(Player(), TILE_SIZE_IN_PIXELS, 3*TILE_SIZE_IN_PIXELS)
+    platforspace.AddObject(Level(), 0, 0)
+    platforspace.AddObject(Player(), TILE_SIZE_IN_PIXELS, 6*TILE_SIZE_IN_PIXELS)
 
     return platforspace
+
+class Level(GameObject):
+    GameObjectType = "Level"
+
+    def __init__(self):
+        GameObject.__init__(self)
+        tile_batch = pyglet.graphics.Batch()
+        tile_images = {}
+        self.sprites = []
+        for x in range(0, LEVEL_WIDTH_IN_TILES):
+            for y in range(0, LEVEL_HEIGHT_IN_TILES):
+                tile_type = level_map_key[level_map[y][x]]
+                if tile_type is None:
+                    continue
+                if not tile_images.has_key(tile_type):
+                    tile_images[tile_type] = pyglet.resource.image(tile_type + '.png')
+                sprite = pyglet.sprite.Sprite(tile_images[tile_type], batch=tile_batch)
+                sprite.x = x * TILE_SIZE_IN_PIXELS
+                sprite.y = y * TILE_SIZE_IN_PIXELS + PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
+                self.sprites.append(sprite)
+        self.tiles = tile_batch
+
+    def Draw(self, xy_pos):
+        self.tiles.draw()
 
 
 class Tile(GameObject):
@@ -52,26 +68,6 @@ class Dirt(Tile):
 
     def __init__(self):
         Tile.__init__(self, 'dirt.png')
-
-level_map_key = { 0:EmptyTile, 1:Grass, 2:Dirt }
-
-level_map = [
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,2,2,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0],
-        [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,1,1,1,1]
-        ]
-level_map.reverse()
-
-def find_tile_for_point(x,y):
-    x = int(x / TILE_SIZE_IN_PIXELS)
-    y = int(y / TILE_SIZE_IN_PIXELS)
-    return level_map[y][x]
 
 class Player(GameObject):
     GameObjectType = "Player"
