@@ -40,38 +40,6 @@ class Level(GameObject):
     def Draw(self, xy_pos):
         self.tiles.draw()
 
-
-class Tile(GameObject):
-    GameObjectType = "Tile"
-
-    def __init__(self, sprite_name):
-        GameObject.__init__(self)
-        self.sprite = pyglet.resource.image(sprite_name)
-        self.width = self.sprite.width
-        self.height = self.sprite.height
-
-    def Draw(self, xy_pos):
-        x,y = xy_pos
-        self.sprite.blit(x,y)
-
-class EmptyTile(GameObject):
-    GameObjectType = "Empty"
-
-    def __init__(self):
-        GameObject.__init__(self)
-
-class Grass(Tile):
-    GameObjectType = "Grass"
-
-    def __init__(self):
-        Tile.__init__(self, 'grass.png')
-
-class Dirt(Tile):
-    GameObjectType = "Dirt"
-
-    def __init__(self):
-        Tile.__init__(self, 'dirt.png')
-
 class Player(GameObject):
     GameObjectType = "Player"
 
