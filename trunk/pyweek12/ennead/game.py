@@ -1,7 +1,7 @@
 import pyglet
 from pyglet.gl import *
 from pyglet import clock
-from spaces import CordinateSpace, SpaceCordinate
+from spaces import *
 from constants import *
 import platformer
 import puzzle
@@ -39,9 +39,8 @@ class GameState():
         pyglet.resource.path = ['data','design']
         pyglet.resource.reindex()
 
-        self.root_draw_location = None
+        self.platform_window_draw_location = None
        
-
         self.root_game_space = CordinateSpace()
         platformspace = platformer.setup_platformer()
         puzzlespace = puzzle.setup_puzzles()
@@ -59,6 +58,9 @@ class PlatformWindow():
         self.window = create_game_window(self, self.width, self.height)
         
         self.GameState = GameState
+        self.GameState.root_game_space.width = self.width
+        self.GameState.root_game_space.height = self.height
+        
         self.update_location()
         
         self.GameState.master_window = self
@@ -69,7 +71,7 @@ class PlatformWindow():
 
         y += self.height
 
-        self.GameState.root_draw_location = (x,y)
+        self.GameState.platform_window_draw_location = (x,y)
          
 
     def on_move(self, x, y):
@@ -78,7 +80,6 @@ class PlatformWindow():
     def on_draw(self):
         for GameObj in self.GameState.root_game_space:
             cord = self.GameState.root_game_space.GetCordinatesOfContainedObject(GameObj)
-            #here we can insert the logic for scaling!
             if cord is not None:
                 GameObj.Draw((cord.get_x(), cord.get_y()))
                 
@@ -112,22 +113,35 @@ class PuzzleWindow():
         self.window = create_game_window(self, self.width, self.height)
 
         self.GameState = GameState
+        self.DrawSpace = GameObject()
+        self.DrawSpace.width = self.width
+        self.DrawSpace.height = self.height
+        self.GameState.root_game_space.AddObject(self.DrawSpace)
+        
         self.current_mouse_gesture = None
         self.location = None
 
         
     def on_draw(self):
-        root_x, root_y = self.GameState.root_draw_location
+        pass
+        root_x, root_y = self.GameState.platform_window_draw_location
         window_x, window_y = self.get_location()
 
+        draw_base_cord = self.DrawSpace.GetCordinatesInParentSpace()
         dx = window_x - root_x
         dy = window_y - root_y
+        draw_base_cord.set_x(dx) 
+        draw_base_cord.set_y(-dy)
+
+
+        rect = self.DrawSpace.GetBoundingRectangle()
         
-        for GameObj in self.GameState.root_game_space:
+        draw_objects = self.GameState.root_game_space.GetObjectsInRectangle(rect)        
+        for GameObj in draw_objects:
             cord = self.GameState.root_game_space.GetCordinatesOfContainedObject(GameObj)
-            #TODO, NEED TO WRITE CULLING LOGIC!
             if cord is not None:
-                GameObj.Draw((cord.get_x() - dx, cord.get_y() + dy))
+                adjusted_cord = cord.AdaptCordinateToContainedObject(self.DrawSpace)
+                GameObj.Draw((adjusted_cord.get_x(), adjusted_cord.get_y()))
 
 
     def get_location(self):
@@ -140,7 +154,7 @@ class PuzzleWindow():
         pass
     
     def mouse_gesture_handler(self, Event_Type, x, y, dx, dy, buttons, modifiers):
-        root_x, root_y = self.GameState.root_draw_location
+        root_x, root_y = self.GameState.platform_window_draw_location
         window_x, window_y = self.get_location()
 
         x += window_x - root_x
