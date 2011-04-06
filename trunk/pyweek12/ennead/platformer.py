@@ -46,30 +46,51 @@ class Player(GameObject):
     def __init__(self):
         GameObject.__init__(self)
         self.sprite = pyglet.resource.image('player.png')
+        self.x_vel = 0
+        self.y_vel = 0
+        self.update_coordinates()
 
     def Draw(self, xy_pos):
         x,y = xy_pos
         self.sprite.blit(x,y)
 
     def Update(self, dt):
-        cord = self.GetCordinatesInParentSpace()
-        self.fall(dt, cord)
+        self.update_coordinates()
+        self.apply_gravity(dt)
 
         if keystates[key.RIGHT]:
-            self.move_right(dt, cord)
+            self.move_right(dt)
         elif keystates[key.LEFT]:
-            self.move_left(dt, cord)
+            self.move_left(dt)
+        elif keystates[key.SPACE]:
+            self.jump()
+            
+        self.cord.set_y(self.cord.get_y() + self.y_vel*dt)
+        self.cord.set_x(self.cord.get_x() + self.x_vel*dt)
 
-    def fall(self, dt, cord):
-        x,y = cord.get_x(), cord.get_y()
+    def update_coordinates(self):
+        self.cord = self.GetCordinatesInParentSpace()
+
+    def apply_gravity(self, dt):
+        if self.is_colliding_below():
+            self.y_vel = 0
+        self.y_vel -= 8*dt
+
+    def is_colliding_below(self):
+        x,y = self.cord.get_x(), self.cord.get_y()
         lower_left_tile = find_tile_for_point(x+10,y)
         lower_right_tile = find_tile_for_point(x-10+TILE_SIZE_IN_PIXELS,y)
         if lower_left_tile == 0 and lower_right_tile == 0:
-            cord.set_y(cord.get_y() - (20 * dt))
+            return False
+        return True
 
-    def move_right(self, dt, cord):
-        cord.set_x(cord.get_x() + (20 * dt))
+    def move_right(self, dt):
+        self.cord.set_x(self.cord.get_x() + (20 * dt))
 
-    def move_left(self, dt, cord):
-        cord.set_x(cord.get_x() - (20 * dt))
+    def move_left(self, dt):
+        self.cord.set_x(self.cord.get_x() - (20 * dt))
+
+    def jump(self):
+        if self.is_colliding_below():
+            self.y_vel = 20
 
