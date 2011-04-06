@@ -57,12 +57,13 @@ class Player(GameObject):
     def Update(self, dt):
         self.update_coordinates()
         self.apply_gravity(dt)
+        self.stop_falling_if_on_solid_tile()
 
         if keystates[key.RIGHT]:
             self.move_right(dt)
-        elif keystates[key.LEFT]:
+        if keystates[key.LEFT]:
             self.move_left(dt)
-        elif keystates[key.SPACE]:
+        if keystates[key.SPACE]:
             self.jump()
             
         self.cord.set_y(self.cord.get_y() + self.y_vel*dt)
@@ -72,9 +73,9 @@ class Player(GameObject):
         self.cord = self.GetCordinatesInParentSpace()
 
     def apply_gravity(self, dt):
-        if self.is_colliding_below():
-            self.y_vel = 0
-        self.y_vel -= 8*dt
+        self.y_vel -= GRAVITY_ACCELERATION*dt
+        if self.y_vel < -1*MAX_Y_VEL:
+            self.y_vel = -1*MAX_Y_VEL;
 
     def is_colliding_below(self):
         x,y = self.cord.get_x(), self.cord.get_y()
@@ -84,6 +85,11 @@ class Player(GameObject):
             return False
         return True
 
+    def stop_falling_if_on_solid_tile(self):
+        if self.is_colliding_below() and self.y_vel < 0:
+            self.y_vel = 0
+
+
     def move_right(self, dt):
         self.cord.set_x(self.cord.get_x() + (20 * dt))
 
@@ -92,5 +98,5 @@ class Player(GameObject):
 
     def jump(self):
         if self.is_colliding_below():
-            self.y_vel = 20
+            self.y_vel = MAX_Y_VEL
 
