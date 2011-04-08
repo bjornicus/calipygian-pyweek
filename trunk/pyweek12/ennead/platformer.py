@@ -45,14 +45,20 @@ class Player(GameObject):
 
     def __init__(self):
         GameObject.__init__(self)
-        self.sprite = pyglet.resource.image('player.png')
+        walk_spritesheet = pyglet.resource.image('player.png')
+        walk_sequence = pyglet.image.ImageGrid(walk_spritesheet, 1, 9)
+        walk_animation = pyglet.image.Animation.from_image_sequence(walk_sequence, 0.05)
+        self.sprite = pyglet.sprite.Sprite(walk_animation)
+
         self.x_vel = 0
         self.y_vel = 0
         self.update_coordinates()
 
     def Draw(self, xy_pos):
         x,y = xy_pos
-        self.sprite.blit(x,y)
+        self.sprite.x = x
+        self.sprite.y = y
+        self.sprite.draw()
 
     def Update(self, dt):
         self.update_coordinates()
