@@ -22,16 +22,16 @@ class Level(GameObject):
     def __init__(self):
         GameObject.__init__(self)
         tile_batch = pyglet.graphics.Batch()
-        tile_images = {}
+        tile_spritesheet = pyglet.resource.image('tilesheet.png')
+        tile_sequence = pyglet.image.ImageGrid(tile_spritesheet, 4, 5)
         self.sprites = []
+
         for x in range(0, LEVEL_WIDTH_IN_TILES):
             for y in range(0, LEVEL_HEIGHT_IN_TILES):
-                tile_type = level_map_key[level_map[y][x]]
-                if tile_type is None:
+                tile_type = level_map[y][x]
+                if tile_is_empty(tile_type):
                     continue
-                if not tile_images.has_key(tile_type):
-                    tile_images[tile_type] = pyglet.resource.image(tile_type + '.png')
-                sprite = pyglet.sprite.Sprite(tile_images[tile_type], batch=tile_batch)
+                sprite = pyglet.sprite.Sprite(tile_sequence[tile_type], batch=tile_batch)
                 sprite.x = x * TILE_SIZE_IN_PIXELS
                 sprite.y = y * TILE_SIZE_IN_PIXELS + PUZZLE_BLOCK_SIDE_PIXEL_LENGTH
                 self.sprites.append(sprite)
@@ -115,7 +115,7 @@ class Player(GameObject):
         y = self.cord.get_y()
         lower_left_tile_type = find_tile_for_point(x_left, y)
         lower_right_tile_type = find_tile_for_point(x_right, y)
-        if lower_left_tile_type == 0 and lower_right_tile_type == 0:
+        if tile_is_empty(lower_left_tile_type) and tile_is_empty(lower_right_tile_type):
             return False
         return True
 
@@ -125,7 +125,7 @@ class Player(GameObject):
         y = self.cord.get_y() + TILE_SIZE_IN_PIXELS
         upper_left_tile_type = find_tile_for_point(x_left, y)
         upper_right_tile_type = find_tile_for_point(x_right, y)
-        if upper_left_tile_type == 0 and upper_right_tile_type == 0:
+        if tile_is_empty(upper_left_tile_type) and tile_is_empty(upper_right_tile_type):
             return False
         return True
 
@@ -135,7 +135,7 @@ class Player(GameObject):
         y_top = self.cord.get_y() + TILE_SIZE_IN_PIXELS - COLLISION_BOX_REDUCTION_IN_PIXELS
         lower_right_tile_type = find_tile_for_point(x, y_bottom)
         upper_right_tile_type = find_tile_for_point(x, y_top)
-        if lower_right_tile_type == 0 and upper_right_tile_type == 0:
+        if tile_is_empty(lower_right_tile_type) and tile_is_empty(upper_right_tile_type):
             return False
         return True
 
@@ -145,7 +145,7 @@ class Player(GameObject):
         y_top = self.cord.get_y() + TILE_SIZE_IN_PIXELS - COLLISION_BOX_REDUCTION_IN_PIXELS
         lower_left_tile_type = find_tile_for_point(x, y_bottom)
         upper_left_tile_type = find_tile_for_point(x, y_top)
-        if lower_left_tile_type == 0 and upper_left_tile_type == 0:
+        if tile_is_empty(lower_left_tile_type) and tile_is_empty(upper_left_tile_type):
             return False
         return True
 
